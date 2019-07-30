@@ -11,7 +11,6 @@ Class information:
 """
 
 import abc
-
 from DataPool import DataPool
 
 class DeviceController(abc.ABC):
@@ -19,6 +18,10 @@ class DeviceController(abc.ABC):
 
     URL = ""
     sampling = 0
+    
+    def __init__(self, cfg):
+        self.Config = cfg
+        self.dp = DataPool()
 
     """ Abstract methods """
     @abc.abstractmethod
@@ -37,13 +40,13 @@ class DeviceController(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def getData(self):
+    def getData(self, idDevice):
         """ Implement me! :: Returns a list of tuples like {controller, device, data} with data elements """
         pass
 
     """ Real methods """
     def send(self, controller, device, data):
-        """ Send data to pool """
-        dp = DataPool()
-        dp.URL = self.URL
-        dp.sendData(controller, device, data)
+        """ Send data to pool """        
+        self.dp.URL = self.URL
+        #print('Sending data to {}. controller: {}. device: {}.'.format(self.URL, controller, device))
+        self.dp.sendData(controller, device, data)

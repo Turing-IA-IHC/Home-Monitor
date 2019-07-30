@@ -25,6 +25,9 @@ from requests import get, post, put
 import json
 from json import JSONEncoder
 
+import pickle
+import ast
+
 from multiprocessing import Process, Value
 
 @unique
@@ -84,27 +87,47 @@ class DataPool(Resource):
             elif time() - p.born > self.T0:
                 p.state = PoolStates.QUARANTINE
 
-    def get(self, controller=''):
+    def get(self):
         """ Return all active data """
+        parser = reqparse.RequestParser()
+        parser.add_argument('controller')
+        parser.add_argument('device')
+        parser.add_argument('limit')
+        args = parser.parse_args()
+
+        controller = args.controller
+        device = args.device
+        limit = int(args.limit)
+
         #TODO: Recibir momento de consulta para traer solo los más recientes a ese momento
-        result = []
-        if controller != '':
-            result = list(filter(lambda d: d.state == PoolStates.ACTIVE, self.pool))
-        else:
-            result = self.pool
+        result = self.pool[:]
         
-        result = list(map(lambda d: d.getJson(), self.pool))
+        if device != '':
+            result = list(filter(lambda d: d.device == device, result))
+        
+        if controller != '':
+            result = list(filter(lambda d: d.controller == controller, result))
+        
+        if limit > -1:
+            result = result[-limit:]
+        
+        result = list(filter(lambda d: d.state == PoolStates.ACTIVE, result))
+
+        result = list(map(lambda d: d.getJson(), result))
         return result
 
     def post(self):
         """ Load data in pool """
         parser = reqparse.RequestParser()
         parser.add_argument('controller')
+        parser.add_argument('device')
         parser.add_argument('data')
         args = parser.parse_args()
+
         data = Data(args.controller, args.device, args.data)
         message = 'ok'
         self.append(data)
+        self.pop()
         return message
 
     def put(self):
@@ -141,7 +164,7 @@ class DataPool(Resource):
         app.run()
         logging.info('Pool api stoped')
 
-    """ Functtions to interact with Pool """
+    """ Functions to interact with Pool """
 
     def sendCommand(self, command):
         """ Function generic to send commands to pool """
@@ -163,3 +186,23 @@ class DataPool(Resource):
         """ Send data to pool """
         p = post(self.URL, data={'controller' : controller, 'device': device, 'data': data})
         return p
+
+    def getData(self, controller = '', device = '', limit = -1):
+        """ Get data from pool """
+        g = get(self.URL, params={'controller': controller, 'device': device, 'limit': limit}).json()
+
+        for i in range(len(g)):
+            g[i]['data'] = self.deserialize(g[i]['data'])
+        
+        return g
+
+    def serialize(self, data):
+        """ Serialize to transfer estructures and objects """
+        f = pickle.dumps(data, protocol=0) # protocol 0 is printable ASCII
+        return str(f)
+
+    def deserialize(self, data:str):
+        """ Deserialize from transfered estructures and objects """
+        o = pickle.loads(ast.literal_eval(data))
+        return o
+

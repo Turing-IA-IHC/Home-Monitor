@@ -57,6 +57,7 @@ class InputDataController:
                             "cls": None,
                             "enabled": bool(_config['MACHINE_NAME']),
                             "sampling": _config['SAMPLING'],
+                            "config" : _config,
                         }
                         break
 
@@ -71,6 +72,7 @@ class InputDataController:
                             "cls": None,
                             "enabled": bool(_config['MACHINE_NAME']),
                             "sampling": _config['SAMPLING'],
+                            "config" : _config,
                         })
 
     def start(self):
@@ -93,12 +95,13 @@ class InputDataController:
                     """
                     logging.info('Starting device controller ' + _ctrl['moduleName'] + '.')
                     _cls = Misc.importModule(_ctrl["path"], _ctrl['moduleName'], _ctrl['className'])
-                    _ctrl["cls"] = _cls()
+                    _ctrl["cls"] = _cls(_ctrl["config"])
                     _ctrl["cls"].sampling = _ctrl["sampling"]
+                    _ctrl["cls"].URL = self.URL
                     DeviceControlerThread = Process(target=_ctrl["cls"].start, args=())
                     #DeviceControlerThread.daemon = True
                     DeviceControlerThread.start()
-                    logging.info('Device controller '  + _ctrl['moduleName'] + 'started.')
+                    logging.info('Device controller '  + _ctrl['moduleName'] + ' started.')
                     
             sleep(30)
 

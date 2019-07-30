@@ -11,9 +11,12 @@ Class information:
 """
 
 import sys
-import cv2  #pip install opencv-python
+#import cv2  #pip install opencv-python
+from cv2 import cv2
 import numpy as np
 from time import time, sleep
+import logging
+
 
 sys.path.insert(0, './Core/')
 from DeviceController import DeviceController
@@ -35,15 +38,35 @@ class CamController(DeviceController):
     
     def start(self):
         """ Start module and getting data """
+        logging.basicConfig(
+            level=logging.INFO,
+            #filename='{}.log'.format(str(tm.tm_year) + '%02d' % tm.tm_mon + '%02d' % tm.tm_mday), 
+            #filemode='w', 
+            format='%(name)s - %(levelname)s - %(message)s')
+            
         self.running = True
         self.Devices = self.getDeviceList()
-        print('Leyendo de dispositivos....')
-        #while self.running:
-        #    for d in self.Devices:
-        #        gdList = self.getData()
-        #        for _controller, _device, _data in gdList:
-        #            self.send(_controller, _device, _data)
-        #    sleep(self.sampling)
+
+        for c in range(len(self.Devices)):
+            capture = cv2.VideoCapture(self.Devices[c]['id'])
+            capture.set(cv2.CAP_PROP_FRAME_WIDTH, 160)
+            capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 120)
+            self.Devices[c]['cam'] = capture
+
+        logging.debug('Reading cams')
+        while self.running:
+            for d in self.Devices:
+                try:
+                    gdList = self.getData(d['id'])
+                except:
+                    logging.exception("Unexpected Readding data fom device: " + str(self.Devices[d['id']]['cam']))
+                    self.Devices.remove(self.Devices[d])
+                    break
+            
+                for gd in gdList:
+                    self.send(gd['controller'], gd['device'], gd['data'])
+
+            sleep(self.sampling)
 
     def stop(self):
         """ Stop module and getting data """
@@ -52,34 +75,90 @@ class CamController(DeviceController):
 
     def getDeviceList(self):
         """ Returns a list of devices able to read """
-        return [0]
+        cams = []
+        cams.append({
+            'id':0,
+            'cam':None
+        })
+        
+        cams.append({
+            'id':1,
+            'cam':None
+        })
+        
+        return cams
 
-    def getData(self):
-        """ Implement me! :: Returns a list of tuples like {controller, device, data} with data elements """
-        ret, frame = self.capture.read()
+    def getData(self, idDevice):
+        """ Returns a list of tuples like {controller, device, data} with data elements """
+
+        cam = self.Devices[idDevice]['cam']
+        ret, frame = cam.read()
+
+        deviceName = 'Trasera' if idDevice == 1 else 'Delantera'
 
         dataReturn = []
 
         dataReturn.append({
             'controller': 'CamController',
-            'device': '0',
-            'data': frame,
+            'device': deviceName,
+            'data': self.dp.serialize(frame),
+        })
+        
+        dataReturn.append({
+            'controller': 'CamController/Gray',
+            'device': deviceName,
+            'data': self.dp.serialize(self.preProcc_Gray(frame)),
+        })
+        
+        dataReturn.append({
+            'controller': 'CamController/Person',
+            'device': deviceName,
+            'data': self.dp.serialize(self.preProcc_Person(frame)),
         })
 
         dataReturn.append({
-            'controller': 'CamController/BW',
-            'device': '0',
-            'data': self.prePross_BW(frame),
+            'controller': 'CamController/Skeleton',
+            'device': deviceName,
+            'data': self.dp.serialize(self.preProcc_Skeleton(frame)),
         })
+        
 
         return dataReturn
 
 
-    def prePross_BW(self, frame):
+    def preProcc_Gray(self, frame):
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        return gray
+
+    def preProcc_Person(self, frame):
+        sleep(1)
         return frame
 
-    def prePross_Person(self, frame):
+    def preProcc_Skeleton(self, frame):
+        sleep(1)
         return frame
 
-    def prePross_Skeleton(self, frame):
-        return frame
+if __name__ == "__main__":
+    capture = cv2.VideoCapture(1)
+    capture.set(cv2.CAP_PROP_FRAME_WIDTH, 160)
+    capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 120)
+    while(True):
+        # Capture frame-by-frame
+        ret, frame = capture.read()
+        #serialized = pickle.dumps(frame, protocol=0) # protocol 0 is printable ASCII
+        #frame = pickle.loads(serialized)
+        
+        #gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) #For capture image in monochrome
+        rgbImage = frame #For capture the image in RGB color space
+        # Display the resulting frame
+        cv2.imshow('Webcam',rgbImage)        
+        #Wait to press 'q' key for capturing
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            #cv2.imwrite('img.png',frame)
+            break
+	
+    # When everything done, release the capture
+    print(capture)
+    capture.release()
+    print(capture)
+    cv2.destroyAllWindows()

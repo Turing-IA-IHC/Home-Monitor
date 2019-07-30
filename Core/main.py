@@ -59,7 +59,7 @@ class main():
             self.start_devices()
 
         if toStart[0] == '1':
-            print('Starting har controllers ...')
+            print('Starting HAR controllers ...')
 
         print('')
         self.heart_beat()
@@ -74,7 +74,7 @@ class main():
                     if not self.pool.isLive():
                         logging.warning('Pool service is death. System auto start it.')
                         self.start_pool()
-                    logging.debug('Pool service is living. Has ' + str(self.pool.count()) + ' data')
+                    logging.info('Pool service is living. Has ' + str(self.pool.count()) + ' data')
             except:
                 logging.exception("Unexpected error checking pool: " + str(sys.exc_info()[0]))
 
@@ -88,7 +88,20 @@ class main():
             except:
                 logging.exception("Unexpected error checking input data controller: " + str(sys.exc_info()[0]))
 
-            sleep(3)
+            try:
+                dp = DataPool()
+                dp.URL = self.pool.URL
+                #CamController/Gray
+                g = dp.getData(controller = '', device = '', limit = 1)
+                #if len(g) > 0 :
+                #    from cv2 import cv2
+                #    cv2.imwrite('imagen.png', g[-1]['data'])
+                    #print('id: "{}", Controller: "{}", Device: "{}"'.format(g[-1]['id'], g[-1]['controller'], g[-1]['device']))
+
+            except:
+                logging.exception("Unexpected Readding data fom pool: " + str(sys.exc_info()[0]))
+            
+            #sleep(3)
 
     def start_pool(self):
         """ Start data pool """
