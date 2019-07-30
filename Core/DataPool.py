@@ -10,6 +10,8 @@ Class information:
     Class to controlate life time of data
 """
 
+import os
+import logging
 from time import time, sleep
 
 from enum import Enum, unique
@@ -17,7 +19,7 @@ from Misc import singleton
 
 from flask import Flask, request
 from flask_restful import Resource, Api, reqparse
-from flask.logging import default_handler
+#from flask.logging import default_handler
 from requests import get, post, put
 
 import json
@@ -36,9 +38,10 @@ class Data():
         example: Original, only a person, only a skeleton.
         In that case controller will be like: cams, cams/person, cams/skeleton
     """
-    def __init__(self, controller, data):
+    def __init__(self, controller, device, data):
         self.id = str(time())           # ID of data, the pool itself change this value
         self.controller = controller    # Source of data
+        self.device = device            # Fisic device identifier
         self.born = time()              # Time used to life of data
         self.state = PoolStates.ACTIVE  # State used to life of data
         self.data = data                # Data to analize
@@ -47,6 +50,7 @@ class Data():
         j = {
             'id' : self.id,
             'controller' : self.controller,
+            'device' : self.device,
             'born' : self.born,
             'data' : self.data
         }
@@ -98,7 +102,7 @@ class DataPool(Resource):
         parser.add_argument('controller')
         parser.add_argument('data')
         args = parser.parse_args()
-        data = Data(args.controller, args.data)
+        data = Data(args.controller, args.device, args.data)
         message = 'ok'
         self.append(data)
         return message
@@ -122,16 +126,11 @@ class DataPool(Resource):
         return message
 
     def start(self):
-        print('Starting pool api in ' + self.URL)
         """ Start api for data pool """
-        app = Flask(__name__)            
-        #TODO: Write log in a file
-        """
-        handler = RotatingFileHandler('foo.log', maxBytes=10000, backupCount=1)
-        handler.setLevel(logging.INFO)
-        app.logger.addHandler(handler)
-        app.logger.removeHandler(default_handler)
-        """
+        app = Flask(__name__)
+        log = logging.getLogger('werkzeug')
+        log.setLevel(logging.ERROR)
+        app.logger = logging.getLogger()
         api = Api(app)
         api.add_resource(DataPool, 
             '/pool',
@@ -140,6 +139,9 @@ class DataPool(Resource):
         #'/pool/<string:har>/<string:class>/<string:id>', 
 
         app.run()
+        logging.info('Pool api stoped')
+
+    """ Functtions to interact with Pool """
 
     def sendCommand(self, command):
         """ Function generic to send commands to pool """
@@ -157,7 +159,7 @@ class DataPool(Resource):
         x = self.sendCommand('count')
         return int(x)
 
-    def sendData(self, controller, data):
+    def sendData(self, controller, device, data):
         """ Send data to pool """
-        p = post(self.URL, data={'controller' : controller, 'data': data})
+        p = post(self.URL, data={'controller' : controller, 'device': device, 'data': data})
         return p

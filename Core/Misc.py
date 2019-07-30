@@ -16,17 +16,6 @@ from os import scandir, getcwd
 import sys
 import yaml # pip install pyyaml
 
-@unique
-class LogType(Enum):
-    information = 0
-    warning = 1
-    error = 2
-    debug = 3
-    
-def Log(TypeLog, value, *args, sep=' ', end='\n', file="", flush=False):
-    print(value, args, sep, end, file, flush)
-    # TODO: Verificar función de logs que imprima en consola y guarde en archivo
-
 
 def singleton(cls):
     """ Allows to implemenet singleton pattern using a decorator """    
@@ -66,11 +55,9 @@ def readConfig(fileName):
     config = yaml.load(open(fileName, 'r'))
     return config
 
-    #try:
-    #    config = yaml.load(file(fileName, 'r'))
-    #except yaml.YAMLError, exc: 
-    #TODO: Ver manejo de exepciones
-    #    print("Error in configuration file:", exc)
+def showConfig(config):
+    """ Shows data in config file loaded """
+    print('\t' + str(config).replace(',', '\n\t'))
 
 def importModule(path:str, moduleName:str, className:str=None):
     """ Load and returns a module.

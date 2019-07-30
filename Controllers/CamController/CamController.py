@@ -13,49 +13,73 @@ Class information:
 import sys
 import cv2  #pip install opencv-python
 import numpy as np
+from time import time, sleep
 
 sys.path.insert(0, './Core/')
-from InputDataController import InputDataController
+from DeviceController import DeviceController
 
-
-class CamController(InputDataController):
+class CamController(DeviceController):
     """ Class to get RGB data from cams """
     NOMBRE = '' #TODO: ver standar de manejo de nombre y versión 
     VERSION = ''
+    Devices = []
 
-    def __init__(self, cfg, device_id):
-        """ Inicializa la clase cargando las variables de configuración """
-        self.id = device_id
+    #def __init__(self, cfg, device_id):
+    #    """ Inicializa la clase cargando las variables de configuración """
+    #    self.id = device_id
+    #    self.running = False
+    #    #self.capture = cv2.VideoCapture(self.id)
+    #    # these 2 lines can be removed if you dont have a 1080p camera.
+    #    #self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    #    #self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    
+    def start(self):
+        """ Start module and getting data """
+        self.running = True
+        self.Devices = self.getDeviceList()
+        print('Leyendo de dispositivos....')
+        #while self.running:
+        #    for d in self.Devices:
+        #        gdList = self.getData()
+        #        for _controller, _device, _data in gdList:
+        #            self.send(_controller, _device, _data)
+        #    sleep(self.sampling)
+
+    def stop(self):
+        """ Stop module and getting data """
+        #cv2.stop()
         self.running = False
-        self.capture = cv2.VideoCapture(self.id)
-        # these 2 lines can be removed if you dont have a 1080p camera.
-        #self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-        #self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
     def getDeviceList(self):
-        """ Método que retorna el listado de dispositivos disponibles """
+        """ Returns a list of devices able to read """
         return [0]
 
     def getData(self):
-        """ Método que retorna la información capturada y en estructura conocida """
+        """ Implement me! :: Returns a list of tuples like {controller, device, data} with data elements """
         ret, frame = self.capture.read()
-        return ret, frame
 
-    def start(self, func):
-        """ Función que invocara el sistema para que el módulo inicie """
-        self.running = True
-        while self.running:
-            func(self.getData())
+        dataReturn = []
 
-        
-    def stop(self):
-        """ Función que invocara el sistema para detener cualquier funcionamiento del módulo y descargar la memoria ocupada """
+        dataReturn.append({
+            'controller': 'CamController',
+            'device': '0',
+            'data': frame,
+        })
+
+        dataReturn.append({
+            'controller': 'CamController/BW',
+            'device': '0',
+            'data': self.prePross_BW(frame),
+        })
+
+        return dataReturn
 
 
-    def imprime(self):
-        print('yyy')
+    def prePross_BW(self, frame):
+        return frame
 
-if __name__ == "__main__":
-    c = CamController(None, None)
-    c.imprime()
-    #c.super().imprime()
+    def prePross_Person(self, frame):
+        return frame
+
+    def prePross_Skeleton(self, frame):
+        return frame

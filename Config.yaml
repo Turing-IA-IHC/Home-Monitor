@@ -1,0 +1,6 @@
+# Config params of Home Monitor.
+NAME: Home Monitor                    # Name for humans.
+MACHINE_NAME: HomeMonitor             # Name for no Humans.
+VERSION: 1.0.0                        # Modele id version.
+DESCRIPTION: System to detect abnormal events.  # Description for humans.
+POOL_PATH: http://127.0.0.1:5000/pool # Path to conect or init the pool.
