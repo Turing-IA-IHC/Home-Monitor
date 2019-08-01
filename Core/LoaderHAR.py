@@ -19,24 +19,24 @@ import hashlib
 from DataPool import DataPool, Data
 import Misc
 
-class InputDataController:
-    """ Class to control all data received from device drivers. """
+class LoaderHAR:
+    """ Class to control all HAR components to load in system. """
     
     def __init__(self):
         """ Initialize all variables """
         self.URL = ''               # URL of pool server
-        self.controllers = []       # List of controllers
+        self.classifiers = []       # List of classifiers
         self.loggingLevel = None    # logging level to write
         self.loggingFile = None     # Name of file where write log
         self.loggingFormat = None   # Format to show the log
     
-    def loadControllers(self):
-        """ Load all devices controllers in './Controllers' folder. 
-            Each controller have to be a sub folder and must to have a 'config.yaml' file.
+    def loadClassifiers(self):
+        """ Load all classifiers in './HAR' folder. 
+            Each classifier have to be a sub folder and must to have a 'config.yaml' file.
         """
-        logging.debug('Searching for new device controllers...')
-        controllersFolders =  Misc.lsFolders("./Controllers")
-        for cf in controllersFolders:
+        logging.debug('Searching for new device classifiers...')
+        classifiersFolders =  Misc.lsFolders("./HAR")
+        for cf in classifiersFolders:
             if Misc.existsFile("config.yaml", cf):
                 try:
                     _pathFile = normpath(cf + "/config.yaml")
@@ -48,9 +48,9 @@ class InputDataController:
                     _check = hashlib.md5(str(_config).encode('utf-8')).hexdigest()
                     _found = False
 
-                    for cc in range(len(self.controllers)):
+                    for cc in range(len(self.classifiers)):
                         # Check file changes
-                        _ctrl = self.controllers[cc]
+                        _ctrl = self.classifiers[cc]
                         if _ctrl["configFile"] == _pathFile:
                             _found = True
                             if _ctrl["check"] != _check:
@@ -61,7 +61,7 @@ class InputDataController:
                                     _ctrl["thread"].terminate()
                                     del _ctrl["thread"]
 
-                                self.controllers[cc] = {
+                                self.classifiers[cc] = {
                                 "check": _check,
                                 "configFile": _pathFile,
                                 "path": cf,
@@ -75,7 +75,7 @@ class InputDataController:
                     if not _found:
                         logging.info('There is a new module in ' + _pathFile + 
                             ('. It will be Load.' if _enabled else '. But is disabled.'))
-                        self.controllers.append({
+                        self.classifiers.append({
                                 "check": _check,
                                 "configFile": _pathFile,
                                 "path": cf,
@@ -84,12 +84,12 @@ class InputDataController:
                                 "enabled": _enabled,
                                 "config" : _config,
                             })
-                        
+
                 except:
-                    logging.exception("Unexpected error loading device controller in folder " + cf + " : " + str(sys.exc_info()[0]))
+                    logging.exception("Unexpected error loading HAR classifier in folder " + cf + " : " + str(sys.exc_info()[0]))
 
     def start(self):
-        """ Start load of all device controllers """
+        """ Start load of all HAR Classifiers """
 
         Misc.loggingConf(self.loggingLevel, self.loggingFile, self.loggingFormat)
 
@@ -97,7 +97,7 @@ class InputDataController:
         dp.URL = self.URL
 
         TimeDiff = 999999
-        logging.info('Trying to connect to Pool from Input Data Controller ...')
+        logging.info('Trying to connect to Pool from HAR Loader ...')
         err = ''
         for _ in range(10):
             try:
@@ -114,27 +114,23 @@ class InputDataController:
             return
 
         while True:
-            self.loadControllers()
-            for cc in range(len(self.controllers)):
-                _ctrl = self.controllers[cc]
-                _cls = None
-                if _ctrl["enabled"] and not "thread" in _ctrl:
-                    """ Load componente and class using config file information """
-                    logging.info('Starting device controller ' + _ctrl['moduleName'] + '.')
-                    _cls = Misc.importModule(_ctrl["path"], _ctrl['moduleName'], _ctrl['className'])
-                    _cls = _cls(_ctrl["config"])
-                    _cls.URL = self.URL
-                    _cls.loggingLevel = self.loggingLevel
-                    _cls.loggingFile = self.loggingFile
-                    _cls.loggingFormat = self.loggingFormat
-
-                    DeviceControllerThread = Process(target=_cls.start, args=())
-                    #DeviceControllerThread.daemon = True
-                    DeviceControllerThread.start()
-                    _ctrl["thread"] = DeviceControllerThread
-                    del _cls
-                    logging.info('Device controller '  + _ctrl['moduleName'] + ' started.')
+            self.loadClassifiers()
+            for cc in range(len(self.classifiers)):
+                _ctrl = self.classifiers[cc]
+                #_cls = None
+                #if _ctrl["enabled"] and not "thread" in _ctrl:
+                #    """ Load componente and class using config file information """
+                #    logging.info('Starting HAR classifiers ' + _ctrl['moduleName'] + '.')
+                #    _cls = Misc.importModule(_ctrl["path"], _ctrl['moduleName'], _ctrl['className'])
+                #    _cls = _cls(_ctrl["config"])
+                #    _cls.URL = self.URL
+                #    ClassifierHARThread = Process(target=_cls.start, args=())
+                #    #ClassifierHARThread.daemon = True
+                #    ClassifierHARThread.start()
+                #    _ctrl["thread"] = ClassifierHARThread
+                #    del _cls
+                #    logging.info('HAR classifier '  + _ctrl['moduleName'] + ' started.')
                     
             sleep(30)
 
-        logging.info('Input data controller stoped')
+        logging.info('Loader HAR stoped')

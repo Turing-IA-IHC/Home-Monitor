@@ -17,56 +17,45 @@ import numpy as np
 from time import time, sleep
 import logging
 
-
 sys.path.insert(0, './Core/')
 from DeviceController import DeviceController
 
 class CamController(DeviceController):
     """ Class to get RGB data from cams """
-    NOMBRE = '' #TODO: ver standar de manejo de nombre y versión 
+    NOMBRE = ''     #   TODO: ver standar de manejo de nombre y versión 
     VERSION = ''
-    Devices = []
-
-    #def __init__(self, cfg, device_id):
-    #    """ Inicializa la clase cargando las variables de configuración """
-    #    self.id = device_id
-    #    self.running = False
-    #    #self.capture = cv2.VideoCapture(self.id)
-    #    # these 2 lines can be removed if you dont have a 1080p camera.
-    #    #self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-    #    #self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-    
+        
     def start(self):
         """ Start module and getting data """
-        logging.basicConfig(
-            level=logging.INFO,
-            #filename='{}.log'.format(str(tm.tm_year) + '%02d' % tm.tm_mon + '%02d' % tm.tm_mday), 
-            #filemode='w', 
-            format='%(name)s - %(levelname)s - %(message)s')
+        self.activateLog()
             
         self.running = True
         self.Devices = self.getDeviceList()
 
         for c in range(len(self.Devices)):
-            capture = cv2.VideoCapture(self.Devices[c]['id'])
-            capture.set(cv2.CAP_PROP_FRAME_WIDTH, 160)
-            capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 120)
+            capture = self.initializeDevice(self.Devices[c])
             self.Devices[c]['cam'] = capture
 
         logging.debug('Reading cams')
         while self.running:
             for d in self.Devices:
+                if d in self.InactiveDevices:
+                    continue
+
+                gdList = []
                 try:
                     gdList = self.getData(d['id'])
                 except:
-                    logging.exception("Unexpected Readding data fom device: " + str(self.Devices[d['id']]['cam']))
-                    self.Devices.remove(self.Devices[d])
-                    break
+                    logging.exception("Unexpected Readding data from device: " + str(self.Devices[d['id']]['cam']))
+                    self.InactiveDevices.append(d)
+                    import threading
+                    x = threading.Thread(target=self.checkDevice, args=(d,))
+                    x.start()
             
                 for gd in gdList:
                     self.send(gd['controller'], gd['device'], gd['data'])
 
-            sleep(self.sampling)
+            sleep(self.Sampling)
 
     def stop(self):
         """ Stop module and getting data """
@@ -87,6 +76,27 @@ class CamController(DeviceController):
         })
         
         return cams
+
+    def initializeDevice(self, device):
+        """ Initialize device """
+        capture = cv2.VideoCapture(device['id'])
+        capture.set(cv2.CAP_PROP_FRAME_WIDTH, self.Config['FRAME_WIDTH'])
+        capture.set(cv2.CAP_PROP_FRAME_HEIGHT, self.Config['FRAME_HEIGHT'])
+        return capture
+
+    def checkDevice(self, Device):
+        """ Check if a device is online again """
+        for _ in range(30):
+            try:
+                capture = self.initializeDevice(Device)
+                Device['cam'] = capture
+                self.getData(Device['id'])
+                self.InactiveDevices.remove(Device)
+                break
+            except:
+                pass
+
+            sleep(30)
 
     def getData(self, idDevice):
         """ Returns a list of tuples like {controller, device, data} with data elements """
@@ -124,7 +134,6 @@ class CamController(DeviceController):
         
 
         return dataReturn
-
 
     def preProcc_Gray(self, frame):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)

@@ -16,6 +16,7 @@ from os import scandir, getcwd
 import sys
 import yaml # pip install pyyaml
 
+import logging
 
 def singleton(cls):
     """ Allows to implemenet singleton pattern using a decorator """    
@@ -71,3 +72,27 @@ def importModule(path:str, moduleName:str, className:str=None):
         mod = getattr(mod, className)
     return mod
 
+def loggingConf(loggingLevel=logging.INFO, loggingFile=None, loggingFormat=None ):
+    """ Set default logging """
+
+    if loggingLevel == None:
+        loggingLevel = logging.INFO
+
+    if loggingFormat == None:
+        loggingFormat = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+    logging.basicConfig(
+        level=loggingLevel,
+        filename=loggingFile, 
+        format=loggingFormat)
+    
+def hasKey(dict, key):
+    """ If key exists return its value ether return No 'key' """
+    if key in dict:
+        return dict[key]
+    else:
+        return 'No ' + str(key)
+
+def toBool(value:str):
+    """ Chech if the value is true or false """
+    return str.lower(value) in ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh']

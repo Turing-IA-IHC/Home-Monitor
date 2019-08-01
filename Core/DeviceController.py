@@ -7,21 +7,28 @@ Home-Monitor:
     Licensed under the MIT License (see LICENSE for details)
 
 Class information:
-    Generic class that represents all the components that can be coupled.
+    Generic class that represents all the components that can be loaded.
 """
 
 import abc
 from DataPool import DataPool
+import Misc
 
 class DeviceController(abc.ABC):
-    """ Generic class that represents all the components that can be coupled. """
-
-    URL = ""
-    sampling = 0
+    """ Generic class that represents all the components that can be loaded. """
     
     def __init__(self, cfg):
-        self.Config = cfg
-        self.dp = DataPool()
+        self.dp = DataPool()        # Object to send information
+        self.URL = ""               # Pool URL
+        
+        self.Config = cfg           # Object with all config params
+        self.Devices = []           # List of devices loaded
+        self.InactiveDevices = []   # List of devices unpluged
+        self.Sampling = self.Config['SAMPLING'] # Sampling rate
+        
+        self.loggingLevel = None    # logging level to write
+        self.loggingFile = None     # Name of file where write log
+        self.loggingFormat = None   # Format to show the log
 
     """ Abstract methods """
     @abc.abstractmethod
@@ -46,7 +53,11 @@ class DeviceController(abc.ABC):
 
     """ Real methods """
     def send(self, controller, device, data):
-        """ Send data to pool """        
+        """ Send data to pool """
         self.dp.URL = self.URL
         #print('Sending data to {}. controller: {}. device: {}.'.format(self.URL, controller, device))
         self.dp.sendData(controller, device, data)
+
+    def activateLog(self):
+        """ Activate logging """
+        Misc.loggingConf(self.loggingLevel, self.loggingFile, self.loggingFormat)

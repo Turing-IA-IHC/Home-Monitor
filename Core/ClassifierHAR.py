@@ -2,41 +2,62 @@
 Home-Monitor: 
     AI system for the detection of anomalous and possibly harmful events for people.
 
-Matter class to manage HAR Modules
-Written by Gabriel Rojas - 2019
-Copyright (c) 2019 G0 S.A.S.
-Licensed under the MIT License (see LICENSE for details)
+    Written by Gabriel Rojas - 2019
+    Copyright (c) 2019 G0 S.A.S.
+    Licensed under the MIT License (see LICENSE for details)
+
+Class information:
+    Generic class that represents all the classifiers that can be loaded.
 """
 
-import os
-import sys
-from os.path import dirname, abspath, exists, split, normpath
+import abc
+from DataPool import DataPool
+import Misc
 
-class ClassifierHAR:
-    """ Matter class to manage HAR Modules """
-    ME_PATH = __file__
-    CONFIG_FILE = ""
-    MODULE_PATH = ""
-    NAME = ''
-    VERSION = ''
-    CONTROLLERS = []
-    CLASSES = []
+class ClassifierHAR(abc.ABC):
+    """ Generic class that represents all the classifiers that can be loaded. """
+    
     def __init__(self, cfg=None):
-        """ Start object with config vars """
-        self.CONFIG_FILE = dirname(abspath(self.ME_PATH)) + "/Config.yaml"
-        if not exists(self.CONFIG_FILE):
-            self.CONFIG_FILE = split(dirname(abspath(self.ME_PATH)) + "/../")[0] + "/Config.yaml"
+        self.dp = DataPool()        # Object to send information
+        self.URL = ""               # Pool URL
         
-        if not exists(self.CONFIG_FILE):
-            self.CONFIG_FILE = ""
-            # TODO: Emitir error por no tener archivo config
+        self.Config = cfg           # Object with all config params
+        self.Classifiers = []       # List of classifiers loaded
+        self.Classes = [ 'None' ]   # Classes able to detect
 
-        self.CONFIG_FILE = normpath(self.CONFIG_FILE)
-        self.MODULE_PATH = dirname(self.CONFIG_FILE)
+        self.loggingLevel = None    # logging level to write
+        self.loggingFile = None     # Name of file where write log
+        self.loggingFormat = None   # Format to show the log
 
-    def Predict(self, data):
-        """ Método que retorna el listado de dispositivos disponibles """
+    """ Abstract methods """
+    @abc.abstractmethod
     def start(self):
-        """ Función que invocara el sistema para que el módulo inicie """
+        """ Implement me! :: Start module and predicting """
+        pass
+
+    @abc.abstractmethod
     def stop(self):
-        """ Función que invocara el sistema para detener cualquier funcionamiento del módulo y descargar la memoria ocupada """
+        """ Implement me! :: Stop module and predicting """
+        pass
+
+    @abc.abstractmethod
+    def Predict(self, idDevice):
+        """ Implement me! :: Do prediction and return class found """
+        pass
+
+    """ Real methods """
+    def sendDetection(self, idData, classes):
+        """ Send detection data to pool """
+        self.dp.URL = self.URL
+        #print('Sending data to {}. controller: {}. device: {}.'.format(self.URL, controller, device))
+        self.dp.sendData(controller, device, data)
+
+    def bring(self, controller = '', device = '', limit = -1, lastTime = 0):
+        """ Bring data from Pool """
+        self.dp.URL = self.URL
+        #print('Bringing data from {}. controller: {}. device: {}.'.format(self.URL, controller, device))
+        self.dp.getData(controller, device, limit, lastTime)
+
+    def activateLog(self):
+        """ Activate logging """
+        Misc.loggingConf(self.loggingLevel, self.loggingFile, self.loggingFormat)
