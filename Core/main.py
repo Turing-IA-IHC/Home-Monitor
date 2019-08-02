@@ -31,10 +31,9 @@ class main():
         print(' Wellcome to Home-Monitor '.center(50, "=") )
         print(' Version: {}      '.format(__version__).center(50, " "))
         print('=========================='.center(50, "="))
-        print('\n')
+        print('')
 
         toStart = "%04d"% int(str(bin(components)).replace("0b",""))
-        logging.info('Starting components with comand: ' + toStart)
 
         self.CONFIG_FILE = normpath(abspath('.') + "/config.yaml")
         if not exists(self.CONFIG_FILE):
@@ -53,6 +52,9 @@ class main():
 
         Misc.loggingConf(self.CONFIG['LOGGING_LEVEL'], self.loggingFile, self.CONFIG['LOGGING_FORMAT'])
 
+        print('')
+        logging.info('Starting the magic ...')
+        logging.info('Starting components with comand: ' + toStart)
         print('')
 
         self.must_start_pool = toStart[3] == '1'
@@ -76,7 +78,7 @@ class main():
         self.heart_beat()
         
     def heart_beat(self):
-        logging.info('Starting the magic ...')
+        logging.info('All sub systems will keep alive ...')
 
         while True:
             try:
@@ -111,19 +113,19 @@ class main():
             except:
                 logging.exception("Unexpected error checking HAR Loader: " + str(sys.exc_info()[0]))
 
-            try:
-                dp = DataPool()
-                dp.URL = self.CONFIG['POOL_PATH']
-                #CamController/Gray
-                g = dp.getData(controller = 'CamController/Gray', device = 'Trasera', limit = 1)
-                if len(g) > 1 :
-                    from cv2 import cv2
-                    cv2.imwrite('imagen.png', g[-1]['data'])
-                    #print('id: "{}", Controller: "{}", Device: "{}"'.format(g[-1]['id'], g[-1]['controller'], g[-1]['device']))
+            #try:
+            #    dp = DataPool()
+            #    dp.URL = self.CONFIG['POOL_PATH']
+            #    #CamController/Gray
+            #    g = dp.getData(controller = 'CamController/Gray', device = 'Trasera', limit = 1)
+            #    if len(g) > 1 :
+            #        from cv2 import cv2
+            #        cv2.imwrite('imagen.png', g[-1]['data'])
+            #        #print('id: "{}", Controller: "{}", Device: "{}"'.format(g[-1]['id'], g[-1]['controller'], g[-1]['device']))
 
-            except:
-                logging.exception("Unexpected readding data from pool: " + str(sys.exc_info()[0]))
-            
+            #except:
+            #    logging.exception("Unexpected readding data from pool: " + str(sys.exc_info()[0]))
+            #
             sleep(3)
 
     def start_pool(self):
@@ -141,7 +143,7 @@ class main():
         self.poolThread = Process(target=self.pool.start, args=())
         self.poolThread.daemon = True
         self.poolThread.start()
-        sleep(1)
+        sleep(2)
         logging.info('Pool started.')
 
     def start_devices(self):
@@ -159,7 +161,7 @@ class main():
         self.inputDataThread = Process(target=self.inputData.start, args=())
         #self.inputDataThread.daemon = True
         self.inputDataThread.start()
-        sleep(1)
+        sleep(2)
         logging.info('Input data controller started.')
 
     def start_classifiers(self):
@@ -177,6 +179,7 @@ class main():
         self.loaderHARThread = Process(target=self.loaderHAR.start, args=())
         #self.loaderHARThread.daemon = True
         self.loaderHARThread.start()
+        sleep(2)
         logging.info('Loader HAR started.')
 
 if __name__ == "__main__":

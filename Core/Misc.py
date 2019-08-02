@@ -53,12 +53,14 @@ def existsFile(fileName, path = getcwd()):
 
 def readConfig(fileName):
     """ Read config file .yaml and returns object """
-    config = yaml.load(open(fileName, 'r'))
+    config = yaml.safe_load(open(fileName, 'r'))
     return config
 
 def showConfig(config):
     """ Shows data in config file loaded """
     print('\t' + str(config).replace(',', '\n\t'))
+    print('')
+    
 
 def importModule(path:str, moduleName:str, className:str=None):
     """ Load and returns a module.

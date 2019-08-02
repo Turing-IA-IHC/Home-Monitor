@@ -11,6 +11,10 @@ Class information:
 """
 
 import abc
+from os.path import dirname, abspath, exists, split, normpath
+import logging
+from time import time
+
 from DataPool import DataPool
 import Misc
 
@@ -20,10 +24,11 @@ class ClassifierHAR(abc.ABC):
     def __init__(self, cfg=None):
         self.dp = DataPool()        # Object to send information
         self.URL = ""               # Pool URL
+        self.lastTime = time()      # Time of last petition to the pool
         
         self.Config = cfg           # Object with all config params
-        self.Classifiers = []       # List of classifiers loaded
-        self.Classes = [ 'None' ]   # Classes able to detect
+        self.Classes = self.Config['CLASSES']   # Classes able to detect
+        #print(' -- ', self.Classes, len(self.Classes))
 
         self.loggingLevel = None    # logging level to write
         self.loggingFile = None     # Name of file where write log
@@ -41,7 +46,7 @@ class ClassifierHAR(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def Predict(self, idDevice):
+    def predict(self, idDevice):
         """ Implement me! :: Do prediction and return class found """
         pass
 
@@ -49,15 +54,32 @@ class ClassifierHAR(abc.ABC):
     def sendDetection(self, idData, classes):
         """ Send detection data to pool """
         self.dp.URL = self.URL
-        #print('Sending data to {}. controller: {}. device: {}.'.format(self.URL, controller, device))
-        self.dp.sendData(controller, device, data)
+        print('Sending data to {}. idData: {}. classes: {}.'.format(self.URL, idData, classes))
+        self.dp.sendDetection(idData, classes)
 
     def bring(self, controller = '', device = '', limit = -1, lastTime = 0):
         """ Bring data from Pool """
         self.dp.URL = self.URL
-        #print('Bringing data from {}. controller: {}. device: {}.'.format(self.URL, controller, device))
-        self.dp.getData(controller, device, limit, lastTime)
+        #print('Bringing data from {}. controller: {}. device: {}. limit: {}. lastTime: {}.'.format(
+        #    self.URL, controller, device, limit, lastTime))
+        return self.dp.getData(controller, device, limit, lastTime)
 
     def activateLog(self):
         """ Activate logging """
         Misc.loggingConf(self.loggingLevel, self.loggingFile, self.loggingFormat)
+
+    def loadModel(self, ModelPath=None, BasePath="./"):
+        """ Load and returns keras + tensorflow model """
+        from tensorflow.keras import backend as K
+        from tensorflow.keras.models import Sequential, load_model
+
+        if ModelPath == None:
+            ModelPath = self.Config['MODEL']
+
+        ModelPath = normpath(BasePath + "/" + ModelPath)
+        logging.info('Loadding model ' + ModelPath + ' ...') #TODO: Change to Debug
+
+        NET = load_model(ModelPath)
+        if logging.getLogger().level <= logging.INFO: # Debug
+            NET.summary()
+

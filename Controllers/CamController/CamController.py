@@ -52,7 +52,7 @@ class CamController(DeviceController):
                     x = threading.Thread(target=self.checkDevice, args=(d,))
                     x.start()
             
-                for gd in gdList:
+                for gd in gdList: # TODO: Try Catch
                     self.send(gd['controller'], gd['device'], gd['data'])
 
             sleep(self.Sampling)

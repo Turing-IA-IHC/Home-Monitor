@@ -101,6 +101,8 @@ class DataPool(Resource):
         parser.add_argument('lastTime')
         args = parser.parse_args()
 
+        # TODO: Pensar en filtro para todos tipo Cam/* o para varios separados por coma
+
         controller = args.controller
         device = args.device
         limit = int(args.limit)
@@ -121,9 +123,7 @@ class DataPool(Resource):
             result = result[-limit:]
         
         result = list(filter(lambda d: d.state == PoolStates.ACTIVE, result))
-
         result = list(map(lambda d: d.getJson(), result))
-
         result.insert(0, {'timeQuery' : time()})
 
         return result
@@ -237,7 +237,7 @@ class DataPool(Resource):
 
         for i in range(1, len(g)):
             g[i]['data'] = self.deserialize(g[i]['data'])
-        
+
         return g
 
     def sendDetection(self, idData, classes):

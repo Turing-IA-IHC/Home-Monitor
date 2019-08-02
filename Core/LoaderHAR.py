@@ -117,19 +117,19 @@ class LoaderHAR:
             self.loadClassifiers()
             for cc in range(len(self.classifiers)):
                 _ctrl = self.classifiers[cc]
-                #_cls = None
-                #if _ctrl["enabled"] and not "thread" in _ctrl:
-                #    """ Load componente and class using config file information """
-                #    logging.info('Starting HAR classifiers ' + _ctrl['moduleName'] + '.')
-                #    _cls = Misc.importModule(_ctrl["path"], _ctrl['moduleName'], _ctrl['className'])
-                #    _cls = _cls(_ctrl["config"])
-                #    _cls.URL = self.URL
-                #    ClassifierHARThread = Process(target=_cls.start, args=())
-                #    #ClassifierHARThread.daemon = True
-                #    ClassifierHARThread.start()
-                #    _ctrl["thread"] = ClassifierHARThread
-                #    del _cls
-                #    logging.info('HAR classifier '  + _ctrl['moduleName'] + ' started.')
+                _cls = None
+                if _ctrl["enabled"] and not "thread" in _ctrl:
+                    """ Load componente and class using config file information """
+                    logging.info('Starting HAR classifiers ' + _ctrl['moduleName'] + '.')
+                    _cls = Misc.importModule(_ctrl["path"], _ctrl['moduleName'], _ctrl['className'])
+                    _cls = _cls(_ctrl["config"])
+                    _cls.URL = self.URL
+                    ClassifierHARThread = Process(target=_cls.start, args=())
+                    #ClassifierHARThread.daemon = True
+                    ClassifierHARThread.start()
+                    _ctrl["thread"] = ClassifierHARThread
+                    del _cls
+                    logging.info('HAR classifier '  + _ctrl['moduleName'] + ' started.')
                     
             sleep(30)
 
