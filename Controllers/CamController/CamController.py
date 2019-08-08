@@ -11,23 +11,34 @@ Class information:
 """
 
 import sys
+from os.path import dirname, normpath
+import threading
+
 #import cv2  #pip install opencv-python
 from cv2 import cv2
+from scipy.ndimage.filters import gaussian_filter
+
+import math
 import numpy as np
 from time import time, sleep
 import logging
+from tensorflow.keras import backend as K
+from tensorflow.keras.models import Sequential, load_model
 
 sys.path.insert(0, './Core/')
 from DeviceController import DeviceController
+import Misc
 
 class CamController(DeviceController):
     """ Class to get RGB data from cams """
-    NOMBRE = ''     #   TODO: ver standar de manejo de nombre y versión 
-    VERSION = ''
+
+    # Models for preProc
+    joinsBodyNET = None
         
     def start(self):
         """ Start module and getting data """
         self.activateLog()
+        self.loadPreProcModels()
             
         self.running = True
         self.Devices = self.getDeviceList()
@@ -37,45 +48,54 @@ class CamController(DeviceController):
             self.Devices[c]['cam'] = capture
 
         logging.debug('Reading cams')
+        failedSend = 0        
         while self.running:
+
             for d in self.Devices:
                 if d in self.InactiveDevices:
                     continue
 
                 gdList = []
                 try:
-                    gdList = self.getData(d['id'])
+                    gdList = self.getData(d['id'], d['name'])
                 except:
-                    logging.exception("Unexpected Readding data from device: " + str(self.Devices[d['id']]['cam']))
+                    logging.exception(
+                        'Unexpected readding data from device: {}:{} ({})'.format(
+                            d['id'], d['name'], str(d['cam']))
+                        )
                     self.InactiveDevices.append(d)
                     import threading
                     x = threading.Thread(target=self.checkDevice, args=(d,))
                     x.start()
             
-                for gd in gdList: # TODO: Try Catch
-                    self.send(gd['controller'], gd['device'], gd['data'])
+                for gd in gdList:
+                    try:
+                        # TODO: Enviar datos adicionales auxiliares
+                        self.send(gd['controller'], gd['device'], gd['data'])
+                        failedSend = 0        
+                    except:
+                        failedSend += 1                        
+                        logging.exception(
+                            'Unexpected sending data from device: {}:{} ({})'.format(
+                                d['id'], d['name'], str(d['cam']))
+                            )
+            
+            if failedSend > 2 and not self.dp.isLive():
+                logging.error('Pool no found CamController shutdown.')
+                break
 
             sleep(self.Sampling)
 
     def stop(self):
         """ Stop module and getting data """
-        #cv2.stop()
         self.running = False
 
     def getDeviceList(self):
         """ Returns a list of devices able to read """
-        cams = []
-        cams.append({
-            'id':0,
-            'cam':None
-        })
-        
-        cams.append({
-            'id':1,
-            'cam':None
-        })
-        
-        return cams
+        devices = Misc.readConfig(dirname(__file__) + "/devices.yaml")
+        devices = devices['DEVICES']
+        result = list(filter(lambda d: Misc.toBool(d['enabled']), devices))
+        return result
 
     def initializeDevice(self, device):
         """ Initialize device """
@@ -88,6 +108,9 @@ class CamController(DeviceController):
         """ Check if a device is online again """
         for _ in range(30):
             try:
+                thrs = threading.enumerate()
+                if thrs[0]._is_stopped: # MainThread
+                    break
                 capture = self.initializeDevice(Device)
                 Device['cam'] = capture
                 self.getData(Device['id'])
@@ -98,74 +121,369 @@ class CamController(DeviceController):
 
             sleep(30)
 
-    def getData(self, idDevice):
+    def getData(self, idDevice, deviceName=None):
         """ Returns a list of tuples like {controller, device, data} with data elements """
 
         cam = self.Devices[idDevice]['cam']
         ret, frame = cam.read()
+        height = frame.shape[0]
+        width = frame.shape[1]
 
-        deviceName = 'Trasera' if idDevice == 1 else 'Delantera'
+        deviceName = idDevice if deviceName == None else deviceName
 
         dataReturn = []
 
+        auxData = '{' + 'W:{}, H:{}'.format(width, height) + '}'
+        
         dataReturn.append({
             'controller': 'CamController',
             'device': deviceName,
             'data': self.dp.serialize(frame),
+            'auxData': auxData,
         })
         
         dataReturn.append({
             'controller': 'CamController/Gray',
             'device': deviceName,
-            'data': self.dp.serialize(self.preProcc_Gray(frame)),
+            'data': self.dp.serialize(self.preProc_Gray(frame)),
+            'auxData': auxData,
         })
         
         dataReturn.append({
             'controller': 'CamController/Person',
             'device': deviceName,
-            'data': self.dp.serialize(self.preProcc_Person(frame)),
-        })
-
-        dataReturn.append({
-            'controller': 'CamController/Skeleton',
-            'device': deviceName,
-            'data': self.dp.serialize(self.preProcc_Skeleton(frame)),
+            'data': self.dp.serialize(self.preProc_Person(frame)),
+            'auxData': auxData,
         })
         
-
+        if self.joinsBodyNET != None:
+            dataReturn.append({
+                'controller': 'CamController/Skeleton',
+                'device': deviceName,
+                'data': self.dp.serialize(self.preProc_Skeleton(frame)),
+                'auxData': auxData,
+            })
+        
         return dataReturn
 
-    def preProcc_Gray(self, frame):
+    def loadPreProcModels(self):
+
+        ModelPath = normpath(dirname(__file__) + "/model/poseModel.h5")
+        logging.debug('Loadding model for preProc in CamController ' + ModelPath + ' ...')
+
+        self.joinsBodyNET = load_model(ModelPath)
+        if logging.getLogger().level < logging.INFO: # Debug
+            self.joinsBodyNET.summary()
+
+    def preProc_Gray(self, frame):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         return gray
 
-    def preProcc_Person(self, frame):
-        sleep(1)
+    def preProc_Person(self, frame):
+        #sleep(1)
         return frame
 
-    def preProcc_Skeleton(self, frame):
-        sleep(1)
-        return frame
+    def preProc_Skeleton(self, frame):
+
+        oriImg = frame  # B,G,R order
+        scale_search = [0.22] #,0.25,.5, 1, 1.5, 2]
+        multiplier = [x * 368 / oriImg.shape[0] for x in scale_search]
+
+        heatmap_avg = np.zeros((oriImg.shape[0], oriImg.shape[1], 19))
+        paf_avg = np.zeros((oriImg.shape[0], oriImg.shape[1], 38))
+        stride = 8
+        thre2 = 0.05
+
+        for m in range(len(multiplier)):
+            scale = multiplier[m]
+    
+            imageToTest = cv2.resize(oriImg, (0, 0), 
+                fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
+
+            imageToTest_padded, pad = self.padRightDownCorner(imageToTest)
+            input_img = np.transpose(np.float32(imageToTest_padded[:,:,:,np.newaxis]), (3,0,1,2)) # required shape (1, width, height, channels)
+            output_blobs = self.joinsBodyNET.predict(input_img)
+      
+            # extract outputs, resize, and remove padding
+            heatmap = np.squeeze(output_blobs[1])  # output 1 is heatmaps
+            heatmap = cv2.resize(heatmap, (0, 0), fx=stride, fy=stride,
+                                interpolation=cv2.INTER_CUBIC)
+            heatmap = heatmap[:imageToTest_padded.shape[0] - pad[2], :imageToTest_padded.shape[1] - pad[3],:]
+            heatmap = cv2.resize(heatmap, (oriImg.shape[1], oriImg.shape[0]), interpolation=cv2.INTER_CUBIC)
+
+            paf = np.squeeze(output_blobs[0])  # output 0 is PAFs
+            paf = cv2.resize(paf, (0, 0), fx=stride, fy=stride,
+                            interpolation=cv2.INTER_CUBIC)
+            paf = paf[:imageToTest_padded.shape[0] - pad[2], :imageToTest_padded.shape[1] - pad[3], :]
+            paf = cv2.resize(paf, (oriImg.shape[1], oriImg.shape[0]), interpolation=cv2.INTER_CUBIC)
+
+            heatmap_avg = heatmap_avg + heatmap / len(multiplier)
+            paf_avg = paf_avg + paf / len(multiplier)
+
+        all_peaks = []
+        peak_counter = 0
+    
+        for part in range(18):
+            map_ori = heatmap_avg[:, :, part]
+            map = gaussian_filter(map_ori, sigma=3)
+            thre1 = 0.7
+            
+            map_left = np.zeros(map.shape)
+            map_left[1:, :] = map[:-1, :]
+            map_right = np.zeros(map.shape)
+            map_right[:-1, :] = map[1:, :]
+            map_up = np.zeros(map.shape)
+            map_up[:, 1:] = map[:, :-1]
+            map_down = np.zeros(map.shape)
+            map_down[:, :-1] = map[:, 1:]
+    
+            peaks_binary = np.logical_and.reduce(
+                (map >= map_left, map >= map_right, map >= map_up, map >= map_down, map > thre1))
+            
+            #peaks_binary = np.logical_and.reduce((map > thre1, map > thre1))
+            
+            peaks = list(zip(np.nonzero(peaks_binary)[1], np.nonzero(peaks_binary)[0]))  # note reverse
+            peaks_with_score = [x + (map_ori[x[1], x[0]],) for x in peaks]
+            id = range(peak_counter, peak_counter + len(peaks))
+            peaks_with_score_and_id = [peaks_with_score[i] + (id[i],) for i in range(len(id))]
+    
+            all_peaks.append(peaks_with_score_and_id)
+            peak_counter += len(peaks)
+
+        connection_all = []
+        special_k = []
+        mid_num = 10
+
+        # find connection in the specified sequence, center 29 is in the position 15
+        limbSeq = [[2, 3], [2, 6], [3, 4], [4, 5], [6, 7], [7, 8], [2, 9], [9, 10], \
+                [10, 11], [2, 12], [12, 13], [13, 14], [2, 1], [1, 15], [15, 17], \
+                [1, 16], [16, 18], [3, 17], [6, 18]]
+
+        # the middle joints heatmap correpondence
+        mapIdx = [[31, 32], [39, 40], [33, 34], [35, 36], [41, 42], [43, 44], [19, 20], [21, 22], \
+            [23, 24], [25, 26], [27, 28], [29, 30], [47, 48], [49, 50], [53, 54], [51, 52], \
+            [55, 56], [37, 38], [45, 46]]
+
+        for k in range(len(mapIdx)):
+            score_mid = paf_avg[:, :, [x - 19 for x in mapIdx[k]]]
+            candA = all_peaks[limbSeq[k][0] - 1]
+            candB = all_peaks[limbSeq[k][1] - 1]
+            nA = len(candA)
+            nB = len(candB)
+            indexA, indexB = limbSeq[k]
+            if (nA != 0 and nB != 0):
+                connection_candidate = []
+                for i in range(nA):
+                    for j in range(nB):
+                        vec = np.subtract(candB[j][:2], candA[i][:2])
+                        norm = math.sqrt(vec[0] * vec[0] + vec[1] * vec[1])
+                        # failure case when 2 body parts overlaps
+                        if norm == 0:
+                            continue
+                        vec = np.divide(vec, norm)
+
+                        startend = list(zip(np.linspace(candA[i][0], candB[j][0], num=mid_num), \
+                                    np.linspace(candA[i][1], candB[j][1], num=mid_num)))
+
+                        vec_x = np.array(
+                            [score_mid[int(round(startend[I][1])), int(round(startend[I][0])), 0] \
+                            for I in range(len(startend))])
+                        vec_y = np.array(
+                            [score_mid[int(round(startend[I][1])), int(round(startend[I][0])), 1] \
+                            for I in range(len(startend))])
+
+                        score_midpts = np.multiply(vec_x, vec[0]) + np.multiply(vec_y, vec[1])
+                        score_with_dist_prior = sum(score_midpts) / len(score_midpts) + min(
+                            0.5 * oriImg.shape[0] / norm - 1, 0)
+                        criterion1 = len(np.nonzero(score_midpts > thre2)[0]) > 0.8 * len(
+                            score_midpts)
+                        criterion2 = score_with_dist_prior > 0
+                        if criterion1 and criterion2:
+                            connection_candidate.append([i, j, score_with_dist_prior,
+                                                        score_with_dist_prior + candA[i][2] + candB[j][2]])
+
+                connection_candidate = sorted(connection_candidate, key=lambda x: x[2], reverse=True)
+                connection = np.zeros((0, 5))
+                for c in range(len(connection_candidate)):
+                    i, j, s = connection_candidate[c][0:3]
+                    if (i not in connection[:, 3] and j not in connection[:, 4]):
+                        connection = np.vstack([connection, [candA[i][3], candB[j][3], s, i, j]])
+                        if (len(connection) >= min(nA, nB)):
+                            break
+
+                connection_all.append(connection)
+            else:
+                special_k.append(k)
+                connection_all.append([])
+
+        # last number in each row is the total parts number of that person
+        # the second last number in each row is the score of the overall configuration
+        subset = -1 * np.ones((0, 20))
+        candidate = np.array([item for sublist in all_peaks for item in sublist])
+
+        for k in range(len(mapIdx)):
+            if k not in special_k:
+                partAs = connection_all[k][:, 0]
+                partBs = connection_all[k][:, 1]
+                indexA, indexB = np.array(limbSeq[k]) - 1
+
+                for i in range(len(connection_all[k])):  # = 1:size(temp,1)
+                    found = 0
+                    subset_idx = [-1, -1]
+                    for j in range(len(subset)):  # 1:size(subset,1):
+                        if subset[j][indexA] == partAs[i] or subset[j][indexB] == partBs[i]:
+                            subset_idx[found] = j
+                            found += 1
+
+                    if found == 1:
+                        j = subset_idx[0]
+                        if (subset[j][indexB] != partBs[i]):
+                            subset[j][indexB] = partBs[i]
+                            subset[j][-1] += 1
+                            subset[j][-2] += candidate[partBs[i].astype(int), 2] + connection_all[k][i][2]
+                    elif found == 2:  # if found 2 and disjoint, merge them
+                        j1, j2 = subset_idx
+                        membership = ((subset[j1] >= 0).astype(int) + (subset[j2] >= 0).astype(int))[:-2]
+                        if len(np.nonzero(membership == 2)[0]) == 0:  # merge
+                            subset[j1][:-2] += (subset[j2][:-2] + 1)
+                            subset[j1][-2:] += subset[j2][-2:]
+                            subset[j1][-2] += connection_all[k][i][2]
+                            subset = np.delete(subset, j2, 0)
+                        else:  # as like found == 1
+                            subset[j1][indexB] = partBs[i]
+                            subset[j1][-1] += 1
+                            subset[j1][-2] += candidate[partBs[i].astype(int), 2] + connection_all[k][i][2]
+
+                    # if find no partA in the subset, create a new subset
+                    elif not found and k < 17:
+                        row = -1 * np.ones(20)
+                        row[indexA] = partAs[i]
+                        row[indexB] = partBs[i]
+                        row[-1] = 2
+                        row[-2] = sum(candidate[connection_all[k][i, :2].astype(int), 2]) + \
+                                connection_all[k][i][2]
+                        subset = np.vstack([subset, row])
+
+        # delete some rows of subset which has few parts occur
+        deleteIdx = []
+        for i in range(len(subset)):
+            if subset[i][-1] < 4 or subset[i][-2] / subset[i][-1] < 0.4:
+                deleteIdx.append(i)
+        subset = np.delete(subset, deleteIdx, axis=0)
+
+        # Construct each person
+        people = []
+        for i in range(len(subset)):
+            #if subset[i][1] == -1: # No neck
+            #    continue
+            #if subset[i][0] == -1: # No nose
+            #    continue
+            #if subset[i][2] == -1 and subset[i][5] == -1 : #No shoulders
+            #    continue
+            #if subset[i][4] == -1 and subset[i][7] == -1 : #No hands/Wrist
+            #    continue
+            person = []
+            for j in range(18): # Son 18 conexiones
+                # Solo se tomaran las conexiones de la parte superior, sin ojos y orejas
+                #if j in [9, 10, 12, 13, 14, 15, 16, 17] :
+                #    continue
+                    
+                #'Nose','Neck','RShoulder','RElbow','RWrist','LShoulder','LElbow','LWrist',
+                #'RHip','RKnee','RAnkle','LHip','LKnee','LAnkle','REye','LEye','REar','LEar'
+
+                if subset[i][j] > -1:
+                    point = list(filter(lambda x: x[3:4] == subset[i][j], all_peaks[j]))                
+                else:
+                    point = [(None, None)] # If points are not detected
+                    
+                x, y = point[0][0:2]
+                person.append((x, y))
+            
+            people.append(person)
+
+        people = np.array(people)
+
+        return people
+
+    def padRightDownCorner(self, img, stride = 8, padValue = 128):
+        h = img.shape[0]
+        w = img.shape[1]
+    
+        pad = 4 * [None]
+        pad[0] = 0 # up
+        pad[1] = 0 # left
+        pad[2] = 0 if (h%stride==0) else stride - (h % stride) # down
+        pad[3] = 0 if (w%stride==0) else stride - (w % stride) # right
+    
+        img_padded = img
+        pad_up = np.tile(img_padded[0:1,:,:]*0 + padValue, (pad[0], 1, 1))
+        img_padded = np.concatenate((pad_up, img_padded), axis=0)
+        pad_left = np.tile(img_padded[:,0:1,:]*0 + padValue, (1, pad[1], 1))
+        img_padded = np.concatenate((pad_left, img_padded), axis=1)
+        pad_down = np.tile(img_padded[-2:-1,:,:]*0 + padValue, (pad[2], 1, 1))
+        img_padded = np.concatenate((img_padded, pad_down), axis=0)
+        pad_right = np.tile(img_padded[:,-2:-1,:]*0 + padValue, (1, pad[3], 1))
+        img_padded = np.concatenate((img_padded, pad_right), axis=1)
+    
+        return img_padded, pad
+    
 
 if __name__ == "__main__":
-    capture = cv2.VideoCapture(1)
-    capture.set(cv2.CAP_PROP_FRAME_WIDTH, 160)
-    capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 120)
-    while(True):
-        # Capture frame-by-frame
-        ret, frame = capture.read()
-        #serialized = pickle.dumps(frame, protocol=0) # protocol 0 is printable ASCII
-        #frame = pickle.loads(serialized)
+    from time import ctime
+    config = Misc.readConfig(dirname(__file__) + "/config.yaml")
+    camC = CamController(config)
+    camC.activateLog()
+    camC.loadPreProcModels()    
+    camC.running = True
+    camC.Devices = camC.getDeviceList()
+    for c in range(len(camC.Devices)):
+        capture = camC.initializeDevice(camC.Devices[c])
+        camC.Devices[c]['cam'] = capture
+
+    logging.debug('Reading cams')
+    while camC.running:
+        t0 = time()
+        for d in camC.Devices:
+            if d in camC.InactiveDevices:
+                continue
+
+            gdList = []
+            try:
+                #print('getData before', time())
+                gdList = camC.getData(d['id'],d['name'])
+                #print('getData after', time())
+            except:
+                logging.exception("Unexpected Readding data from device: " + str(camC.Devices[d['id']]['cam']))
+                camC.InactiveDevices.append(d)
+                x = threading.Thread(target=camC.checkDevice, args=(d,))
+                x.start()
         
-        #gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) #For capture image in monochrome
-        rgbImage = frame #For capture the image in RGB color space
-        # Display the resulting frame
-        cv2.imshow('Webcam',rgbImage)        
+            for gd in gdList:
+                if gd['controller'] == 'CamController/Skeleton':
+                    people = camC.dp.deserialize(gd['data']) #For capture the image in RGB color space
+                    #rgbImage = camC.dp.deserialize(gd['data']) #For capture the image in RGB color space
+                    rgbImage = np.zeros((config['FRAME_HEIGHT'], config['FRAME_WIDTH'], 3), np.uint8)
+                    
+                    for person in people:
+                        for join in person:
+                            if join[0] != None:
+                                cv2.circle(rgbImage, (join[0], join[1]), 5, [255, 0, 0], thickness=-1)
+
+                else:
+                    rgbImage = camC.dp.deserialize(gd['data']) #For capture the image in RGB color space
+
+                # Display the resulting frame                    
+                cv2.imshow(gd['controller'] + '-' + gd['device'], rgbImage)
+                #cv2.imshow('img', rgbImage)
+            
         #Wait to press 'q' key for capturing
         if cv2.waitKey(1) & 0xFF == ord('q'):
             #cv2.imwrite('img.png',frame)
             break
-	
+
+        sleep(camC.Sampling)
+        print('Elapsed time', (time() - t0))
+        	
     # When everything done, release the capture
     print(capture)
     capture.release()

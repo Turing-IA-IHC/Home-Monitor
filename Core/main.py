@@ -87,7 +87,7 @@ class main():
                     if self.pool == None or not self.poolThread.is_alive():
                         logging.warning('Pool service is death. System auto start it.')
                         self.start_pool()
-                    #logging.info('Pool service is living. Has ' + str(self.pool.count()) + ' data')
+                    logging.info('Pool service is living. Has ' + str(self.pool.count()) + ' data')
             except:
                 logging.exception("Unexpected error checking pool: " + str(sys.exc_info()[0]))
 
@@ -113,24 +113,25 @@ class main():
             except:
                 logging.exception("Unexpected error checking HAR Loader: " + str(sys.exc_info()[0]))
 
-            #try:
-            #    dp = DataPool()
-            #    dp.URL = self.CONFIG['POOL_PATH']
-            #    #CamController/Gray
-            #    g = dp.getData(controller = 'CamController/Gray', device = 'Trasera', limit = 1)
-            #    if len(g) > 1 :
-            #        from cv2 import cv2
-            #        cv2.imwrite('imagen.png', g[-1]['data'])
-            #        #print('id: "{}", Controller: "{}", Device: "{}"'.format(g[-1]['id'], g[-1]['controller'], g[-1]['device']))
-
-            #except:
-            #    logging.exception("Unexpected readding data from pool: " + str(sys.exc_info()[0]))
-            #
+            try:
+                dp = DataPool()
+                dp.URL = self.CONFIG['POOL_PATH']
+                #CamController/Gray
+                #, device = 'Trasera'
+                g = dp.getData(controller = 'CamController/Gray', limit = 1)
+                if len(g) > 1 :
+                    from cv2 import cv2
+                    cv2.imwrite('imagen.png', g[-1]['data'])
+                    print('id: "{}", Controller: "{}", Device: "{}"'.format(g[-1]['id'], g[-1]['controller'], g[-1]['device']))
+            except:
+                logging.exception("Unexpected readding data from pool: " + str(sys.exc_info()[0]))
+            
             sleep(3)
 
     def start_pool(self):
         """ Start data pool """
 
+        # TODO: Probar del self.pool
         if self.pool == None:
             self.pool = DataPool()
         
@@ -190,7 +191,7 @@ if __name__ == "__main__":
     #components = 4  # Only classifiers HAR
     #components = 5  # Pool + Classifiers HAR
     #components = 6  # Input data controller + Classifiers HAR
-    components = 7  # Pool + input data controller + classifiers HAR
+    #components = 7  # Pool + input data controller + classifiers HAR
     #components = 8  # Only Adnormal events
     #components = 15 # All components
 

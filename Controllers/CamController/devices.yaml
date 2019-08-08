@@ -1,0 +1,12 @@
+DEVICES: [
+  {
+      'id':0,
+      'name':'Front',
+      'enabled':y
+  },
+  {
+      'id':1,
+      'name':'Back',
+      'enabled':y
+  }
+]

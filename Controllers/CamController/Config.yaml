@@ -4,8 +4,8 @@ MACHINE_NAME: CamController           # Name for no Humans.
 CLASS_NAME: CamController             # Class name to load.
 VERSION: 1.0.0                        # Module id version.
 DESCRIPTION: Module to control cam RGB devices. # Description for humans.
-SAMPLING: 0.05                        # Sampling rate to control frame per second.
+SAMPLING: 0.0                         # Sampling rate to control frame per second.
 ENABLED: Y                            # Module is enabled to run
 # ------
-FRAME_WIDTH: 160                      # With of image
-FRAME_HEIGHT: 120                     # Height of image
+FRAME_WIDTH: 320                      # With of image
+FRAME_HEIGHT: 240                     # Height of image

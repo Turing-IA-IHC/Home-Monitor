@@ -58,8 +58,7 @@ def readConfig(fileName):
 
 def showConfig(config):
     """ Shows data in config file loaded """
-    print('\t' + str(config).replace(',', '\n\t'))
-    print('')
+    print('\t' + str(config).replace(',', '\n\t'), '\n')
     
 
 def importModule(path:str, moduleName:str, className:str=None):

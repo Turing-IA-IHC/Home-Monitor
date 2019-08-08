@@ -29,6 +29,8 @@ from json import JSONEncoder
 import pickle
 import ast
 
+import re
+
 from multiprocessing import Process, Value
 
 @unique
@@ -93,16 +95,16 @@ class DataPool(Resource):
                 p.state = PoolStates.QUARANTINE
 
     def get(self):
-        """ Return all active data """
+        """ Return all active data:
+        Controller and device coulbe Exp Reg.
+        Ex. 'CamController' for single or 'CamController.*?' for all from CamController """
         parser = reqparse.RequestParser()
         parser.add_argument('controller')
         parser.add_argument('device')
         parser.add_argument('limit')
         parser.add_argument('lastTime')
         args = parser.parse_args()
-
-        # TODO: Pensar en filtro para todos tipo Cam/* o para varios separados por coma
-
+        
         controller = args.controller
         device = args.device
         limit = int(args.limit)
@@ -111,10 +113,12 @@ class DataPool(Resource):
         result = self.pool[:]
         
         if device != '':
-            result = list(filter(lambda d: d.device == device, result))
+            deviceRE = re.compile('^' + device + '$')
+            result = list(filter(lambda d: deviceRE.match(d.device) != None, result))
         
         if controller != '':
-            result = list(filter(lambda d: d.controller == controller, result))
+            controllerRE = re.compile('^' + controller + '$')
+            result = list(filter(lambda d: controllerRE.match(d.controller) != None, result))
         
         if lastTime > 0:
             result = list(filter(lambda d: d.born >= lastTime, result))
@@ -142,7 +146,9 @@ class DataPool(Resource):
             self.append(data)
             self.pop()
         elif args.source == 'classifier':
-            print('Data from classifier')
+            #print('Data from classifier')
+            # TODO: Falta el envío de los datos desde el HAR
+            pass
 
         message = 'ok'
         return message
@@ -207,9 +213,11 @@ class DataPool(Resource):
 
     def isLive(self):
         """ Shows if pool is living """
-        x = self.sendCommand('isLive')
-        return bool(x)
-        #TODO: put a timer to controller timeout to means no live
+        try:
+            x = self.sendCommand('isLive')
+            return bool(x)
+        except:
+            return False
 
     def count(self):
         """ Returns the size of pool """

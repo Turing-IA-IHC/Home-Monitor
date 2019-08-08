@@ -54,7 +54,7 @@ class ClassifierHAR(abc.ABC):
     def sendDetection(self, idData, classes):
         """ Send detection data to pool """
         self.dp.URL = self.URL
-        print('Sending data to {}. idData: {}. classes: {}.'.format(self.URL, idData, classes))
+        #print('Sending data to {}. idData: {}. classes: {}.'.format(self.URL, idData, classes))
         self.dp.sendDetection(idData, classes)
 
     def bring(self, controller = '', device = '', limit = -1, lastTime = 0):
@@ -77,9 +77,9 @@ class ClassifierHAR(abc.ABC):
             ModelPath = self.Config['MODEL']
 
         ModelPath = normpath(BasePath + "/" + ModelPath)
-        logging.info('Loadding model ' + ModelPath + ' ...') #TODO: Change to Debug
+        logging.debug('Loadding model ' + ModelPath + ' ...')
 
         NET = load_model(ModelPath)
-        if logging.getLogger().level <= logging.INFO: # Debug
+        if logging.getLogger().level < logging.INFO: # Debug
             NET.summary()
 
