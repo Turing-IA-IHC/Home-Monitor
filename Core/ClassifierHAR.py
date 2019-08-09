@@ -63,15 +63,18 @@ class ClassifierHAR(abc.ABC):
         #print('Bringing data from {}. controller: {}. device: {}. limit: {}. lastTime: {}.'.format(
         #    self.URL, controller, device, limit, lastTime))
         return self.dp.getData(controller, device, limit, lastTime)
-
+        
     def activateLog(self):
         """ Activate logging """
         Misc.loggingConf(self.loggingLevel, self.loggingFile, self.loggingFormat)
 
     def loadModel(self, ModelPath=None, BasePath="./"):
         """ Load and returns keras + tensorflow model """
+        import tensorflow as tf
         from tensorflow.keras import backend as K
         from tensorflow.keras.models import Sequential, load_model
+        sess = tf.Session()
+        K.set_session(sess)
 
         if ModelPath == None:
             ModelPath = self.Config['MODEL']
@@ -79,7 +82,13 @@ class ClassifierHAR(abc.ABC):
         ModelPath = normpath(BasePath + "/" + ModelPath)
         logging.debug('Loadding model ' + ModelPath + ' ...')
 
-        NET = load_model(ModelPath)
+        self.classifierGraph = tf.Graph()
+        with self.classifierGraph.as_default():
+            self.classifierSess = tf.Session(graph=self.classifierGraph)
+            with self.classifierSess.as_default():
+                NET = load_model(ModelPath)
+                NET._make_predict_function()
+
         if logging.getLogger().level < logging.INFO: # Debug
             NET.summary()
 

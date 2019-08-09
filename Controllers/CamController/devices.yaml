@@ -7,6 +7,6 @@ DEVICES: [
   {
       'id':1,
       'name':'Back',
-      'enabled':y
+      'enabled':n
   }
 ]

@@ -52,11 +52,11 @@ class DeviceController(abc.ABC):
         pass
 
     """ Real methods """
-    def send(self, controller, device, data):
+    def send(self, controller, device, data, aux=None):
         """ Send data to pool """
         self.dp.URL = self.URL
         #print('Sending data to {}. controller: {}. device: {}.'.format(self.URL, controller, device))
-        self.dp.sendData(controller, device, data)
+        self.dp.sendData(controller, device, data, aux)
 
     def activateLog(self):
         """ Activate logging """

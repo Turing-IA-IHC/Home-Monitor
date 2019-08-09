@@ -84,17 +84,17 @@ class main():
             try:
                 """ Section to control the execution of the pool """
                 if self.must_start_pool:
-                    if self.pool == None or not self.poolThread.is_alive():
+                    if not self.poolThread.is_alive():
                         logging.warning('Pool service is death. System auto start it.')
                         self.start_pool()
-                    logging.info('Pool service is living. Has ' + str(self.pool.count()) + ' data')
+                    #logging.info('Pool service is living. Has ' + str(self.pool.count()) + ' data')
             except:
                 logging.exception("Unexpected error checking pool: " + str(sys.exc_info()[0]))
 
             try:
                 """ Section to control the execution of the input data """
                 if self.must_start_devices:
-                    if self.inputData == None or not self.inputDataThread.is_alive():
+                    if not self.inputDataThread.is_alive():
                         logging.warning('Input data service is death. System auto start it.')
                         self.start_devices()
                     #else:
@@ -106,34 +106,32 @@ class main():
             try:
                 """ Section to control the execution of the HAR Loader """
                 if self.must_start_har:
-                    if self.loaderHAR == None or not self.loaderHARThread.is_alive():
+                    if not self.loaderHARThread.is_alive():
                         logging.warning('HAR Loader service is death. System auto start it.')
                         self.start_classifiers()
                     #logging.debug('Classifiers loaded: ' + str(len(self.loaderHAR.controllers)))
             except:
                 logging.exception("Unexpected error checking HAR Loader: " + str(sys.exc_info()[0]))
 
-            try:
-                dp = DataPool()
-                dp.URL = self.CONFIG['POOL_PATH']
-                #CamController/Gray
-                #, device = 'Trasera'
-                g = dp.getData(controller = 'CamController/Gray', limit = 1)
-                if len(g) > 1 :
-                    from cv2 import cv2
-                    cv2.imwrite('imagen.png', g[-1]['data'])
-                    print('id: "{}", Controller: "{}", Device: "{}"'.format(g[-1]['id'], g[-1]['controller'], g[-1]['device']))
-            except:
-                logging.exception("Unexpected readding data from pool: " + str(sys.exc_info()[0]))
+            #try:
+            #    dp = DataPool()
+            #    dp.URL = self.CONFIG['POOL_PATH']
+            #    #CamController/Gray
+            #    #, device = 'Trasera'
+            #    g = dp.getData(controller = 'CamController/Gray', limit = 1)
+            #    if len(g) > 1 :
+            #        from cv2 import cv2
+            #        cv2.imwrite('imagen.png', g[-1]['data'])
+            #        #print('id: "{}", Controller: "{}", Device: "{}"'.format(g[-1]['id'], g[-1]['controller'], g[-1]['device']))
+            #except:
+            #    logging.exception("Unexpected readding data from pool: " + str(sys.exc_info()[0]))
             
             sleep(3)
 
     def start_pool(self):
         """ Start data pool """
 
-        # TODO: Probar del self.pool
-        if self.pool == None:
-            self.pool = DataPool()
+        self.pool = DataPool()
         
         self.pool.URL = self.CONFIG['POOL_PATH']
         self.pool.loggingLevel = self.CONFIG['LOGGING_LEVEL']
@@ -144,14 +142,14 @@ class main():
         self.poolThread = Process(target=self.pool.start, args=())
         self.poolThread.daemon = True
         self.poolThread.start()
+        del self.pool
         sleep(2)
         logging.info('Pool started.')
 
     def start_devices(self):
         """ Start input data controller and all device controllers """
 
-        if self.inputData == None:
-            self.inputData = InputDataController()
+        self.inputData = InputDataController()
         
         self.inputData.URL = self.CONFIG['POOL_PATH']
         self.inputData.loggingLevel = self.CONFIG['LOGGING_LEVEL']
@@ -162,14 +160,14 @@ class main():
         self.inputDataThread = Process(target=self.inputData.start, args=())
         #self.inputDataThread.daemon = True
         self.inputDataThread.start()
+        del self.inputData
         sleep(2)
         logging.info('Input data controller started.')
 
     def start_classifiers(self):
         """ Start loader HAR and all classifiers HAR """
 
-        if self.loaderHAR == None:
-            self.loaderHAR = LoaderHAR()
+        self.loaderHAR = LoaderHAR()
         
         self.loaderHAR.URL = self.CONFIG['POOL_PATH']
         self.loaderHAR.loggingLevel = self.CONFIG['LOGGING_LEVEL']
@@ -180,6 +178,7 @@ class main():
         self.loaderHARThread = Process(target=self.loaderHAR.start, args=())
         #self.loaderHARThread.daemon = True
         self.loaderHARThread.start()
+        del self.loaderHAR
         sleep(2)
         logging.info('Loader HAR started.')
 
@@ -189,9 +188,9 @@ if __name__ == "__main__":
     components = 2   # Only input data controller
     components = 3   # Pool + input data controller
     #components = 4  # Only classifiers HAR
-    #components = 5  # Pool + Classifiers HAR
+    components = 5  # Pool + Classifiers HAR
     #components = 6  # Input data controller + Classifiers HAR
-    #components = 7  # Pool + input data controller + classifiers HAR
+    components = 7  # Pool + input data controller + classifiers HAR
     #components = 8  # Only Adnormal events
     #components = 15 # All components
 

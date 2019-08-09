@@ -44,13 +44,14 @@ class Data():
         example: Original, only a person, only a skeleton.
         In that case controller will be like: cams, cams/person, cams/skeleton
     """
-    def __init__(self, controller, device, data):
+    def __init__(self, controller, device, data, aux):
         self.id = str(time())           # ID of data, the pool itself change this value
         self.controller = controller    # Source of data
         self.device = device            # Fisic device identifier
         self.born = time()              # Time used to life of data
         self.state = PoolStates.ACTIVE  # State used to life of data
         self.data = data                # Data to analize
+        self.aux = aux                  # Auxiliar data
 
     def getJson(self):
         j = {
@@ -58,7 +59,8 @@ class Data():
             'controller' : self.controller,
             'device' : self.device,
             'born' : self.born,
-            'data' : self.data
+            'data' : self.data,
+            'aux': self.aux,
         }
         return j
 
@@ -139,10 +141,11 @@ class DataPool(Resource):
         parser.add_argument('controller')
         parser.add_argument('device')
         parser.add_argument('data')
+        parser.add_argument('aux')
         args = parser.parse_args()
 
         if args.source == 'controller':
-            data = Data(args.controller, args.device, args.data)
+            data = Data(args.controller, args.device, args.data, args.aux)
             self.append(data)
             self.pop()
         elif args.source == 'classifier':
@@ -224,13 +227,15 @@ class DataPool(Resource):
         x = self.sendCommand('count')
         return int(x)
 
-    def sendData(self, controller, device, data):
+    def sendData(self, controller, device, data, aux=None):
         """ Send data to pool """
         p = post(self.URL, data={
             'source': 'controller',
             'controller' : controller, 
             'device': device, 
-            'data': data})
+            'data': data,
+            'aux':aux
+            })
             
         return p
 

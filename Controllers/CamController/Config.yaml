@@ -9,3 +9,4 @@ ENABLED: Y                            # Module is enabled to run
 # ------
 FRAME_WIDTH: 320                      # With of image
 FRAME_HEIGHT: 240                     # Height of image
+CLASSES: [RGB, Gray, Skeleton]        # Classes to find: RGB, Gray, Person, Skeleton

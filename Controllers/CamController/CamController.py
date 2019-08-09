@@ -22,6 +22,7 @@ import math
 import numpy as np
 from time import time, sleep
 import logging
+import tensorflow as tf
 from tensorflow.keras import backend as K
 from tensorflow.keras.models import Sequential, load_model
 
@@ -31,9 +32,6 @@ import Misc
 
 class CamController(DeviceController):
     """ Class to get RGB data from cams """
-
-    # Models for preProc
-    joinsBodyNET = None
         
     def start(self):
         """ Start module and getting data """
@@ -70,8 +68,7 @@ class CamController(DeviceController):
             
                 for gd in gdList:
                     try:
-                        # TODO: Enviar datos adicionales auxiliares
-                        self.send(gd['controller'], gd['device'], gd['data'])
+                        self.send(gd['controller'], gd['device'], gd['data'], gd['aux'])
                         failedSend = 0        
                     except:
                         failedSend += 1                        
@@ -126,54 +123,72 @@ class CamController(DeviceController):
 
         cam = self.Devices[idDevice]['cam']
         ret, frame = cam.read()
-        height = frame.shape[0]
-        width = frame.shape[1]
+
+        if frame is None:
+            return []
+
+        height = np.size(frame, 0)
+        width = np.size(frame, 1)
 
         deviceName = idDevice if deviceName == None else deviceName
 
         dataReturn = []
 
-        auxData = '{' + 'W:{}, H:{}'.format(width, height) + '}'
+        auxData = '{' + '"W":{}, "H":{}'.format(width, height) + '}'
         
-        dataReturn.append({
-            'controller': 'CamController',
-            'device': deviceName,
-            'data': self.dp.serialize(frame),
-            'auxData': auxData,
-        })
+        if self.getRGB:
+            dataReturn.append({
+                'controller': 'CamController',
+                'device': deviceName,
+                'data': self.dp.serialize(frame),
+                'aux': auxData,
+            })
         
-        dataReturn.append({
-            'controller': 'CamController/Gray',
-            'device': deviceName,
-            'data': self.dp.serialize(self.preProc_Gray(frame)),
-            'auxData': auxData,
-        })
+        if self.getGray:
+            dataReturn.append({
+                'controller': 'CamController/Gray',
+                'device': deviceName,
+                'data': self.dp.serialize(self.preProc_Gray(frame)),
+                'aux': auxData,
+            })
         
-        dataReturn.append({
-            'controller': 'CamController/Person',
-            'device': deviceName,
-            'data': self.dp.serialize(self.preProc_Person(frame)),
-            'auxData': auxData,
-        })
+        if self.getPerson:
+            dataReturn.append({
+                'controller': 'CamController/Person',
+                'device': deviceName,
+                'data': self.dp.serialize(self.preProc_Person(frame)),
+                'aux': auxData,
+            })
         
-        if self.joinsBodyNET != None:
+        if self.getSkeleton and not self.joinsBodyNET is None:
             dataReturn.append({
                 'controller': 'CamController/Skeleton',
                 'device': deviceName,
                 'data': self.dp.serialize(self.preProc_Skeleton(frame)),
-                'auxData': auxData,
+                'aux': auxData,
             })
         
         return dataReturn
 
     def loadPreProcModels(self):
 
-        ModelPath = normpath(dirname(__file__) + "/model/poseModel.h5")
-        logging.debug('Loadding model for preProc in CamController ' + ModelPath + ' ...')
+        self.getRGB = 'RGB' in self.Config['CLASSES']
+        self.getGray = 'Gray' in self.Config['CLASSES']
+        self.getPerson = 'Person' in self.Config['CLASSES']
+        self.getSkeleton = 'Skeleton' in self.Config['CLASSES']
 
-        self.joinsBodyNET = load_model(ModelPath)
-        if logging.getLogger().level < logging.INFO: # Debug
-            self.joinsBodyNET.summary()
+        if self.getSkeleton:
+            from tensorflow import Graph, Session
+            self.joinsBodyGraph = Graph()
+            with self.joinsBodyGraph.as_default():
+                self.joinsBodySess = tf.Session(graph=self.joinsBodyGraph)
+                #with self.joinsBodySess.as_default():
+                ModelPath = normpath(dirname(__file__) + "/model/poseModel.h5")
+                logging.debug('Loadding model for preProc_Skeleton in CamController ' + ModelPath + ' ...')        
+                self.joinsBodyNET = load_model(ModelPath)
+                self.joinsBodyNET._make_predict_function()
+                if logging.getLogger().level < logging.INFO: # Debug
+                    self.joinsBodyNET.summary()
 
     def preProc_Gray(self, frame):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -186,7 +201,7 @@ class CamController(DeviceController):
     def preProc_Skeleton(self, frame):
 
         oriImg = frame  # B,G,R order
-        scale_search = [0.22] #,0.25,.5, 1, 1.5, 2]
+        scale_search = [0.22, .5] #,0.25,.5, 1, 1.5, 2]
         multiplier = [x * 368 / oriImg.shape[0] for x in scale_search]
 
         heatmap_avg = np.zeros((oriImg.shape[0], oriImg.shape[1], 19))
@@ -202,7 +217,9 @@ class CamController(DeviceController):
 
             imageToTest_padded, pad = self.padRightDownCorner(imageToTest)
             input_img = np.transpose(np.float32(imageToTest_padded[:,:,:,np.newaxis]), (3,0,1,2)) # required shape (1, width, height, channels)
-            output_blobs = self.joinsBodyNET.predict(input_img)
+            with self.joinsBodyGraph.as_default():
+                #with self.joinsBodySess.as_default():
+                output_blobs = self.joinsBodyNET.predict(input_img)
       
             # extract outputs, resize, and remove padding
             heatmap = np.squeeze(output_blobs[1])  # output 1 is heatmaps
@@ -426,8 +443,7 @@ class CamController(DeviceController):
         img_padded = np.concatenate((img_padded, pad_right), axis=1)
     
         return img_padded, pad
-    
-
+  
 if __name__ == "__main__":
     from time import ctime
     config = Misc.readConfig(dirname(__file__) + "/config.yaml")
