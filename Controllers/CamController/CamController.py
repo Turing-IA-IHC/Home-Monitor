@@ -12,128 +12,65 @@ Class information:
 
 import sys
 from os.path import dirname, normpath
-import threading
-
-#import cv2  #pip install opencv-python
-from cv2 import cv2
-from scipy.ndimage.filters import gaussian_filter
 
 import math
 import numpy as np
-from time import time, sleep
 import logging
+
+from cv2 import cv2 #pip install opencv-python
+from scipy.ndimage.filters import gaussian_filter
 import tensorflow as tf
 from tensorflow.keras import backend as K
-from tensorflow.keras.models import Sequential, load_model
+from tensorflow.keras.models import load_model
 
+# Including Home Monitor Paths to do visible the modules
+sys.path.insert(0, './Tools/')
 sys.path.insert(0, './Core/')
-from DeviceController import DeviceController
+
 import Misc
+from DeviceController import DeviceController
 
 class CamController(DeviceController):
     """ Class to get RGB data from cams """
-        
-    def start(self):
-        """ Start module and getting data """
-        self.activateLog()
-        self.loadPreProcModels()
-            
-        self.running = True
-        self.Devices = self.getDeviceList()
 
-        for c in range(len(self.Devices)):
-            capture = self.initializeDevice(self.Devices[c])
-            self.Devices[c]['cam'] = capture
+    def preLoad(self):
+        """ Load knowledge for pre processing """
+        self.getRGB = 'RGB' in self.Config['CLASSES']
+        self.getGray = 'Gray' in self.Config['CLASSES']
+        self.getPerson = 'Person' in self.Config['CLASSES']
+        self.getSkeleton = 'Skeleton' in self.Config['CLASSES']
 
-        logging.debug('Reading cams')
-        failedSend = 0        
-        while self.running:
-
-            for d in self.Devices:
-                if d in self.InactiveDevices:
-                    continue
-
-                gdList = []
-                try:
-                    gdList = self.getData(d['id'], d['name'])
-                except:
-                    logging.exception(
-                        'Unexpected readding data from device: {}:{} ({})'.format(
-                            d['id'], d['name'], str(d['cam']))
-                        )
-                    self.InactiveDevices.append(d)
-                    import threading
-                    x = threading.Thread(target=self.checkDevice, args=(d,))
-                    x.start()
-            
-                for gd in gdList:
-                    try:
-                        self.send(gd['controller'], gd['device'], gd['data'], gd['aux'])
-                        failedSend = 0        
-                    except:
-                        failedSend += 1                        
-                        logging.exception(
-                            'Unexpected sending data from device: {}:{} ({})'.format(
-                                d['id'], d['name'], str(d['cam']))
-                            )
-            
-            if failedSend > 2 and not self.dp.isLive():
-                logging.error('Pool no found CamController shutdown.')
-                break
-
-            sleep(self.Sampling)
-
-    def stop(self):
-        """ Stop module and getting data """
-        self.running = False
-
-    def getDeviceList(self):
-        """ Returns a list of devices able to read """
-        devices = Misc.readConfig(dirname(__file__) + "/devices.yaml")
-        devices = devices['DEVICES']
-        result = list(filter(lambda d: Misc.toBool(d['enabled']), devices))
-        return result
+        if self.getSkeleton:            
+            ModelPath = normpath(dirname(__file__) + "/" + self.Config['MODEL'])
+            logging.debug('Loadding model for {} from {} ...'.format(self.__class__.__name__, ModelPath))
+            self.joinsBodyNET = load_model(ModelPath)
+            self.joinsBodyNET._make_predict_function()
+            if logging.getLogger().level < logging.INFO: # Only shows in Debug
+                self.joinsBodyNET.summary()
 
     def initializeDevice(self, device):
         """ Initialize device """
         capture = cv2.VideoCapture(device['id'])
-        capture.set(cv2.CAP_PROP_FRAME_WIDTH, self.Config['FRAME_WIDTH'])
-        capture.set(cv2.CAP_PROP_FRAME_HEIGHT, self.Config['FRAME_HEIGHT'])
+        _width = Misc.hasKey(device, 'width', self.Config['FRAME_WIDTH'])
+        _height = Misc.hasKey(device, 'height', self.Config['FRAME_HEIGHT'])
+        capture.set(cv2.CAP_PROP_FRAME_WIDTH, _width)
+        capture.set(cv2.CAP_PROP_FRAME_HEIGHT, _height)
         return capture
 
-    def checkDevice(self, Device):
-        """ Check if a device is online again """
-        for _ in range(30):
-            try:
-                thrs = threading.enumerate()
-                if thrs[0]._is_stopped: # MainThread
-                    break
-                capture = self.initializeDevice(Device)
-                Device['cam'] = capture
-                self.getData(Device['id'])
-                self.InactiveDevices.remove(Device)
-                break
-            except:
-                pass
-
-            sleep(30)
-
-    def getData(self, idDevice, deviceName=None):
+    def getData(self, device):
         """ Returns a list of tuples like {controller, device, data} with data elements """
 
-        cam = self.Devices[idDevice]['cam']
-        ret, frame = cam.read()
+        cam = self.Devices[device["id"]]['capture']
+        _, frame = cam.read()
 
         if frame is None:
             return []
 
         height = np.size(frame, 0)
         width = np.size(frame, 1)
-
-        deviceName = idDevice if deviceName == None else deviceName
+        deviceName = Misc.hasKey(device, 'name', device["id"])
 
         dataReturn = []
-
         auxData = '{' + '"W":{}, "H":{}'.format(width, height) + '}'
         
         if self.getRGB:
@@ -169,33 +106,37 @@ class CamController(DeviceController):
             })
         
         return dataReturn
+  
+    def showData(self, gd):
+        """ To show data if this module start standalone.
+        set self.Standalone = True before start. """
 
-    def loadPreProcModels(self):
+        if gd['controller'] == 'CamController/Skeleton':
+            people = self.dp.deserialize(gd['data']) #For capture the image in RGB color space
+            rgbImage = np.zeros((config['FRAME_HEIGHT'], config['FRAME_WIDTH'], 3), np.uint8)
+            
+            for person in people:
+                for join in person:
+                    if join[0] != None:
+                        cv2.circle(rgbImage, (join[0], join[1]), 5, [255, 0, 0], thickness=-1)
 
-        self.getRGB = 'RGB' in self.Config['CLASSES']
-        self.getGray = 'Gray' in self.Config['CLASSES']
-        self.getPerson = 'Person' in self.Config['CLASSES']
-        self.getSkeleton = 'Skeleton' in self.Config['CLASSES']
+        else:
+            rgbImage = self.dp.deserialize(gd['data']) #For capture the image in RGB color space
 
-        if self.getSkeleton:
-            from tensorflow import Graph, Session
-            self.joinsBodyGraph = Graph()
-            with self.joinsBodyGraph.as_default():
-                self.joinsBodySess = tf.Session(graph=self.joinsBodyGraph)
-                #with self.joinsBodySess.as_default():
-                ModelPath = normpath(dirname(__file__) + "/model/poseModel.h5")
-                logging.debug('Loadding model for preProc_Skeleton in CamController ' + ModelPath + ' ...')        
-                self.joinsBodyNET = load_model(ModelPath)
-                self.joinsBodyNET._make_predict_function()
-                if logging.getLogger().level < logging.INFO: # Debug
-                    self.joinsBodyNET.summary()
+        # Display the resulting frame                    
+        cv2.imshow(gd['controller'] + '-' + gd['device'], rgbImage)
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            self.stop()
+            cv2.destroyAllWindows()
+
+    # =========== Auxiliar methods =========== #
 
     def preProc_Gray(self, frame):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         return gray
 
     def preProc_Person(self, frame):
-        #sleep(1)
         return frame
 
     def preProc_Skeleton(self, frame):
@@ -217,9 +158,7 @@ class CamController(DeviceController):
 
             imageToTest_padded, pad = self.padRightDownCorner(imageToTest)
             input_img = np.transpose(np.float32(imageToTest_padded[:,:,:,np.newaxis]), (3,0,1,2)) # required shape (1, width, height, channels)
-            with self.joinsBodyGraph.as_default():
-                #with self.joinsBodySess.as_default():
-                output_blobs = self.joinsBodyNET.predict(input_img)
+            output_blobs = self.joinsBodyNET.predict(input_img)
       
             # extract outputs, resize, and remove padding
             heatmap = np.squeeze(output_blobs[1])  # output 1 is heatmaps
@@ -400,10 +339,7 @@ class CamController(DeviceController):
             #if subset[i][4] == -1 and subset[i][7] == -1 : #No hands/Wrist
             #    continue
             person = []
-            for j in range(18): # Son 18 conexiones
-                # Solo se tomaran las conexiones de la parte superior, sin ojos y orejas
-                #if j in [9, 10, 12, 13, 14, 15, 16, 17] :
-                #    continue
+            for j in range(18): # 18 connections
                     
                 #'Nose','Neck','RShoulder','RElbow','RWrist','LShoulder','LElbow','LWrist',
                 #'RHip','RKnee','RAnkle','LHip','LKnee','LAnkle','REye','LEye','REar','LEar'
@@ -443,65 +379,11 @@ class CamController(DeviceController):
         img_padded = np.concatenate((img_padded, pad_right), axis=1)
     
         return img_padded, pad
-  
+
+# =========== Start standalone =========== #
 if __name__ == "__main__":
-    from time import ctime
     config = Misc.readConfig(dirname(__file__) + "/config.yaml")
-    camC = CamController(config)
-    camC.activateLog()
-    camC.loadPreProcModels()    
-    camC.running = True
-    camC.Devices = camC.getDeviceList()
-    for c in range(len(camC.Devices)):
-        capture = camC.initializeDevice(camC.Devices[c])
-        camC.Devices[c]['cam'] = capture
-
-    logging.debug('Reading cams')
-    while camC.running:
-        t0 = time()
-        for d in camC.Devices:
-            if d in camC.InactiveDevices:
-                continue
-
-            gdList = []
-            try:
-                #print('getData before', time())
-                gdList = camC.getData(d['id'],d['name'])
-                #print('getData after', time())
-            except:
-                logging.exception("Unexpected Readding data from device: " + str(camC.Devices[d['id']]['cam']))
-                camC.InactiveDevices.append(d)
-                x = threading.Thread(target=camC.checkDevice, args=(d,))
-                x.start()
-        
-            for gd in gdList:
-                if gd['controller'] == 'CamController/Skeleton':
-                    people = camC.dp.deserialize(gd['data']) #For capture the image in RGB color space
-                    #rgbImage = camC.dp.deserialize(gd['data']) #For capture the image in RGB color space
-                    rgbImage = np.zeros((config['FRAME_HEIGHT'], config['FRAME_WIDTH'], 3), np.uint8)
-                    
-                    for person in people:
-                        for join in person:
-                            if join[0] != None:
-                                cv2.circle(rgbImage, (join[0], join[1]), 5, [255, 0, 0], thickness=-1)
-
-                else:
-                    rgbImage = camC.dp.deserialize(gd['data']) #For capture the image in RGB color space
-
-                # Display the resulting frame                    
-                cv2.imshow(gd['controller'] + '-' + gd['device'], rgbImage)
-                #cv2.imshow('img', rgbImage)
-            
-        #Wait to press 'q' key for capturing
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            #cv2.imwrite('img.png',frame)
-            break
-
-        sleep(camC.Sampling)
-        print('Elapsed time', (time() - t0))
-        	
-    # When everything done, release the capture
-    print(capture)
-    capture.release()
-    print(capture)
-    cv2.destroyAllWindows()
+    devC = CamController(config)
+    devC.Me_Path = dirname(__file__)
+    devC.Standalone = True
+    devC.start()

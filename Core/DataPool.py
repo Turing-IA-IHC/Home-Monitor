@@ -10,22 +10,20 @@ Class information:
     Class to controlate life time of data
 """
 
-import os
+import sys
 import logging
-from time import time, sleep, ctime
+from time import time
 
-from enum import Enum, unique
 import Misc
 from Misc import singleton
+from enum import Enum, unique
 
 from flask import Flask, request
 from flask_restful import Resource, Api, reqparse
-#from flask.logging import default_handler
 from requests import get, post, put
 
 import json
 from json import JSONEncoder
-
 import pickle
 import ast
 
@@ -38,20 +36,27 @@ class PoolStates(Enum):
     ACTIVE = 0
     QUARANTINE = 1
 
+@unique
+class SourceType(Enum):
+    CONTROLLER = 0
+    CLASSIFIER = 1
+
 class Data():
     """ Structure to represent a data to proccess 
         A source like a Cam could send diferent data from same input,
         example: Original, only a person, only a skeleton.
         In that case controller will be like: cams, cams/person, cams/skeleton
     """
-    def __init__(self, controller, device, data, aux):
-        self.id = str(time())           # ID of data, the pool itself change this value
-        self.controller = controller    # Source of data
-        self.device = device            # Fisic device identifier
-        self.born = time()              # Time used to life of data
-        self.state = PoolStates.ACTIVE  # State used to life of data
-        self.data = data                # Data to analize
-        self.aux = aux                  # Auxiliar data
+    
+    id = str(time())           # ID of data, the pool itself change this value
+    source:SourceType = None   # Module type generator of data
+    born = time()              # Time used to life of data
+    state = PoolStates.ACTIVE  # State used to life of data
+    controller = ''            # Source of data
+    device = ''                # Physical device identifier
+    classifier = ''            # Source of data
+    data = None                # Data to analize
+    aux = None                 # Auxiliar data
 
     def getJson(self):
         j = {
@@ -78,7 +83,7 @@ class DataPool(Resource):
         self.T0 = 10                # Seconds to keep data in active
         self.T1 = self.T0 + 10      # Seconds to keep data in quarentine
         
-        self.loggingLevel = None    # logging level to write
+        self.loggingLevel:int = 0   # logging level to write
         self.loggingFile = None     # Name of file where write log
         self.loggingFormat = None   # Format to show the log
 
@@ -137,21 +142,30 @@ class DataPool(Resource):
     def post(self):
         """ Load data in pool """
         parser = reqparse.RequestParser()
+        parser.add_argument('id')
         parser.add_argument('source')
         parser.add_argument('controller')
         parser.add_argument('device')
+        parser.add_argument('classifier')
         parser.add_argument('data')
         parser.add_argument('aux')
         args = parser.parse_args()
 
+        data = Data()
         if args.source == 'controller':
-            data = Data(args.controller, args.device, args.data, args.aux)
-            self.append(data)
-            self.pop()
+            data.source = SourceType.CONTROLLER
+            data.controller = args.controller
+            data.device = args.device
         elif args.source == 'classifier':
-            #print('Data from classifier')
-            # TODO: Falta el envío de los datos desde el HAR
+            data.id = args.id
+            data.source = SourceType.CLASSIFIER
+            data.classifier = args.classifier
             pass
+        
+        data.data = args.data
+        data.aux = args.aux
+        self.append(data)
+        self.pop()
 
         message = 'ok'
         return message
@@ -183,7 +197,7 @@ class DataPool(Resource):
 
         app = Flask(__name__)
         log = logging.getLogger('werkzeug')
-        log.setLevel(logging.ERROR)
+        log.setLevel(self.loggingLevel)
         app.logger = logging.getLogger()
         api = Api(app)
         api.add_resource(DataPool, 
@@ -193,7 +207,7 @@ class DataPool(Resource):
         #'/pool/<string:har>/<string:class>/<string:id>', 
 
         app.run()
-        logging.info('Pool api stoped')
+        logging.info('Pool api stoped.')
 
     """ Functions to interact with Pool """
 
@@ -220,6 +234,7 @@ class DataPool(Resource):
             x = self.sendCommand('isLive')
             return bool(x)
         except:
+            logging.error(str(sys.exc_info()[0]))
             return False
 
     def count(self):
@@ -253,11 +268,14 @@ class DataPool(Resource):
 
         return g
 
-    def sendDetection(self, idData, classes):
+    def sendDetection(self, classifier, idData, classes, aux=None):
         """ Send detection data to pool """
-        # TODO: Pensar que información a demás de las clases y el id del dato se debe entregar
         p = post(self.URL, data={
-            'source': 'classifier'
+            'source': 'classifier',
+            'classifier' : classifier, 
+            'id': idData, 
+            'data': classes,
+            'aux':aux
             })
         return p
 

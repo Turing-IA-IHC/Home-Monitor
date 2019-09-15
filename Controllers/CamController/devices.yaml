@@ -2,11 +2,15 @@ DEVICES: [
   {
       'id':0,
       'name':'Front',
-      'enabled':y
+      'enabled':y,
+      'width':320,
+      'height':240
   },
   {
       'id':1,
       'name':'Back',
-      'enabled':n
+      'enabled':y,
+      'width':320,
+      'height':240
   }
 ]

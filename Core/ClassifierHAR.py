@@ -24,71 +24,113 @@ class ClassifierHAR(abc.ABC):
     def __init__(self, cfg=None):
         self.dp = DataPool()        # Object to send information
         self.URL = ""               # Pool URL
+        self.Me_Path = "./"         # Path of current component
+        self.Standalone = False     # If a child start in standalone
         self.lastTime = time()      # Time of last petition to the pool
         
         self.Config = cfg           # Object with all config params
         self.Classes = self.Config['CLASSES']   # Classes able to detect
-        #print(' -- ', self.Classes, len(self.Classes))
+        self.NET = None             # Neural Network to predict
+
+        self.Controller = ''        # Controller to filter data
+        self.Device = ''            # Device name to filter data
+        self.Limit = -1             # Amount of data to filter data
 
         self.loggingLevel = None    # logging level to write
         self.loggingFile = None     # Name of file where write log
         self.loggingFormat = None   # Format to show the log
 
+    def preLoad(self):
+        """ Implement me! :: Load knowledge for pre processing """
+        pass
+  
     """ Abstract methods """
     @abc.abstractmethod
-    def start(self):
-        """ Implement me! :: Start module and predicting """
-        pass
-
-    @abc.abstractmethod
-    def stop(self):
-        """ Implement me! :: Stop module and predicting """
-        pass
-
-    @abc.abstractmethod
-    def predict(self, idDevice):
+    def predict(self, data):
         """ Implement me! :: Do prediction and return class found """
         pass
 
+    @abc.abstractmethod
+    def showData(self, data, classes, aux):
+        """ To show data if this module start standalone.
+        set self.Standalone = True before start. """
+        pass
+
     """ Real methods """
-    def sendDetection(self, idData, classes):
+   
+    def start(self):
+        """ Start module and predicting """
+        self.activateLog()
+        self.preLoad()
+
+        self.running = True
+
+        logging.debug('Start detection of {} in {}.'.format(self.Config["CLASSES"], 
+                        self.__class__.__name__))
+        failedSend = 0
+        while self.running:
+            gdList = []
+            _classes = None
+            _idData = 0
+
+            try:
+                gdList = self.bring(controller=self.Controller, device=self.Device, 
+                                    limit=self.Limit, lastTime=self.lastTime)
+                self.lastTime = gdList[0]['timeQuery']
+                failedSend = 0        
+            except:
+                failedSend += 1
+                logging.exception(
+                    'Unexpected error getting data from pool: {}. Controller: {}, Device: {}, Limit: {}.'.format(
+                        self.URL, self.Controller, self.Device, self.Limit))
+                if failedSend > 2 and not self.dp.isLive():
+                    logging.error('Pool no found {} will shutdown.'.format(self.__class__.__name__))
+                    self.stop()
+                    break
+                continue
+
+            for gd in  gdList[1:]:
+                _classes = []
+                try:
+                    _classes, _aux = self.predict(gd)
+                    _idData = gd['id']
+                except:
+                    logging.exception(
+                        'Unexpected error in prediction from classifier: {} ({}).'.format(
+                            self.__class__.__name__, self.Config["MACHINE_NAME"]))
+                
+                try:
+                    if not self.Standalone:
+                        self.sendDetection(_idData, _classes, _aux)
+                    else:
+                        self.showData(gd, _classes, _aux)
+                    failedSend = 0        
+                except:
+                    failedSend += 1
+                    logging.exception(
+                        'Unexpected error sending data from classifier: {} ({}).'.format(
+                            self.__class__.__name__, self.Config["MACHINE_NAME"]))
+
+                    if failedSend > 2 and not self.dp.isLive():
+                        logging.error('Pool no found {} will shutdown.'.format(self.__class__.__name__))
+                        self.stop()
+                        break            
+
+    def stop(self):
+        """ Stop module and predicting """
+        self.running = False
+
+    def sendDetection(self, idData, classes, aux=None):
         """ Send detection data to pool """
         self.dp.URL = self.URL
-        #print('Sending data to {}. idData: {}. classes: {}.'.format(self.URL, idData, classes))
-        self.dp.sendDetection(idData, classes)
+        self.dp.sendDetection(self,classifier=self.Config["MACHINE_NAME"], 
+                            idData=idData, classes=classes, aux=aux)
 
     def bring(self, controller = '', device = '', limit = -1, lastTime = 0):
         """ Bring data from Pool """
         self.dp.URL = self.URL
-        #print('Bringing data from {}. controller: {}. device: {}. limit: {}. lastTime: {}.'.format(
-        #    self.URL, controller, device, limit, lastTime))
         return self.dp.getData(controller, device, limit, lastTime)
         
     def activateLog(self):
         """ Activate logging """
         Misc.loggingConf(self.loggingLevel, self.loggingFile, self.loggingFormat)
-
-    def loadModel(self, ModelPath=None, BasePath="./"):
-        """ Load and returns keras + tensorflow model """
-        import tensorflow as tf
-        from tensorflow.keras import backend as K
-        from tensorflow.keras.models import Sequential, load_model
-        sess = tf.Session()
-        K.set_session(sess)
-
-        if ModelPath == None:
-            ModelPath = self.Config['MODEL']
-
-        ModelPath = normpath(BasePath + "/" + ModelPath)
-        logging.debug('Loadding model ' + ModelPath + ' ...')
-
-        self.classifierGraph = tf.Graph()
-        with self.classifierGraph.as_default():
-            self.classifierSess = tf.Session(graph=self.classifierGraph)
-            with self.classifierSess.as_default():
-                NET = load_model(ModelPath)
-                NET._make_predict_function()
-
-        if logging.getLogger().level < logging.INFO: # Debug
-            NET.summary()
-

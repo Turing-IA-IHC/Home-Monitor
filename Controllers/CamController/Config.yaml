@@ -6,7 +6,9 @@ VERSION: 1.0.0                        # Module id version.
 DESCRIPTION: Module to control cam RGB devices. # Description for humans.
 SAMPLING: 0.0                         # Sampling rate to control frame per second.
 ENABLED: Y                            # Module is enabled to run
+CHECK_TIME: 30                        # Time in seconds t check if device is active
 # ------
 FRAME_WIDTH: 320                      # With of image
 FRAME_HEIGHT: 240                     # Height of image
 CLASSES: [RGB, Gray, Skeleton]        # Classes to find: RGB, Gray, Person, Skeleton
+MODEL: model/poseModel.h5             # Model for genetare joints of people

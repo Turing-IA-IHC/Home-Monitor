@@ -9,15 +9,16 @@ Home-Monitor:
 Class information:
     Class to control all data received from device drivers.
 """
+
 import sys
-from os.path import dirname, abspath, exists, split, normpath
-import numpy as np
-from time import time, sleep, ctime
+from os.path import normpath
 import logging
-from multiprocessing import Process, Value
+from time import sleep
+from multiprocessing import Process
 import hashlib
-from DataPool import DataPool, Data
+
 import Misc
+from DataPool import DataPool
 
 class LoaderHAR:
     """ Class to control all HAR components to load in system. """
@@ -26,7 +27,7 @@ class LoaderHAR:
         """ Initialize all variables """
         self.URL = ''               # URL of pool server
         self.classifiers = []       # List of classifiers
-        self.loggingLevel = None    # logging level to write
+        self.loggingLevel:int = 0   # logging level to write
         self.loggingFile = None     # Name of file where write log
         self.loggingFormat = None   # Format to show the log
     
@@ -42,10 +43,11 @@ class LoaderHAR:
                     _pathFile = normpath(cf + "/config.yaml")
                     _config = Misc.readConfig(_pathFile)
                     _enabled = Misc.toBool(str(_config['ENABLED']))
-                    _moduleName = _config['MACHINE_NAME'] if _enabled else Misc.hasKey(_config, 'MACHINE_NAME')
-                    _className = _config['CLASS_NAME'] if _enabled else Misc.hasKey(_config, 'CLASS_NAME')
-                    
                     _check = hashlib.md5(str(_config).encode('utf-8')).hexdigest()
+
+                    _moduleName = Misc.hasKey(_config, 'MACHINE_NAME', 'No MACHINE_NAME')
+                    _className = Misc.hasKey(_config, 'CLASS_NAME', 'No CLASS_NAME')
+                    
                     _found = False
 
                     for cc in range(len(self.classifiers)):
@@ -54,8 +56,8 @@ class LoaderHAR:
                         if _ctrl["configFile"] == _pathFile:
                             _found = True
                             if _ctrl["check"] != _check:
-                                logging.info('Something changed in ' + _pathFile +
-                                    ('. It will be reload.' if _enabled else '. It will be stoped.'))
+                                logging.info('Something changed in {}. It will be {}.'.format(_pathFile,
+                                    ('reload' if _enabled else 'stoped')))
 
                                 if "thread" in _ctrl and _ctrl["thread"].is_alive():
                                     _ctrl["thread"].terminate()
@@ -73,8 +75,8 @@ class LoaderHAR:
                             break
 
                     if not _found:
-                        logging.info('There is a new module in ' + _pathFile + 
-                            ('. It will be Load.' if _enabled else '. But is disabled.'))
+                        logging.info('There is a new module in {}. {}.'.format(_pathFile,
+                            ('It will be Load' if _enabled else 'But is disabled')))
                         self.classifiers.append({
                                 "check": _check,
                                 "configFile": _pathFile,
@@ -84,9 +86,8 @@ class LoaderHAR:
                                 "enabled": _enabled,
                                 "config" : _config,
                             })
-
                 except:
-                    logging.exception("Unexpected error loading HAR classifier in folder " + cf + " : " + str(sys.exc_info()[0]))
+                    logging.exception('Unexpected error loading HAR classifier in folder {} :: {}.'.format(cf, str(sys.exc_info()[0])))
 
     def start(self):
         """ Start load of all HAR Classifiers """
@@ -96,20 +97,18 @@ class LoaderHAR:
         dp = DataPool()
         dp.URL = self.URL
 
-        TimeDiff = 999999
-        logging.info('Trying to connect to Pool from HAR Loader ...')
+        logging.info('Trying to connect to Pool ({}) from HAR Loader ...'.format(dp.URL))
         err = ''
         for _ in range(10):
-            try:
-                TimeDiff = dp.getTimeDiff()
-                logging.info('Time in pool server: ' + ctime(time() + TimeDiff) + ' Diference: ' + str(TimeDiff))
+            if dp.isLive():
+                err = ''
                 break
-            except:
-                err = str(sys.exc_info()[0])
+            else:
+                err = 'Check messages previous.'
                 sleep(1)
 
-        if TimeDiff == 999999:
-            logging.error('Failed to connect to ' + dp.URL + ' :: Err: ' + err)
+        if err != '':
+            logging.error('Failed connecting to {} :: Err: {}'.format(dp.URL, err))
             logging.error('Press control + c to terminate.')
             return
 
@@ -120,16 +119,20 @@ class LoaderHAR:
                 _cls = None
                 if _ctrl["enabled"] and not "thread" in _ctrl:
                     """ Load componente and class using config file information """
-                    logging.info('Starting HAR classifiers ' + _ctrl['moduleName'] + '.')
+                    logging.info('Starting HAR classifiers {}.'.format(_ctrl['moduleName']))
                     _cls = Misc.importModule(_ctrl["path"], _ctrl['moduleName'], _ctrl['className'])
                     _cls = _cls(_ctrl["config"])
                     _cls.URL = self.URL
+                    _cls.Me_Path = _ctrl["path"]
+                    _cls.loggingLevel = self.loggingLevel
+                    _cls.loggingFile = self.loggingFile
+                    _cls.loggingFormat = self.loggingFormat
+
                     ClassifierHARThread = Process(target=_cls.start, args=())
-                    #ClassifierHARThread.daemon = True
                     ClassifierHARThread.start()
                     _ctrl["thread"] = ClassifierHARThread
                     del _cls
-                    logging.info('HAR classifier '  + _ctrl['moduleName'] + ' started.')
+                    logging.info('HAR classifier {} started.'.format(_ctrl['moduleName']))
                     
             sleep(30)
 
