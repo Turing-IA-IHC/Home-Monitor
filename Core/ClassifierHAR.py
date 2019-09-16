@@ -40,11 +40,12 @@ class ClassifierHAR(abc.ABC):
         self.loggingFile = None     # Name of file where write log
         self.loggingFormat = None   # Format to show the log
 
+    """ Abstract methods """
+    @abc.abstractmethod
     def preLoad(self):
         """ Implement me! :: Load knowledge for pre processing """
         pass
   
-    """ Abstract methods """
     @abc.abstractmethod
     def predict(self, data):
         """ Implement me! :: Do prediction and return class found """
@@ -52,12 +53,18 @@ class ClassifierHAR(abc.ABC):
 
     @abc.abstractmethod
     def showData(self, data, classes, aux):
-        """ To show data if this module start standalone.
+        """ Implement me! :: To show data if this module start standalone.
+        set self.Standalone = True before start. """
+        pass
+
+    @abc.abstractmethod
+    def testData(self):
+        """ Implement me! :: Data t test if this module start standalone. 
+            You must return an array as expected if you query the data pool.
         set self.Standalone = True before start. """
         pass
 
     """ Real methods """
-   
     def start(self):
         """ Start module and predicting """
         self.activateLog()
@@ -74,9 +81,12 @@ class ClassifierHAR(abc.ABC):
             _idData = 0
 
             try:
-                gdList = self.bring(controller=self.Controller, device=self.Device, 
-                                    limit=self.Limit, lastTime=self.lastTime)
-                self.lastTime = gdList[0]['timeQuery']
+                if not self.Standalone:
+                    gdList = self.bring(controller=self.Controller, device=self.Device, 
+                                        limit=self.Limit, lastTime=self.lastTime)
+                    self.lastTime = gdList[0]['timeQuery']
+                else:
+                    gdList = self.testData()
                 failedSend = 0        
             except:
                 failedSend += 1
@@ -100,7 +110,7 @@ class ClassifierHAR(abc.ABC):
                             self.__class__.__name__, self.Config["MACHINE_NAME"]))
                 
                 try:
-                    if not self.Standalone:
+                    if not self.Standalone and len(_classes) > 0:
                         self.sendDetection(_idData, _classes, _aux)
                     else:
                         self.showData(gd, _classes, _aux)
@@ -123,13 +133,13 @@ class ClassifierHAR(abc.ABC):
     def sendDetection(self, idData, classes, aux=None):
         """ Send detection data to pool """
         self.dp.URL = self.URL
-        self.dp.sendDetection(self,classifier=self.Config["MACHINE_NAME"], 
+        self.dp.sendDetection(classifier=self.Config["MACHINE_NAME"], 
                             idData=idData, classes=classes, aux=aux)
 
     def bring(self, controller = '', device = '', limit = -1, lastTime = 0):
         """ Bring data from Pool """
         self.dp.URL = self.URL
-        return self.dp.getData(controller, device, limit, lastTime)
+        return self.dp.getData(controller=controller, device=device, limit=limit, lastTime=lastTime)
         
     def activateLog(self):
         """ Activate logging """

@@ -23,7 +23,7 @@ sys.path.insert(0, './Tools/')
 sys.path.insert(0, './Core/')
 
 import Misc
-from DataPool import DataPool
+from DataPool import DataPool, SourceType
 from LoaderController import LoaderController
 from LoaderHAR import LoaderHAR
 
@@ -89,7 +89,9 @@ class main():
                     if not self.poolThread.is_alive():
                         logging.warning('Pool service is death. System auto start it.')
                         self.start_pool()
-                    #logging.info('Pool service is living. Has ' + str(self.pool.count()) + ' data')
+                    #pool = DataPool()
+                    #pool.URL = self.CONFIG['POOL_PATH']
+                    #logging.info('Pool service is living. Has ' + str(pool.count()) + ' data')
             except:
                 logging.exception('Unexpected error checking pool: {}.'.format(str(sys.exc_info()[0])))
 
@@ -111,19 +113,30 @@ class main():
             except:
                 logging.exception('Unexpected error checking HAR Loader: {}'.format(str(sys.exc_info()[0])))
 
-            #try:
-            #    dp = DataPool()
-            #    dp.URL = self.CONFIG['POOL_PATH']
-            #    #CamController/Gray
-            #    #, device = 'Trasera'
-            #    g = dp.getData(controller = 'CamController/Gray', limit = 1)
-            #    if len(g) > 1 :
-            #        from cv2 import cv2
-            #        cv2.imwrite('imagen.png', g[-1]['data'])
-            #        #print('id: "{}", Controller: "{}", Device: "{}"'.format(g[-1]['id'], g[-1]['controller'], g[-1]['device']))
-            #except:
-            #    logging.exception("Unexpected readding data from pool: " + str(sys.exc_info()[0]))
+            """ # Borrar solo para ver las imágenes capturadas
+            try:
+                dp = DataPool()
+                dp.URL = self.CONFIG['POOL_PATH']
+                #CamController/Gray
+                #, device = 'Trasera'
+                g = dp.getData(controller = 'CamController/Gray', limit = 1)
+                if len(g) > 1 :
+                    from cv2 import cv2
+                    cv2.imwrite('imagen.png', g[-1]['data'])
+                    #print('id: "{}", Controller: "{}", Device: "{}"'.format(g[-1]['id'], g[-1]['controller'], g[-1]['device']))
+            except:
+                logging.exception('Unexpected readding data from pool. :: Error: {}.'.format(str(sys.exc_info()[0])))
+            """
+            try:
+                dp = DataPool()
+                dp.URL = self.CONFIG['POOL_PATH']
+                g = dp.getData(source=SourceType.CLASSIFIER, limit=-1)
+                if len(g) > 1 :
+                    print('id: "{}", frase: "{}"'.format(g[-1]['id'], g[-1]['data']))
+            except:
+                logging.exception('Unexpected readding data from pool. :: Error: {}.'.format(str(sys.exc_info()[0])))
             
+
             sleep(3)
 
     def start_pool(self):
@@ -183,9 +196,9 @@ if __name__ == "__main__":
     components = 2   # Only load controller
     components = 3   # Pool + load controller
     #components = 4  # Only classifiers HAR
-    components = 5  # Pool + Classifiers HAR
+    #components = 5  # Pool + Classifiers HAR
     #components = 6  # Load controller + Classifiers HAR
-    #components = 7  # Pool + Load controller + classifiers HAR
+    components = 7   # Pool + Load controller + classifiers HAR
     #components = 8  # Only Adnormal events
     #components = 15 # All components
 

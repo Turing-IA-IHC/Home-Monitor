@@ -9,7 +9,7 @@ DEVICES: [
   {
       'id':1,
       'name':'Back',
-      'enabled':y,
+      'enabled':n,
       'width':320,
       'height':240
   }

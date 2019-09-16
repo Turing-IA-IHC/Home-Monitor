@@ -77,7 +77,7 @@ class CamController(DeviceController):
             dataReturn.append({
                 'controller': 'CamController',
                 'device': deviceName,
-                'data': self.dp.serialize(frame),
+                'data': frame,
                 'aux': auxData,
             })
         
@@ -85,7 +85,7 @@ class CamController(DeviceController):
             dataReturn.append({
                 'controller': 'CamController/Gray',
                 'device': deviceName,
-                'data': self.dp.serialize(self.preProc_Gray(frame)),
+                'data': self.preProc_Gray(frame),
                 'aux': auxData,
             })
         
@@ -93,7 +93,7 @@ class CamController(DeviceController):
             dataReturn.append({
                 'controller': 'CamController/Person',
                 'device': deviceName,
-                'data': self.dp.serialize(self.preProc_Person(frame)),
+                'data': self.preProc_Person(frame),
                 'aux': auxData,
             })
         
@@ -101,7 +101,7 @@ class CamController(DeviceController):
             dataReturn.append({
                 'controller': 'CamController/Skeleton',
                 'device': deviceName,
-                'data': self.dp.serialize(self.preProc_Skeleton(frame)),
+                'data': self.preProc_Skeleton(frame),
                 'aux': auxData,
             })
         
