@@ -7,7 +7,7 @@ Home-Monitor:
     Licensed under the MIT License (see LICENSE for details)
 
 Class information:
-    Class to control all data received from device drivers.
+    Class to control all HAR components to load in system.
 """
 
 import sys
@@ -35,7 +35,7 @@ class LoaderHAR:
         """ Load all classifiers in './HAR' folder. 
             Each classifier have to be a sub folder and must to have a 'config.yaml' file.
         """
-        logging.debug('Searching for new device classifiers...')
+        logging.debug('Searching for new classifiers...')
         classifiersFolders =  Misc.lsFolders("./HAR")
         for cf in classifiersFolders:
             if Misc.existsFile("config.yaml", cf):
@@ -97,7 +97,7 @@ class LoaderHAR:
         dp = DataPool()
         dp.URL = self.URL
 
-        logging.info('Trying to connect to Pool ({}) from HAR Loader ...'.format(dp.URL))
+        logging.info('Trying to connect to Pool ({}) from loader of HAR ...'.format(dp.URL))
         err = ''
         for _ in range(10):
             if dp.isLive():
@@ -136,4 +136,4 @@ class LoaderHAR:
                     
             sleep(30)
 
-        logging.info('Loader HAR stoped')
+        logging.info('Loader of HAR stoped.')

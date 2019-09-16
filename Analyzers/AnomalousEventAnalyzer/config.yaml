@@ -1,0 +1,12 @@
+# Config params of NewHAR.
+NAME: AnomalousEventAnalyzer          # Name for humans.
+MACHINE_NAME: AnomalousEventAnalyzer  # Name for no Humans.
+CLASS_NAME: AnomalousEventAnalyzer    # Class name to load.
+VERSION: 1.0.0                        # Module id version.
+MODEL: model/model.h5                 # Path to file of model.
+ENABLED: Y                            # Module is enabled to run.
+DESCRIPTION: Module to analyze anomalous events. # Description for humans.
+# ------
+CONTROLLER: XXXController             # name or regular expresion to filter by a controller.
+#DEVICE:                              # name or regular expresion to filter by a device.
+CLASSES: [None, New]                  # List of classes able to detect, separate by commas.

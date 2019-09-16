@@ -7,7 +7,7 @@ Home-Monitor:
     Licensed under the MIT License (see LICENSE for details)
 
 Class information:
-    Class to get RGB data from cams
+    Class to get RGB data from cams.
 """
 
 import sys
@@ -31,7 +31,7 @@ import Misc
 from DeviceController import DeviceController
 
 class CamController(DeviceController):
-    """ Class to get RGB data from cams """
+    """ Class to get RGB data from cams. """
 
     def preLoad(self):
         """ Load knowledge for pre processing """

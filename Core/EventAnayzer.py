@@ -7,7 +7,7 @@ Home-Monitor:
     Licensed under the MIT License (see LICENSE for details)
 
 Class information:
-    Generic class that represents all the classifiers that can be loaded.
+    Generic class that represents all the analyzers that can be loaded.
 """
 
 import abc
@@ -18,8 +18,8 @@ from time import time
 from DataPool import DataPool
 import Misc
 
-class ClassifierHAR(abc.ABC):
-    """ Generic class that represents all the classifiers that can be loaded. """
+class EventAnalyzer(abc.ABC):
+    """ Generic class that represents all the analyzers that can be loaded. """
     
     def __init__(self, cfg=None):
         self.dp = DataPool()        # Object to send information
@@ -29,11 +29,11 @@ class ClassifierHAR(abc.ABC):
         self.lastTime = time()      # Time of last petition to the pool
         
         self.Config = cfg           # Object with all config params
-        self.Classes = self.Config['CLASSES']   # Classes able to detect
+        self.Classes = self.Config['CLASSES']   # Classes able to detect *** TODO: Ver si esto va
         self.NET = None             # Neural Network to predict
 
-        self.Controller = ''        # Controller to filter data
-        self.Device = ''            # Device name to filter data
+        self.Controller = ''        # Controller to filter data *** TODO: Ver como va esto
+        self.Device = ''            # Device name to filter data *** TODO: Ver como va esto
         self.Limit = -1             # Amount of data to filter data
 
         self.loggingLevel = None    # logging level to write
@@ -66,7 +66,7 @@ class ClassifierHAR(abc.ABC):
 
     """ Real methods """
     def start(self):
-        """ Start module and prediction """
+        """ Start module and predicting """
         self.activateLog()
         self.preLoad()
 
@@ -138,6 +138,7 @@ class ClassifierHAR(abc.ABC):
 
     def bring(self, controller='', device='', limit=-1, lastTime=0):
         """ Bring data from Pool """
+        # TODO: Ver como se van consultar y retornar las frases
         self.dp.URL = self.URL
         return self.dp.getData(controller=controller, device=device, limit=limit, lastTime=lastTime)
         

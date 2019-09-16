@@ -26,6 +26,7 @@ import Misc
 from DataPool import DataPool, SourceType
 from LoaderController import LoaderController
 from LoaderHAR import LoaderHAR
+from LoaderAnalyzer import LoaderAnalyzer
 
 class main():
     """ Main class to start whole system """
@@ -63,18 +64,21 @@ class main():
         print('')
 
         self.must_start_pool = toStart[3] == '1'
-        self.must_start_devices = toStart[2] == '1'
+        self.must_start_controllers = toStart[2] == '1'
         self.must_start_har = toStart[1] == '1'
-        self.must_start_events = toStart[0] == '1'
+        self.must_start_analyzers = toStart[0] == '1'
 
         if self.must_start_pool:
             self.start_pool()
 
-        if self.must_start_devices:
-            self.start_devices()
+        if self.must_start_controllers:
+            self.start_controllers()
 
         if self.must_start_har:
             self.start_classifiers()
+
+        if self.must_start_analyzers:
+            self.start_analyzers()
 
         print('')
         self.heart_beat()
@@ -97,21 +101,30 @@ class main():
 
             try:
                 """ Section to control the execution of the input data """
-                if self.must_start_devices:
+                if self.must_start_controllers:
                     if not self.inputDataThread.is_alive():
-                        logging.warning('Input data service is death. System auto start it.')
-                        self.start_devices()
+                        logging.warning('Controllers loader service is death. System auto start it.')
+                        self.start_controllers()
             except:
-                logging.exception('Unexpected error checking input data controller: {}.'.format(str(sys.exc_info()[0])))
+                logging.exception('Unexpected error checking loader of controllers: {}.'.format(str(sys.exc_info()[0])))
 
             try:
                 """ Section to control the execution of the HAR Loader """
                 if self.must_start_har:
                     if not self.loaderHARThread.is_alive():
-                        logging.warning('HAR Loader service is death. System auto start it.')
+                        logging.warning('HAR loader service is death. System auto start it.')
                         self.start_classifiers()
             except:
-                logging.exception('Unexpected error checking HAR Loader: {}'.format(str(sys.exc_info()[0])))
+                logging.exception('Unexpected error checking loader of HAR: {}'.format(str(sys.exc_info()[0])))
+
+            try:
+                """ Section to control the execution of the HAR Loader """
+                if self.must_start_analyzers:
+                    if not self.loaderAnalyzerThread.is_alive():
+                        logging.warning('Analyzer loader service is death. System auto start it.')
+                        self.start_analyzers()
+            except:
+                logging.exception('Unexpected error checking loader of Analyzers: {}'.format(str(sys.exc_info()[0])))
 
             """ # Borrar solo para ver las imágenes capturadas
             try:
@@ -127,6 +140,7 @@ class main():
             except:
                 logging.exception('Unexpected readding data from pool. :: Error: {}.'.format(str(sys.exc_info()[0])))
             """
+            """ # Borrar solo para ver clases capturadas
             try:
                 dp = DataPool()
                 dp.URL = self.CONFIG['POOL_PATH']
@@ -135,7 +149,7 @@ class main():
                     print('id: "{}", frase: "{}"'.format(g[-1]['id'], g[-1]['data']))
             except:
                 logging.exception('Unexpected readding data from pool. :: Error: {}.'.format(str(sys.exc_info()[0])))
-            
+            """
 
             sleep(3)
 
@@ -156,7 +170,7 @@ class main():
         sleep(2)
         logging.info('Pool started.')
 
-    def start_devices(self):
+    def start_controllers(self):
         """ Start input data controller and all device controllers """
 
         loaderController = LoaderController()        
@@ -167,14 +181,13 @@ class main():
 
         logging.info('Starting loader of controllers with pool in ' + loaderController.URL)
         self.inputDataThread = Process(target=loaderController.start, args=())
-        #self.inputDataThread.daemon = True
         self.inputDataThread.start()
         del loaderController
         sleep(2)
         logging.info('Loader of controllers started.')
 
     def start_classifiers(self):
-        """ Start loader HAR and all classifiers HAR """
+        """ Start loader of HAR and all classifiers HAR """
 
         loaderHAR = LoaderHAR()        
         loaderHAR.URL = self.CONFIG['POOL_PATH']
@@ -184,11 +197,26 @@ class main():
 
         logging.info('Starting Loader HAR with pool in ' + loaderHAR.URL)
         self.loaderHARThread = Process(target=loaderHAR.start, args=())
-        #self.loaderHARThread.daemon = True
         self.loaderHARThread.start()
         del loaderHAR
         sleep(2)
         logging.info('Loader HAR started.')
+
+    def start_analyzers(self):
+        """ Start loader of Analyzers """
+
+        loaderAnalyzer = LoaderAnalyzer()        
+        loaderAnalyzer.URL = self.CONFIG['POOL_PATH']
+        loaderAnalyzer.loggingLevel = self.CONFIG['LOGGING_LEVEL']
+        loaderAnalyzer.loggingFormat = self.CONFIG['LOGGING_FORMAT']
+        loaderAnalyzer.loggingFile = self.loggingFile
+
+        logging.info('Starting Loader Analyzer with pool in ' + loaderAnalyzer.URL)
+        self.loaderAnalyzerThread = Process(target=loaderAnalyzer.start, args=())
+        self.loaderAnalyzerThread.start()
+        del loaderAnalyzer
+        sleep(2)
+        logging.info('Loader Analyzer started.')
 
 if __name__ == "__main__":
     components = 0   # Message no one component
@@ -200,7 +228,7 @@ if __name__ == "__main__":
     #components = 6  # Load controller + Classifiers HAR
     components = 7   # Pool + Load controller + classifiers HAR
     #components = 8  # Only Adnormal events
-    #components = 15 # All components
+    components = 15 # All components
 
     m = main(components)
     

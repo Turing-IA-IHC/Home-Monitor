@@ -1,0 +1,15 @@
+# Config params of MailChannel.
+NAME: MailChannel                     # Name for humans.
+MACHINE_NAME: MailChannel             # Name for no Humans.
+CLASS_NAME: MailChannel               # Class name to load.
+VERSION: 1.0.0                        # Module id version.
+ENABLED: Y                            # Module is enabled to run.
+DESCRIPTION: Class to send messages by email. # Description for humans.
+# ------
+FROM: <Value>                         # Sender mail.
+PASSWORD: <Value>                     # Sender Password
+TO: [<Value>]                         # Recipients
+#CC:                                  # Recipients
+#BCC:                                 # Recipients
+SUBJECT: 'HM: a [type] was detected!' # Subject, can use tokens
+MESSAGE: 'HM: a [type] was detected!' # Body message, can use tokens
