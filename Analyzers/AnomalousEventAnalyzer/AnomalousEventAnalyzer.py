@@ -53,21 +53,30 @@ class AnomalousEventAnalyzer(EventAnalyzer):
         """ Do prediction and return class found """
         # TODO: Make predictions and return like an array of classes and the auxiliar information.
         # Avoid returning class None or background.
-        return np.array([ self.Classes[1], ]), 'Aux'
+        #print('Data to analyze:', data['id'])
+        #f = open(dirname(__file__) + "/DataTestAnalyzer.txt","a+")
+        #f.write(str(data))
+        #f.write('\n')
+        #f.close()
+        return np.array([ data['id'], ]), 'Aux'
   
-    def showData(self, data, classes, aux):
+    def showData(self, data, ids, aux):
         """ To show data if this module start standalone.
-        set self.Standalone = True before start. """
+            set self.Standalone = True before start. """
         # TODO: Put code if you want test this module in standalone form.
-        print('Classes detected: {}. Aux: {}.'.format(classes, aux))
+        print('IDs to notify: {}. Aux: {}.'.format(ids, aux))
 
     def testData(self):
         """ Data t test if this module start standalone. 
             You must return an array as expected if you query the data pool.
-        set self.Standalone = True before start. """
+            set self.Standalone = True before start. """
         # TODO: Put code if you want test this module in standalone form.
-        auxData = '{' + '"W":{}, "H":{}'.format(1, 1) + '}'
-        return [{'timeQuery':0}, {'id':0, 'data':[], 'aux':auxData}]
+        
+        f = open(dirname(__file__) + "/DataTestAnalyzer.txt","r")
+        lines = f.readlines()
+        auxData = lines[self.countTest]
+        self.countTest = 0 if self.countTest + 1 >= len(lines) else (self.countTest + 1)
+        return [{'timeQuery':0}, json.loads(auxData)]
     
 # =========== Start standalone =========== #
 if __name__ == "__main__":
@@ -75,4 +84,5 @@ if __name__ == "__main__":
     Alz = AnomalousEventAnalyzer(config)
     Alz.Me_Path = dirname(__file__)
     Alz.Standalone = True
+    Alz.countTest = 0
     Alz.start()

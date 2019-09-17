@@ -206,7 +206,7 @@ class main():
         """ Start loader of Analyzers """
 
         loaderAnalyzer = LoaderAnalyzer()        
-        loaderAnalyzer.URL = self.CONFIG['POOL_PATH']
+        loaderAnalyzer.URL = self.CONFIG['EVENT_PATH']
         loaderAnalyzer.loggingLevel = self.CONFIG['LOGGING_LEVEL']
         loaderAnalyzer.loggingFormat = self.CONFIG['LOGGING_FORMAT']
         loaderAnalyzer.loggingFile = self.loggingFile

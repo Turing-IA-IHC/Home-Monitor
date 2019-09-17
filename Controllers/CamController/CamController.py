@@ -71,14 +71,14 @@ class CamController(DeviceController):
         deviceName = Misc.hasKey(device, 'name', device["id"])
 
         dataReturn = []
-        auxData = '{' + '"W":{}, "H":{}'.format(width, height) + '}'
+        auxData = '"t":"{}", "ext":"{}", "W":"{}", "H":"{}"'
         
         if self.getRGB:
             dataReturn.append({
                 'controller': 'CamController',
                 'device': deviceName,
                 'data': frame,
-                'aux': auxData,
+                'aux': '{' + auxData.format('image', 'png', width, height) + '}',
             })
         
         if self.getGray:
@@ -86,7 +86,7 @@ class CamController(DeviceController):
                 'controller': 'CamController/Gray',
                 'device': deviceName,
                 'data': self.preProc_Gray(frame),
-                'aux': auxData,
+                'aux': '{' + auxData.format('image', 'png', width, height) + '}',
             })
         
         if self.getPerson:
@@ -94,7 +94,7 @@ class CamController(DeviceController):
                 'controller': 'CamController/Person',
                 'device': deviceName,
                 'data': self.preProc_Person(frame),
-                'aux': auxData,
+                'aux': '{' + auxData.format('image', 'png', width, height) + '}',
             })
         
         if self.getSkeleton and not self.joinsBodyNET is None:
@@ -102,7 +102,7 @@ class CamController(DeviceController):
                 'controller': 'CamController/Skeleton',
                 'device': deviceName,
                 'data': self.preProc_Skeleton(frame),
-                'aux': auxData,
+                'aux': '{' + auxData.format('csv', 'csv', width, height) + '}',
             })
         
         return dataReturn

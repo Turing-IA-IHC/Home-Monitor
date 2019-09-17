@@ -96,10 +96,11 @@ class DeviceController(abc.ABC):
                     x = threading.Thread(target=self.checkDevice, args=(device,))
                     x.start()
             
+                package = Misc.randomString()
                 for gd in gdList:
                     try:
                         if not self.Standalone:
-                            self.send(gd['controller'], gd['device'], gd['data'], gd['aux'])
+                            self.send(gd['controller'], gd['device'], gd['data'], gd['aux'], package=package)
                         else:
                             self.showData(gd)
                         failedSend = 0
@@ -144,11 +145,11 @@ class DeviceController(abc.ABC):
 
             sleep(int(self.Config["CHECK_TIME"]))
 
-    def send(self, controller, device, data, aux=None):
+    def send(self, controller, device, data, aux=None, package=''):
         """ Send data to pool """
         self.dp.URL = self.URL
         #print('Sending data to {}. controller: {}. device: {}.'.format(self.URL, controller, device))
-        self.dp.sendData(controller, device, data, aux)
+        self.dp.sendData(controller, device, data, aux, package)
 
     def activateLog(self):
         """ Activate logging """

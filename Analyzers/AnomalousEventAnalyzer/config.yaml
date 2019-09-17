@@ -7,6 +7,6 @@ MODEL: model/model.h5                 # Path to file of model.
 ENABLED: Y                            # Module is enabled to run.
 DESCRIPTION: Module to analyze anomalous events. # Description for humans.
 # ------
-CONTROLLER: XXXController             # name or regular expresion to filter by a controller.
+#CONTROLLER:                          # name or regular expresion to filter by a controller.
 #DEVICE:                              # name or regular expresion to filter by a device.
 CLASSES: [None, New]                  # List of classes able to detect, separate by commas.

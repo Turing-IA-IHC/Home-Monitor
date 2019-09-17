@@ -15,25 +15,25 @@ from os.path import dirname, abspath, exists, split, normpath
 import logging
 from time import time
 
-from DataPool import DataPool
+from DataPool import DataPool, EventPool
 import Misc
 
 class EventAnalyzer(abc.ABC):
     """ Generic class that represents all the analyzers that can be loaded. """
     
     def __init__(self, cfg=None):
-        self.dp = DataPool()        # Object to send information
+        self.ep = EventPool()       # Object to get information
+        self.dp = DataPool()        # Object to get information
         self.URL = ""               # Pool URL
         self.Me_Path = "./"         # Path of current component
         self.Standalone = False     # If a child start in standalone
         self.lastTime = time()      # Time of last petition to the pool
         
         self.Config = cfg           # Object with all config params
-        self.Classes = self.Config['CLASSES']   # Classes able to detect *** TODO: Ver si esto va
         self.NET = None             # Neural Network to predict
 
-        self.Controller = ''        # Controller to filter data *** TODO: Ver como va esto
-        self.Device = ''            # Device name to filter data *** TODO: Ver como va esto
+        self.Controller = ''        # Controller to filter data
+        self.Device = ''            # Device name to filter data
         self.Limit = -1             # Amount of data to filter data
 
         self.loggingLevel = None    # logging level to write
@@ -68,6 +68,9 @@ class EventAnalyzer(abc.ABC):
     def start(self):
         """ Start module and predicting """
         self.activateLog()
+        self.ep.URL = self.URL
+        self.dp.URL = self.URL
+
         self.preLoad()
 
         self.running = True
@@ -100,20 +103,20 @@ class EventAnalyzer(abc.ABC):
                 continue
 
             for gd in  gdList[1:]:
-                _classes = []
+                _idsEvents = []
                 try:
-                    _classes, _aux = self.predict(gd)
+                    _idsEvents, _aux = self.predict(gd)
                     _idData = gd['id']
                 except:
                     logging.exception(
                         'Unexpected error in prediction from classifier: {} ({}).'.format(
                             self.__class__.__name__, self.Config["MACHINE_NAME"]))
-                
                 try:
-                    if not self.Standalone and len(_classes) > 0:
-                        self.sendDetection(_idData, _classes, _aux)
+                    #TODO: Change for a notifier
+                    if not self.Standalone and len(_idsEvents) > 0:
+                        self.sendDetection(_idsEvents, _aux)
                     else:
-                        self.showData(gd, _classes, _aux)
+                        self.showData(gd, _idsEvents, _aux)
                     failedSend = 0        
                 except:
                     failedSend += 1
@@ -130,17 +133,14 @@ class EventAnalyzer(abc.ABC):
         """ Stop module and predicting """
         self.running = False
 
-    def sendDetection(self, idData, classes, aux=None):
+    def sendDetection(self, idsData, message):
         """ Send detection data to pool """
-        self.dp.URL = self.URL
-        self.dp.sendDetection(classifier=self.Config["MACHINE_NAME"], 
-                            idData=idData, classes=classes, aux=aux)
+        self.ep.sendDetection(analyzer=self.Config["MACHINE_NAME"], 
+                            idsData=idsData, message=message)
 
-    def bring(self, controller='', device='', limit=-1, lastTime=0):
+    def bring(self, controller='', device='', classifier='', limit=-1, lastTime=0):
         """ Bring data from Pool """
-        # TODO: Ver como se van consultar y retornar las frases
-        self.dp.URL = self.URL
-        return self.dp.getData(controller=controller, device=device, limit=limit, lastTime=lastTime)
+        return self.ep.getEvents(controller=controller, device=device, limit=limit, lastTime=lastTime)
         
     def activateLog(self):
         """ Activate logging """

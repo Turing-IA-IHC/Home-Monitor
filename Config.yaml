@@ -2,8 +2,10 @@
 NAME: Home Monitor                    # Name for humans.
 MACHINE_NAME: HomeMonitor             # Name for no Humans.
 VERSION: 1.0.0                        # Modele id version.
-DESCRIPTION: System to detect abnormal events.  # Description for humans.
+DESCRIPTION: System to detect abnormal events. # Description for humans.
 POOL_PATH: http://127.0.0.1:5000/pool # Path to conect or init the pool.
+EVENT_PATH: http://127.0.0.1:5000/events # Path to conect events pool.
+SAVE_PATH: ./EventsSaved/
 LOGGING_TO_FILE: N                    # Write log in file Y/N.
 LOGGING_PATH: ./                      # Path to save log messages.
 LOGGING_LEVEL: 20                     # CRITICAL=50, ERROR=40, WARNING=30, INFO=20, DEBUG=10, NOTSET=0
