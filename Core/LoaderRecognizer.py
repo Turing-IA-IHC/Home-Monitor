@@ -7,7 +7,7 @@ Home-Monitor:
     Licensed under the MIT License (see LICENSE for details)
 
 Class information:
-    Class to load all device controllers.
+    Class to load all activity recognizers.
 """
 
 import sys
@@ -22,20 +22,20 @@ from Component import Component
 from DataPool import LogTypes, Messages, CommPool
 from DeviceController import DeviceController
 
-class LoaderController:
-    """ Class to load all device controllers. """
+class LoaderRecognizer:
+    """ Class to load all activity recognizers. """
 
     def __init__(self, config):
         """ Initialize all variables """
         self.CONFIG = config
         self.CHECKING_TIME = int(Misc.hasKey(self.CONFIG, 'CHECKING_TIME', 10)) # Time in seconds to check service availability
         self.URL = self.CONFIG['URL_BASE']  # URL of pool server
-        self.controllers = {}               # List of controllers
+        self.recognizers = {}               # List of recognizers
     
     def start(self):
-        """ Start load of all device controllers """
+        """ Start load of all device recognizers """
         cp = CommPool(self.CONFIG, preferred_url=CommPool.URL_TICKETS)
-        cp.logFromCore(Messages.system_controllers_connect.format(cp.URL_BASE), LogTypes.INFO, self.__class__.__name__)
+        cp.logFromCore(Messages.system_recognizers_connect.format(cp.URL_BASE), LogTypes.INFO, self.__class__.__name__)
 
         err = ''
         for _ in range(10):
@@ -52,18 +52,18 @@ class LoaderController:
             return
 
         while True:
-            cp.logFromCore(Messages.controller_searching, LogTypes.INFO, self.__class__.__name__)
-            controllersFolders =  Misc.lsFolders("./Controllers")
-            for cf in controllersFolders:
-                if Misc.hasKey(self.controllers, cf, None) == None:
+            cp.logFromCore(Messages.recognizer_searching, LogTypes.INFO, self.__class__.__name__)
+            recognizersFolders =  Misc.lsFolders("./Recognizers")
+            for cf in recognizersFolders:
+                if Misc.hasKey(self.recognizers, cf, None) == None:
                     comp = Component(cf, cp)
-                    self.controllers[cf] = comp
+                    self.recognizers[cf] = comp
 
-            for c in self.controllers:
-                comp = self.controllers[c]
+            for c in self.recognizers:
+                comp = self.recognizers[c]
                 comp.load()
             
             sleep(self.CHECKING_TIME)
 
-        cp.logFromCore(Messages.controller_stop, LogTypes.INFO, self.__class__.__name__)
+        cp.logFromCore(Messages.recognizer_stop, LogTypes.INFO, self.__class__.__name__)
         

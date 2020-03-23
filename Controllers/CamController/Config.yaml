@@ -1,14 +1,18 @@
 # Config params of cam controller.
 NAME: CamController                   # Name for humans.
-MACHINE_NAME: CamController           # Name for no Humans.
+TYPE: CONTROLLER                      # Type of component
+FILE_CLASS: CamController             # Py file where initial class is located.
 CLASS_NAME: CamController             # Class name to load.
 VERSION: 1.0.0                        # Module id version.
-DESCRIPTION: Module to control cam RGB devices. # Description for humans.
-SAMPLING: 0.0                         # Sampling rate to control frame per second.
 ENABLED: Y                            # Module is enabled to run
-CHECK_TIME: 30                        # Time in seconds t check if device is active
+DESCRIPTION: Module to control cam RGB devices. # Description for humans.
+# ------
+CHECKING_TIME: 30                     # Time in seconds t check if device is active
+SAMPLING: 0.0                         # Sampling rate to control frame per second.
 # ------
 FRAME_WIDTH: 320                      # With of image
 FRAME_HEIGHT: 240                     # Height of image
-CLASSES: [RGB, Gray, Skeleton]        # Classes to find: RGB, Gray, Person, Skeleton
+FORMATS: [Object]                     # Classes to find: RGB, Gray, Object, Skeleton
+OBJECTS: [Person,]                    # Objects to detect in pictures
+MODEL_COCO: model/cocoModel.h5        # Model for genetare joints of people
 MODEL: model/poseModel.h5             # Model for genetare joints of people

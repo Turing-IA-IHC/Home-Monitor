@@ -16,6 +16,7 @@ from os.path import dirname, normpath
 import math
 import numpy as np
 import logging
+from time import sleep
 
 from cv2 import cv2 #pip install opencv-python
 from scipy.ndimage.filters import gaussian_filter
@@ -29,19 +30,28 @@ sys.path.insert(0, './Core/')
 
 import Misc
 from DeviceController import DeviceController
+from DataPool import Data
 
 class CamController(DeviceController):
     """ Class to get RGB data from cams. """
 
+    Simulating = False
+
     def preLoad(self):
         """ Load knowledge for pre processing """
-        self.getRGB = 'RGB' in self.Config['CLASSES']
-        self.getGray = 'Gray' in self.Config['CLASSES']
-        self.getPerson = 'Person' in self.Config['CLASSES']
-        self.getSkeleton = 'Skeleton' in self.Config['CLASSES']
+        self.getRGB = 'RGB' in self.CONFIG['FORMATS']
+        self.getGray = 'Gray' in self.CONFIG['FORMATS']
+        self.getObject = 'Object' in self.CONFIG['FORMATS']
+        self.getSkeleton = 'Skeleton' in self.CONFIG['FORMATS']
+        
+        if self.getObject:
+            sys.path.insert(0, self.ME_PATH)
+            from mrcnn.CamControllerExtractor import CamControllerExtractor
+            self.cce = CamControllerExtractor(Me_Component_Path=self.ME_PATH)
+            self.cce.CLASSES_TO_DETECT = [x.lower() for x in self.CONFIG['OBJECTS']]
 
-        if self.getSkeleton:            
-            ModelPath = normpath(dirname(__file__) + "/" + self.Config['MODEL'])
+        if self.getSkeleton:
+            ModelPath = normpath(dirname(__file__) + "/" + self.CONFIG['MODEL'])
             logging.debug('Loadding model for {} from {} ...'.format(self.__class__.__name__, ModelPath))
             self.joinsBodyNET = load_model(ModelPath)
             self.joinsBodyNET._make_predict_function()
@@ -51,8 +61,8 @@ class CamController(DeviceController):
     def initializeDevice(self, device):
         """ Initialize device """
         capture = cv2.VideoCapture(device['id'])
-        _width = Misc.hasKey(device, 'width', self.Config['FRAME_WIDTH'])
-        _height = Misc.hasKey(device, 'height', self.Config['FRAME_HEIGHT'])
+        _width = Misc.hasKey(device, 'width', self.CONFIG['FRAME_WIDTH'])
+        _height = Misc.hasKey(device, 'height', self.CONFIG['FRAME_HEIGHT'])
         capture.set(cv2.CAP_PROP_FRAME_WIDTH, _width)
         capture.set(cv2.CAP_PROP_FRAME_HEIGHT, _height)
         return capture
@@ -60,7 +70,7 @@ class CamController(DeviceController):
     def getData(self, device):
         """ Returns a list of tuples like {controller, device, data} with data elements """
 
-        cam = self.Devices[device["id"]]['capture']
+        cam = self.Devices[device["id"]]['objOfCapture']
         _, frame = cam.read()
 
         if frame is None:
@@ -74,70 +84,158 @@ class CamController(DeviceController):
         auxData = '"t":"{}", "ext":"{}", "W":"{}", "H":"{}"'
         
         if self.getRGB:
-            dataReturn.append({
-                'controller': 'CamController',
-                'device': deviceName,
-                'data': frame,
-                'aux': '{' + auxData.format('image', 'png', width, height) + '}',
-            })
+            dataRgb = Data()
+            dataRgb.source_type = self.ME_TYPE
+            dataRgb.source_name = 'CamController'
+            dataRgb.source_item = deviceName
+            dataRgb.data = frame
+            dataRgb.aux = '{' + auxData.format('image', 'png', width, height) + '}'
+            dataReturn.append(dataRgb)
         
         if self.getGray:
-            dataReturn.append({
-                'controller': 'CamController/Gray',
-                'device': deviceName,
-                'data': self.preProc_Gray(frame),
-                'aux': '{' + auxData.format('image', 'png', width, height) + '}',
-            })
-        
-        if self.getPerson:
-            dataReturn.append({
-                'controller': 'CamController/Person',
-                'device': deviceName,
-                'data': self.preProc_Person(frame),
-                'aux': '{' + auxData.format('image', 'png', width, height) + '}',
-            })
-        
+            dataGray = Data()
+            dataGray.source_type = self.ME_TYPE
+            dataGray.source_name = 'CamController/Gray'
+            dataGray.source_item = deviceName
+            dataGray.data = self.preProc_Gray(frame)
+            dataGray.aux = '{' + auxData.format('image', 'png', width, height) + '}'
+            dataReturn.append(dataGray)
+
+        if self.getObject:
+            auxPer = auxData.format('image', 'png', width, height)
+            auxPer += '"ClassName":"{}", "backColor":{}, "Y1":{}, "X1":{}, "Y2":{}, "X2":{}'
+            objs = self.cce.locatePeople(frame)
+            for obj in objs:
+                dataPerson = Data()
+                dataPerson.source_type = self.ME_TYPE
+                dataPerson.source_name = 'CamController/Person'
+                dataPerson.source_item = deviceName
+                dataPerson.data = obj.Frame
+                dataPerson.aux = '{' + auxPer.format(obj.ClassName, obj.backColor, obj.Y1, obj.X1, obj.Y2, obj.X2) + '}'
+                dataReturn.append(dataPerson)
+
         if self.getSkeleton and not self.joinsBodyNET is None:
-            dataReturn.append({
-                'controller': 'CamController/Skeleton',
-                'device': deviceName,
-                'data': self.preProc_Skeleton(frame),
-                'aux': '{' + auxData.format('csv', 'csv', width, height) + '}',
-            })
+            dataSkeleton = Data()
+            dataSkeleton.source_type = self.ME_TYPE
+            dataSkeleton.source_name = 'CamController/Skeleton'
+            dataSkeleton.source_item = deviceName
+            dataSkeleton.data = self.preProc_Skeleton(frame)
+            dataSkeleton.aux = '{' + auxData.format('csv', 'csv', width, height) + '}'
+            dataReturn.append(dataSkeleton)
         
         return dataReturn
   
-    def showData(self, gd):
+    def showData(self, data:Data):
         """ To show data if this module start standalone.
         set self.Standalone = True before start. """
-
-        if gd['controller'] == 'CamController/Skeleton':
-            people = self.dp.deserialize(gd['data']) #For capture the image in RGB color space
-            rgbImage = np.zeros((config['FRAME_HEIGHT'], config['FRAME_WIDTH'], 3), np.uint8)
-            
+        #print('show', data.source_type, data.source_comp, data.source_name)
+        
+        if data.source_name == 'CamController/Skeleton':
+            people = self.dp.deserialize(data.data) #For capture the image in RGB color space
+            rgbImage = np.zeros((self.CONFIG['FRAME_HEIGHT'], self.CONFIG['FRAME_WIDTH'], 3), np.uint8)            
             for person in people:
                 for join in person:
                     if join[0] != None:
-                        cv2.circle(rgbImage, (join[0], join[1]), 5, [255, 0, 0], thickness=-1)
-
+                        cv2.circle(rgbImage, (join[0], join[1]), 5, [255, 0, 0], thickness=-1)        
         else:
-            rgbImage = self.dp.deserialize(gd['data']) #For capture the image in RGB color space
+            rgbImage = data.data # For capture the image in RGB color space
+            # Display the resulting frame
+            cv2.imshow(data.source_name + '-' + data.source_item, rgbImage)
 
-        # Display the resulting frame                    
-        cv2.imshow(gd['controller'] + '-' + gd['device'], rgbImage)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                self.stop()
+                cv2.destroyAllWindows()
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            self.stop()
-            cv2.destroyAllWindows()
+        with open("CamController_OutPut.txt",'a+') as file:
+            file.write('\n' + data.toString(False, True))
+
+    def simulateData(self, device):
+        """ Allows simulate input data """
+        fromCam:bool = False
+        if fromCam:            
+            return self.getData(device) # From cam
+
+        # From Video file
+        if self.Simulating == None or self.Simulating == False:
+            self.Simulating = True
+            self.Counter = 0
+            self.capture = cv2.VideoCapture("M:/tmp/testInfarct.mp4")
+            self.video_length = int(self.capture.get(cv2.CAP_PROP_FRAME_COUNT))
+        
+        if self.capture.isOpened() and self.Counter < self.video_length:            
+            _, frame = self.capture.read()
+            if frame is None:
+                return []
+        else:
+            self.Simulating = False
+            return []
+
+        # Ajust size
+        withExpected = Misc.hasKey(self.CONFIG, 'FRAME_WIDTH', 300)
+        scale_percent = withExpected / frame.shape[1]
+        width = int(frame.shape[1] * scale_percent)
+        height = int(frame.shape[0] * scale_percent)
+        dim = (width, height)
+        # resize image
+        frame = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA) 
+        self.Counter += 1
+        deviceName = 'File'
+        
+        height = np.size(frame, 0)
+        width = np.size(frame, 1)
+        dataReturn = []
+        auxData = '"t":"{}", "ext":"{}", "W":"{}", "H":"{}"'
+        
+        if self.getRGB:
+            dataRgb = Data()
+            dataRgb.source_type = self.ME_TYPE
+            dataRgb.source_name = 'CamController'
+            dataRgb.source_item = deviceName
+            dataRgb.data = frame
+            dataRgb.aux = '{' + auxData.format('image', 'png', width, height) + '}'
+            dataReturn.append(dataRgb)
+        
+        if self.getGray:
+            dataGray = Data()
+            dataGray.source_type = self.ME_TYPE
+            dataGray.source_name = 'CamController/Gray'
+            dataGray.source_item = deviceName
+            dataGray.data = self.preProc_Gray(frame)
+            dataGray.aux = '{' + auxData.format('image', 'png', width, height) + '}'
+            dataReturn.append(dataGray)
+
+        if self.getObject:
+            auxPer = auxData.format('image', 'png', width, height)
+            auxPer += '"ClassName":"{}", "backColor":{}, "Y1":{}, "X1":{}, "Y2":{}, "X2":{}'
+            objs = self.cce.locatePeople(frame)
+            for obj in objs:
+                dataPerson = Data()
+                dataPerson.source_type = self.ME_TYPE
+                dataPerson.source_name = 'CamController/' + obj.ClassName
+                dataPerson.source_item = deviceName
+                dataPerson.data = obj.Frame
+                dataPerson.aux = '{' + auxPer.format(obj.ClassName, obj.backColor, obj.Y1, obj.X1, obj.Y2, obj.X2) + '}'
+                dataReturn.append(dataPerson)
+
+        if self.getSkeleton and not self.joinsBodyNET is None:
+            dataSkeleton = Data()
+            dataSkeleton.source_type = self.ME_TYPE
+            dataSkeleton.source_name = 'CamController/Skeleton'
+            dataSkeleton.source_item = deviceName
+            dataSkeleton.data = self.preProc_Skeleton(frame)
+            dataSkeleton.aux = '{' + auxData.format('csv', 'csv', width, height) + '}'
+            dataReturn.append(dataSkeleton)
+        
+        #sleep(3/1000)
+        return dataReturn
 
     # =========== Auxiliar methods =========== #
 
     def preProc_Gray(self, frame):
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        return gray
+        return cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    def preProc_Person(self, frame):
-        return frame
+    def preProc_Object(self, frame):
+        return self.cce.locatePeople(frame)
 
     def preProc_Skeleton(self, frame):
 
@@ -358,7 +456,7 @@ class CamController(DeviceController):
 
         return people
 
-    def padRightDownCorner(self, img, stride = 8, padValue = 128):
+    def padRightDownCorner(self, img, stride=8, padValue=128):
         h = img.shape[0]
         w = img.shape[1]
     
@@ -382,8 +480,5 @@ class CamController(DeviceController):
 
 # =========== Start standalone =========== #
 if __name__ == "__main__":
-    config = Misc.readConfig(dirname(__file__) + "/config.yaml")
-    devC = CamController(config)
-    devC.Me_Path = dirname(__file__)
-    devC.Standalone = True
-    devC.start()
+    comp = CamController()
+    comp.init_standalone(Me_Path=dirname(__file__))

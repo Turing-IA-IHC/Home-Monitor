@@ -15,10 +15,32 @@ from os.path import dirname, abspath, exists, split, normpath
 import logging
 from time import time
 
-from DataPool import DataPool
 import Misc
+from Component import Component
+from DataPool import DataPool
 
-class CommChannel(abc.ABC):
+class Dispatch:
+    """ Structure to represent a message to send throw aome channel.
+    """
+    born = time()       # Momentum when message was created
+    of:str = ''         # Sender
+    to:str = ''         # Receiver       
+    cc:str = ''         # Other receiver to copy       
+    bcc:str = ''        # Other hidden receiver
+    subject:str = ''    # Title of message 
+    message:str = ''    # Body of message
+    aux:str = ''        # Auxiliar data
+
+    def __init__(self, of:str = '', to:str = '', cc:str = '', bcc:str = '', subject:str = '', message:str = '', aux:str = ''):
+        self.of = of
+        self.to = to
+        self.cc = cc
+        self.bcc = bcc
+        self.subject = subject
+        self.message = message
+        self.aux = aux
+
+class CommChannel(Component):
     """ Generic class that represents all the communication channles that can be loaded. """
     
     def __init__(self, cfg=None):
@@ -39,19 +61,18 @@ class CommChannel(abc.ABC):
         """ Implement me! :: Load configurations for to send message """
         pass
   
-    @abc.abstractmethod
-    def send(self, Data, Subject, Message, To, CC='', BCC=''):
-        """ Implement me! :: Sen message.
-            Data: contains details of event like {id:1000}.
-         """
+    def notify(self, msg:Dispatch):
+        """ Send a message """
+        self.preNotify(msg)
+        self.tryNotify(msg)
+
+    @abc.abstractmethod    
+    def preNotify(self, msg:Dispatch):
+        """ Implement me! :: Triggered before try to send message """
         pass
-    """ Real methods """
-    def bring(self, controller='', device='', limit=-1, lastTime=0):
-        """ Bring data from Pool """
-        # TODO: Ver como se van consultar y retornar los datos de la detección por ejemplo id o package
-        self.dp.URL = self.URL
-        return self.dp.getData(controller=controller, device=device, limit=limit, lastTime=lastTime)
-        
-    def activateLog(self):
-        """ Activate logging """
-        Misc.loggingConf(self.loggingLevel, self.loggingFile, self.loggingFormat)
+
+    @abc.abstractmethod
+    def tryNotify(self, msg:Dispatch):
+        """ Implement me! :: Send message. """
+        pass
+    

@@ -1,6 +1,6 @@
 """
 Home-Monitor: 
-    AI system for the detection of anomalous and possibly harmful events for people.
+    AI system for the detection of anomalous and possibly recognizersmful events for people.
 
     Written by Gabriel Rojas - 2019
     Copyright (c) 2019 G0 S.A.S.
@@ -23,213 +23,193 @@ sys.path.insert(0, './Tools/')
 sys.path.insert(0, './Core/')
 
 import Misc
-from DataPool import DataPool, SourceType
+from DataPool import SourceTypes, LogTypes, Messages, PoolStates, Data, Binnacle, DataPool, CommPool
+
 from LoaderController import LoaderController
-from LoaderHAR import LoaderHAR
+from LoaderRecognizer import LoaderRecognizer
 from LoaderAnalyzer import LoaderAnalyzer
 
 class main():
     """ Main class to start whole system """
-    def __init__(self, components):
+    def __init__(self, components:int, vars=[]):
+        """ 
+            Start whole system and all sub systems.
+            components is a number between 1 and 15.
+            components represents a binary of 4 positions being:
+                components[0] => DataPool   : Example 1
+                components[1] => Controllers: Example 2
+                components[2] => Recognizers: Exmaple 4
+                components[3] => Analyzers  : Exmaple 8
+            To load all sub system set 15 to 'components' parameter.
+            It is possible to combine the starting of some subsystems, for example, 
+            to load DataPool and recognizer only set 5 to 'components' parameter.
+            Vars: Set any config var using form VAR=VALUE
+        """
         print('\n')
         print('=========================='.center(50, "="))
         print(' Wellcome to Home-Monitor '.center(50, "=") )
-        print(' Version: {}      '.format(__version__).center(50, " "))
+        print(' Version: {} '.format(__version__).center(50, " "))
         print('=========================='.center(50, "="))
         print('')
 
-        # Define which component should be started
-        toStart = "%04d"% int(str(bin(components)).replace("0b",""))
+        # Verify components to load param
+        if components < 1 or components > 15:
+            Binnacle().logFromCore(Messages.nothing_to_load, LogTypes.WARNING, self.__class__.__name__)
+            return
         
         # Loading configuration file
         self.CONFIG_FILE = normpath(abspath('.') + "/config.yaml")
         if not exists(self.CONFIG_FILE):
-            logging.exception('Config file does not exits: ' + self.CONFIG_FILE)
+            Binnacle().loggingSettings(LogTypes.ERROR, '', '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            Binnacle().logFromCore(Messages.config_no_file + self.CONFIG_FILE, LogTypes.ERROR, self.__class__.__name__)
             return
         self.CONFIG = Misc.readConfig(self.CONFIG_FILE)
+
+        
+        # Replacing config vars
+        for v in vars:
+            vParam = str(v).split('=')
+            if len(vParam) > 0:
+                t = type(Misc.hasKey(self.CONFIG, vParam[0], ''))
+                self.CONFIG[vParam[0]] = t(vParam[1])
         Misc.showConfig(self.CONFIG)
 
         # Logging Configuration
         tm = gmtime()
-        self.loggingFile = ""
-        if Misc.toBool(str(self.CONFIG['LOGGING_TO_FILE'])):
-            self.loggingFile = '{}.log'.format(str(tm.tm_year) + '%02d' % tm.tm_mon + '%02d' % tm.tm_mday) 
-            self.loggingFile = normpath(self.CONFIG['LOGGING_TO_FILE'] + "/" + self.loggingFile)
-            print('Log File:', self.loggingFile)
-        Misc.loggingConf(self.CONFIG['LOGGING_LEVEL'], self.loggingFile, self.CONFIG['LOGGING_FORMAT'])
+        if Misc.toBool(Misc.hasKey(self.CONFIG, 'LOGGING_TO_FILE', 'False')):
+            loggingFile = '{}.log'.format(str(tm.tm_year) + '%02d' % tm.tm_mon + '%02d' % tm.tm_mday) 
+            loggingFile = normpath(Misc.hasKey(self.CONFIG,'LOGGING_PATH' + "/", "./") + loggingFile)
+            self.CONFIG['LOGGING_FILE'] = loggingFile
+        Binnacle().loggingConf(self.CONFIG)
 
+        #if components > 1:
+        self.commPool = CommPool(self.CONFIG)
+
+        # Define which component should be started
+        toStart = "%04d"% int(str(bin(components)).replace("0b",""))
         print('')
-        logging.info('Starting the magic ...')
-        logging.info('Starting components with comand: ' + toStart)
+        Binnacle().logFromCore(Messages.system_start, LogTypes.INFO, self.__class__.__name__)
+        Binnacle().logFromCore(Messages.system_start_components + toStart, LogTypes.INFO, self.__class__.__name__)
         print('')
 
         self.must_start_pool = toStart[3] == '1'
         self.must_start_controllers = toStart[2] == '1'
-        self.must_start_har = toStart[1] == '1'
+        self.must_start_recognizers = toStart[1] == '1'
         self.must_start_analyzers = toStart[0] == '1'
 
         if self.must_start_pool:
             self.start_pool()
-
         if self.must_start_controllers:
-            self.start_controllers()
-
-        if self.must_start_har:
-            self.start_classifiers()
-
+            self.start_controllers()        
+        if self.must_start_recognizers:
+            self.start_recognizers()
         if self.must_start_analyzers:
             self.start_analyzers()
 
-        print('')
         self.heart_beat()
-        
-    def heart_beat(self):
-        logging.info('All sub systems will keep alive ...')
 
+    def heart_beat(self):
+        """ Keep system running """
+        Binnacle().logFromCore(Messages.system_start_heart_beat, LogTypes.INFO, self.__class__.__name__)
         while True:
             try:
                 """ Section to control the execution of the pool """
+                if self.must_start_pool and not self.poolThread.is_alive():
+                    Binnacle().logFromCore(Messages.system_pool_restart, LogTypes.INFO, self.__class__.__name__)
+                    self.start_pool()
+                
                 if self.must_start_pool:
-                    if not self.poolThread.is_alive():
-                        logging.warning('Pool service is death. System auto start it.')
-                        self.start_pool()
-                    #pool = DataPool()
-                    #pool.URL = self.CONFIG['POOL_PATH']
-                    #logging.info('Pool service is living. Has ' + str(pool.count()) + ' data')
-            except:
-                logging.exception('Unexpected error checking pool: {}.'.format(str(sys.exc_info()[0])))
+                    self.commPool.sendCommand('pop')
+                    print(' \t {} data received.'.format(self.commPool.count()))
 
+            except:
+                message = Binnacle().errorDetail(Messages.system_pool_error)
+                Binnacle().logFromCore(message, LogTypes.ERROR, self.__class__.__name__) 
+            
             try:
                 """ Section to control the execution of the input data """
-                if self.must_start_controllers:
-                    if not self.inputDataThread.is_alive():
-                        logging.warning('Controllers loader service is death. System auto start it.')
-                        self.start_controllers()
+                if self.must_start_controllers and not self.inputDataThread.is_alive():
+                    self.commPool.logFromCore(Messages.system_controllers_restart, LogTypes.INFO, self.__class__.__name__)
+                    self.start_controllers()
             except:
-                logging.exception('Unexpected error checking loader of controllers: {}.'.format(str(sys.exc_info()[0])))
-
+                message = Binnacle().errorDetail(Messages.system_controllers_error)
+                self.commPool.logFromCore(message, LogTypes.ERROR, self.__class__.__name__)
+                  
             try:
-                """ Section to control the execution of the HAR Loader """
-                if self.must_start_har:
-                    if not self.loaderHARThread.is_alive():
-                        logging.warning('HAR loader service is death. System auto start it.')
-                        self.start_classifiers()
+                """ Section to control the execution of the recognizers """
+                if self.must_start_recognizers and not self.loaderRecognizersThread.is_alive():
+                    self.commPool.logFromCore(Messages.system_recognizers_restart, LogTypes.INFO, self.__class__.__name__)
+                    self.start_recognizers()
             except:
-                logging.exception('Unexpected error checking loader of HAR: {}'.format(str(sys.exc_info()[0])))
-
+                message = Binnacle().errorDetail(Messages.system_recognizers_error)
+                self.commPool.logFromCore(message, LogTypes.ERROR, self.__class__.__name__)
+                  
             try:
-                """ Section to control the execution of the HAR Loader """
-                if self.must_start_analyzers:
-                    if not self.loaderAnalyzerThread.is_alive():
-                        logging.warning('Analyzer loader service is death. System auto start it.')
-                        self.start_analyzers()
+                """ Section to control the execution of the lanalyzers """
+                if self.must_start_analyzers and not self.loaderAnalyzersThread.is_alive():
+                    self.commPool.logFromCore(Messages.system_analyzers_restart, LogTypes.INFO, self.__class__.__name__)
+                    self.start_recognizers()
             except:
-                logging.exception('Unexpected error checking loader of Analyzers: {}'.format(str(sys.exc_info()[0])))
+                message = Binnacle().errorDetail(Messages.system_analyzers_error)
+                self.commPool.logFromCore(message, LogTypes.ERROR, self.__class__.__name__)
 
-            """ # Borrar solo para ver las imágenes capturadas
-            try:
-                dp = DataPool()
-                dp.URL = self.CONFIG['POOL_PATH']
-                #CamController/Gray
-                #, device = 'Trasera'
-                g = dp.getData(controller = 'CamController/Gray', limit = 1)
-                if len(g) > 1 :
-                    from cv2 import cv2
-                    cv2.imwrite('imagen.png', g[-1]['data'])
-                    #print('id: "{}", Controller: "{}", Device: "{}"'.format(g[-1]['id'], g[-1]['controller'], g[-1]['device']))
-            except:
-                logging.exception('Unexpected readding data from pool. :: Error: {}.'.format(str(sys.exc_info()[0])))
-            """
-            """ # Borrar solo para ver clases capturadas
-            try:
-                dp = DataPool()
-                dp.URL = self.CONFIG['POOL_PATH']
-                g = dp.getData(source=SourceType.CLASSIFIER, limit=-1)
-                if len(g) > 1 :
-                    print('id: "{}", frase: "{}"'.format(g[-1]['id'], g[-1]['data']))
-            except:
-                logging.exception('Unexpected readding data from pool. :: Error: {}.'.format(str(sys.exc_info()[0])))
-            """
-
-            sleep(3)
+            sleep(Misc.hasKey(self.CONFIG, 'CHECKING_TIME', 30))
 
     def start_pool(self):
         """ Start data pool """
-
+        Binnacle().logFromCore(Messages.system_pool_start + self.CONFIG['URL_BASE'], LogTypes.INFO, self.__class__.__name__)
         pool = DataPool()
-        pool.URL = self.CONFIG['POOL_PATH']
-        pool.loggingLevel = int(self.CONFIG['LOGGING_LEVEL'])
-        pool.loggingFormat = self.CONFIG['LOGGING_FORMAT']
-        pool.loggingFile = self.loggingFile
-
-        logging.info('Starting pool in ' + pool.URL)
+        pool.initialize(self.CONFIG)
         self.poolThread = Process(target=pool.start, args=())
         self.poolThread.daemon = True
         self.poolThread.start()
         del pool
         sleep(2)
-        logging.info('Pool started.')
+        Binnacle().logFromCore(Messages.system_pool_started + self.CONFIG['URL_BASE'], LogTypes.INFO, self.__class__.__name__)
 
     def start_controllers(self):
         """ Start input data controller and all device controllers """
-
-        loaderController = LoaderController()        
-        loaderController.URL = self.CONFIG['POOL_PATH']
-        loaderController.loggingLevel = int(self.CONFIG['LOGGING_LEVEL'])
-        loaderController.loggingFormat = self.CONFIG['LOGGING_FORMAT']
-        loaderController.loggingFile = self.loggingFile
-
-        logging.info('Starting loader of controllers with pool in ' + loaderController.URL)
+        self.commPool.logFromCore(Messages.system_controllers_start + self.CONFIG['URL_BASE'], LogTypes.INFO, self.__class__.__name__)
+        loaderController = LoaderController(self.CONFIG)
         self.inputDataThread = Process(target=loaderController.start, args=())
         self.inputDataThread.start()
         del loaderController
         sleep(2)
-        logging.info('Loader of controllers started.')
-
-    def start_classifiers(self):
-        """ Start loader of HAR and all classifiers HAR """
-
-        loaderHAR = LoaderHAR()        
-        loaderHAR.URL = self.CONFIG['POOL_PATH']
-        loaderHAR.loggingLevel = self.CONFIG['LOGGING_LEVEL']
-        loaderHAR.loggingFormat = self.CONFIG['LOGGING_FORMAT']
-        loaderHAR.loggingFile = self.loggingFile
-
-        logging.info('Starting Loader HAR with pool in ' + loaderHAR.URL)
-        self.loaderHARThread = Process(target=loaderHAR.start, args=())
-        self.loaderHARThread.start()
-        del loaderHAR
+        self.commPool.logFromCore(Messages.system_controllers_started + self.CONFIG['URL_BASE'], LogTypes.INFO, self.__class__.__name__)
+                
+    def start_recognizers(self):
+        """ Start loader of Recognizers and all recognizers """
+        self.commPool.logFromCore(Messages.system_recognizers_start + self.CONFIG['URL_BASE'], LogTypes.INFO, self.__class__.__name__)
+        loaderRecognizer = LoaderRecognizer(self.CONFIG)
+        self.loaderRecognizersThread = Process(target=loaderRecognizer.start, args=())
+        self.loaderRecognizersThread.start()
+        del loaderRecognizer
         sleep(2)
-        logging.info('Loader HAR started.')
-
+        self.commPool.logFromCore(Messages.system_recognizers_started + self.CONFIG['URL_BASE'], LogTypes.INFO, self.__class__.__name__)
+        
     def start_analyzers(self):
-        """ Start loader of Analyzers """
-
-        loaderAnalyzer = LoaderAnalyzer()        
-        loaderAnalyzer.URL = self.CONFIG['EVENT_PATH']
-        loaderAnalyzer.loggingLevel = self.CONFIG['LOGGING_LEVEL']
-        loaderAnalyzer.loggingFormat = self.CONFIG['LOGGING_FORMAT']
-        loaderAnalyzer.loggingFile = self.loggingFile
-
-        logging.info('Starting Loader Analyzer with pool in ' + loaderAnalyzer.URL)
-        self.loaderAnalyzerThread = Process(target=loaderAnalyzer.start, args=())
-        self.loaderAnalyzerThread.start()
+        """ Start loader of Analyzers and all all analyzers """
+        self.commPool.logFromCore(Messages.system_analyzers_start + self.CONFIG['URL_BASE'], LogTypes.INFO, self.__class__.__name__)
+        loaderAnalyzer = LoaderAnalyzer(self.CONFIG)
+        self.loaderAnalyzersThread = Process(target=loaderAnalyzer.start, args=())
+        self.loaderAnalyzersThread.start()
         del loaderAnalyzer
         sleep(2)
-        logging.info('Loader Analyzer started.')
-
+        self.commPool.logFromCore(Messages.system_analyzers_started + self.CONFIG['URL_BASE'], LogTypes.INFO, self.__class__.__name__)
+        
 if __name__ == "__main__":
     components = 0   # Message no one component
     components = 1   # Only pool
     components = 2   # Only load controller
     components = 3   # Pool + load controller
-    #components = 4  # Only classifiers HAR
-    #components = 5  # Pool + Classifiers HAR
-    #components = 6  # Load controller + Classifiers HAR
-    components = 7   # Pool + Load controller + classifiers HAR
+    #components = 4  # Only Recognizers
+    components = 5  # Pool + Recognizers
+    #components = 6  # Load controller + Recognizers
+    #components = 7  # Pool + Load controller + Recognizers
     #components = 8  # Only Adnormal events
-    components = 15 # All components
+    #components = 15 # All components
 
+    components = 4
     m = main(components)
     
     

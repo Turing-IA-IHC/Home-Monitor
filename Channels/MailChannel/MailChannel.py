@@ -7,70 +7,66 @@ Home-Monitor:
     Licensed under the MIT License (see LICENSE for details)
 
 Class information:
-    Class to send messages by email.
+    Class to send notifications by mail.
 """
 
 import sys
 from os.path import dirname, normpath
-import logging
-
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-import smtplib
 
 # Including Home Monitor Paths to do visible the modules
 sys.path.insert(0, './Tools/')
 sys.path.insert(0, './Core/')
 
 import Misc
-from CommChannel import CommChannel
+from CommChannel import CommChannel, Dispatch
+
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import smtplib
+
+# GMAIL Documentation:
+# Enable access:    https://accounts.google.com/b/0/DisplayUnlockCaptcha
+#                   https://myaccount.google.com/lesssecureapps
 
 class MailChannel(CommChannel):
-    """ Class to send messages by email. """
-    # Documentation:
-    # https://accounts.google.com/b/0/DisplayUnlockCaptcha
-    # https://myaccount.google.com/lesssecureapps
+    """ Class to send notifications by mail. """
 
     def preLoad(self):
-        """ Load configurations for to send message """
+        """ Implement me! :: Loads configurations for to send message """
         pass
 
-    def send(self, Data='', Subject='', Message='', To='', CC='', BCC=''):
-        """ Send mail """
+    def preNotify(self, msg:Dispatch):
+        """ Implement me! :: Triggered before try to send message """
+        pass
 
-        try:        
-            # setup the parameters of the message
-            From = self.Config["FROM"]
-            To = Misc.hasKey(self.Config, "FROM", '') if To == '' else To
-            CC = Misc.hasKey(self.Config, "CC", '') if To == '' else CC
-            BCC = Misc.hasKey(self.Config, "BCC", '') if To == '' else BCC
-            Subject = Misc.hasKey(self.Config, "SUBJECT", '') if Subject == '' else Subject
-            Message = Misc.hasKey(self.Config, "MESSAGE", '') if Message == '' else Message                
-
-            msg = MIMEMultipart()
-            msg['From'] = From
-            msg['To'] = To
-            msg['Subject'] = Subject
-            #create server  
-            server = smtplib.SMTP('smtp.gmail.com', 587)  
-            server.starttls()    
-            # Login Credentials for sending the mail
-            server.login(msg['From'], self.Config["PASSWORD"]) 
-            # add in the message body
-            msg.attach(MIMEText(Message, 'html'))
-            
-            # send the message via the server.
-            server.sendmail(msg['From'], msg['To'], msg.as_string())
-            
-            server.quit()            
-        except:
-            logging.exception('Fail to send message. :: Err:{}. Subject: {}, Message: {}, To: {}.'.format(sys.exc_info()[0], Subject, Message, To))
+    def tryNotify(self, msg:Dispatch):
+        """ To send the message """
+        # setup the parameters of the message
+        Of = Misc.hasKey(self.CONFIG, "OF", '') if msg.of == '' else msg.of
+        To = Misc.hasKey(self.CONFIG, "TO", '') if msg.to == '' else msg.to
+        Subject = Misc.hasKey(self.CONFIG, "SUBJECT", '') if msg.subject == '' else msg.subject
+        Message = Misc.hasKey(self.CONFIG, "MESSAGE", '') if msg.message == '' else msg.message                
+        
+        msgMail = MIMEMultipart()
+        msgMail['From'] = Of
+        msgMail['To'] = To
+        msgMail['Subject'] = Subject
+        #create server  
+        server = smtplib.SMTP(self.CONFIG["SMTP"], self.CONFIG["PORT"])
+        server.starttls()    
+        # Login Credentials for sending the mail
+        server.login(Of, self.CONFIG["PASSWORD"]) 
+        # add in the message body
+        msgMail.attach(MIMEText(Message, 'html'))
+        
+        # send the message via the server.
+        server.sendmail(msgMail['From'], msgMail['To'], msgMail.as_string())
+        
+        server.quit() 
 
 # =========== Start standalone =========== #
 if __name__ == "__main__":
-    config = Misc.readConfig(dirname(__file__) + "/config.yaml")
-    chl = MailChannel(config)
-    chl.Me_Path = dirname(__file__)
-    chl.Standalone = True
-    chl.send()
-
+    comp = MailChannel()
+    comp.init_standalone(Me_Path=dirname(__file__), autoload=False)
+    dispatch = Dispatch(of='profesorGavit0@gmail.com', to='Gavit0Rojas@gmail.com', subject='HM Prueba', message='Prueba')
+    comp.tryNotify(dispatch)

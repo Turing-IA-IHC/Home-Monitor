@@ -14,6 +14,7 @@ if __name__ == "__main__":
     print('\n\tAlert!! This class can not start itself. Please start using main.py file.')
     exit(0)
 
+import sys
 from os.path import dirname, normpath
 from time import sleep
 import threading
@@ -21,62 +22,26 @@ import logging
 import abc
 
 import Misc
-from DataPool import DataPool
+from Component import Component
+from DataPool import Data, Messages, LogTypes, SourceTypes, CommPool
 
-class DeviceController(abc.ABC):
-    """ Generic class that represents all the devices that can be loaded. """
-    
-    def __init__(self, cfg):
-        self.dp = DataPool()        # Object to send information
-        self.URL = ""               # Pool URL
-        self.Me_Path = "./"         # Path of current component
-        self.Standalone = False     # If a child start in standalone
-        
-        self.Config = cfg           # Object with all config params
-        self.Devices = []           # List of devices loaded
-        self.InactiveDevices = []   # List of devices unpluged
-        self.Sampling = self.Config['SAMPLING'] # Sampling rate
-        
-        self.loggingLevel:int = 0   # logging level to write
-        self.loggingFile = None     # Name of file where write log
-        self.loggingFormat = None   # Format to show the log
+class DeviceController(Component):
+    """ Generic class that represents all the devices that can be loaded. """ 
+    Devices = []           # List of devices loaded
+    InactiveDevices = []   # List of devices unpluged
 
-    """ Abstract methods """
-    @abc.abstractmethod
-    def preLoad(self):
-        """ Implement me! :: Load knowledge o whatever need for pre processing """
-        pass
-
-    @abc.abstractmethod
-    def initializeDevice(self, device):
-        """  Implement me! :: Initialize device """
-        pass
-
-    @abc.abstractmethod
-    def getData(self, device):
-        """ Implement me! :: Returns a list of tuples like {controller, device, data} with data elements """
-        pass
-
-    @abc.abstractmethod
-    def showData(self, gd):
-        """  Implement me! :: To show data if this module start standalone.
-        set self.Standalone = True before start. """
-        pass
-
-    """ Real methods """
     def start(self):
-        """ Start module and getting data """
-        self.activateLog()
+        """ Start module isolated """
         self.preLoad()
-            
-        self.running = True
         self.Devices = self.getDeviceList()
-
+        
         for device in self.Devices:
-            device['capture'] = self.initializeDevice(device)
-
-        logging.debug('Reading data from devices type {}.'.format(self.__class__.__name__))
+            device['objOfCapture'] = self.initializeDevice(device)
+        
+        self.running = True
+        Sampling = Misc.hasKey(self.CONFIG, 'SAMPLING', 1) # Sampling rate
         failedSend = 0
+
         while self.running:
 
             for device in self.Devices:
@@ -85,50 +50,85 @@ class DeviceController(abc.ABC):
 
                 gdList = []
                 try:
-                    gdList = self.getData(device)
+                        if Misc.toBool(self.STANDALONE):
+                            gdList = self.simulateData(device)
+                        else:
+                            gdList = self.simulateData(device)
+                            #gdList = self.getData(device)
                 except:
-                    logging.exception(
-                        'Unexpected error readding data from device: {}:{} ({})'.format(
-                            device['id'], device['name'], str(device['capture']))
-                        )
+                    dataE = Data()
+                    dataE.source_type = SourceTypes.CONTROLLER
+                    dataE.source_name = self.ME_NAME
+                    dataE.source_item = Misc.hasKey(device, 'name', device['id'])
+                    dataE.data = self.COMMPOOL.errorDetail(Messages.controller_error_get)
+                    dataE.aux = '{}'.format(str(device['objOfCapture']))
+                    self.COMMPOOL.logFromComponent(dataE, LogTypes.ERROR)
                     self.InactiveDevices.append(device)
                     import threading
                     x = threading.Thread(target=self.checkDevice, args=(device,))
                     x.start()
             
                 package = Misc.randomString()
-                for gd in gdList:
+                for data in gdList:
                     try:
-                        if not self.Standalone:
-                            self.send(gd['controller'], gd['device'], gd['data'], gd['aux'], package=package)
+                        data.package = package
+                        if Misc.toBool(self.STANDALONE):
+                            self.showData(data)
                         else:
-                            self.showData(gd)
+                            self.send(data)
                         failedSend = 0
                     except:
-                        failedSend += 1
-                        logging.exception(
-                            'Unexpected error sending data from device: {}:{} ({})'.format(
-                                device['id'], device['name'], str(device['capture']))
-                            )
+                        dataE = Data()
+                        dataE.source_type = SourceTypes.CONTROLLER
+                        dataE.source_name = self.ME_NAME
+                        dataE.source_item = Misc.hasKey(device, 'name', device['id'])
+                        dataE.data = self.COMMPOOL.errorDetail(Messages.controller_error_send)
+                        dataE.aux = '{}'.format(str(device['objOfCapture']))
+                        self.COMMPOOL.logFromComponent(dataE, LogTypes.ERROR)
 
-                        if failedSend > 2 and not self.dp.isLive():
-                            logging.error('Pool no found {} will shutdown.'.format(self.__class__.__name__))
+                        failedSend += 1
+
+                        if failedSend > 2 and (Misc.toBool(self.STANDALONE) or not self.COMMPOOL.isLive()):
+                            dataE = Data()
+                            dataE.source_type = SourceTypes.CONTROLLER
+                            dataE.source_name = self.ME_NAME
+                            dataE.source_item = Misc.hasKey(device, 'name', device['id'])
+                            dataE.data = Messages.controller_error_stop
+                            dataE.aux = '{}'.format(str(device['objOfCapture']))
+                            self.COMMPOOL.logFromComponent(dataE, LogTypes.WARNING)
                             self.stop()
                             break
 
-            sleep(self.Sampling)
+            sleep(Sampling)
 
-    def stop(self):
-        """ Stop module and getting data """
-        self.running = False
-    
+    """ Abstract methods """
+    @abc.abstractmethod
+    def preLoad(self):
+        """ Implement me! :: Load knowledge o whatever need for pre processing """
+        pass
+
+    @abc.abstractmethod
     def getDeviceList(self):
         """ Returns a list of devices able to read """
-        devices = Misc.readConfig(normpath(self.Me_Path) + "/devices.yaml")
+        devices = Misc.readConfig(normpath(self.ME_PATH) + "/devices.yaml")
         devices = devices['DEVICES']
         result = list(filter(lambda d: Misc.toBool(d['enabled']), devices))
         return result
 
+    @abc.abstractmethod
+    def initializeDevice(self, device):
+        """  Implement me! :: Initialize device """
+        pass
+    
+    @abc.abstractmethod
+    def getData(self, device):
+        """ Implement me! :: Returns a list of tuples like {controller, device, data} with data elements """
+        pass
+
+    def send(self, data:Data):
+        """ Send data to pool """
+        self.COMMPOOL.send(data)
+    
     def checkDevice(self, device):
         """ Check if a device is on line again """
         for _ in range(30):
@@ -136,21 +136,26 @@ class DeviceController(abc.ABC):
                 thrs = threading.enumerate()
                 if thrs[0]._is_stopped: # MainThread
                     break
-                device['capture'] = self.initializeDevice(device)
+                device['objOfCapture'] = self.initializeDevice(device)
                 self.getData(device)
                 self.InactiveDevices.remove(device)
                 break
             except:
                 pass
 
-            sleep(int(self.Config["CHECK_TIME"]))
+            sleep(int(Misc.hasKey(self.CONFIG, 'CHECKING_TIME', 10)))
 
-    def send(self, controller, device, data, aux=None, package=''):
-        """ Send data to pool """
-        self.dp.URL = self.URL
-        #print('Sending data to {}. controller: {}. device: {}.'.format(self.URL, controller, device))
-        self.dp.sendData(controller, device, data, aux, package)
+    def stop(self):
+        """ Stop module and getting data """
+        self.running = False
 
-    def activateLog(self):
-        """ Activate logging """
-        Misc.loggingConf(self.loggingLevel, self.loggingFile, self.loggingFormat)
+    @abc.abstractmethod
+    def showData(self, data:Data):
+        """  Implement me! :: To show data if this module start standalone.
+        call init_standalone before start. """
+        pass
+    @abc.abstractmethod
+    def simulateData(self, device):
+        """  Implement me! :: Allows to simulate data if this module start standalone.
+        call init_standalone before start. """
+        pass

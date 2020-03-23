@@ -43,9 +43,14 @@ class ClassifierHAR(abc.ABC):
     """ Abstract methods """
     @abc.abstractmethod
     def preLoad(self):
-        """ Implement me! :: Load knowledge for pre processing """
+        """ Implement me! :: Load everything need to proccess """
         pass
   
+    @abc.abstractmethod
+    def loadModel(self):
+        """ Implement me! :: Load knowledge for prediction """
+        pass
+
     @abc.abstractmethod
     def predict(self, data):
         """ Implement me! :: Do prediction and return class found """
@@ -140,7 +145,7 @@ class ClassifierHAR(abc.ABC):
         """ Bring data from Pool """
         self.dp.URL = self.URL
         return self.dp.getData(controller=controller, device=device, limit=limit, lastTime=lastTime)
-        
+    
     def activateLog(self):
         """ Activate logging """
         Misc.loggingConf(self.loggingLevel, self.loggingFile, self.loggingFormat)

@@ -4,7 +4,7 @@ MACHINE_NAME: AnomalousEventAnalyzer  # Name for no Humans.
 CLASS_NAME: AnomalousEventAnalyzer    # Class name to load.
 VERSION: 1.0.0                        # Module id version.
 MODEL: model/model.h5                 # Path to file of model.
-ENABLED: Y                            # Module is enabled to run.
+ENABLED: N                            # Module is enabled to run.
 DESCRIPTION: Module to analyze anomalous events. # Description for humans.
 # ------
 #CONTROLLER:                          # name or regular expresion to filter by a controller.
