@@ -50,11 +50,11 @@ class DeviceController(Component):
 
                 gdList = []
                 try:
-                        if Misc.toBool(self.STANDALONE):
-                            gdList = self.simulateData(device)
-                        else:
-                            gdList = self.simulateData(device)
-                            #gdList = self.getData(device)
+                    if Misc.toBool(self.STANDALONE):
+                        gdList = self.simulateData(device)
+                    else:
+                        gdList = self.simulateData(device)
+                        #gdList = self.getData(device)
                 except:
                     dataE = Data()
                     dataE.source_type = SourceTypes.CONTROLLER

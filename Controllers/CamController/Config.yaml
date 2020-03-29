@@ -12,7 +12,7 @@ SAMPLING: 0.0                         # Sampling rate to control frame per secon
 # ------
 FRAME_WIDTH: 320                      # With of image
 FRAME_HEIGHT: 240                     # Height of image
-FORMATS: [Object]                     # Classes to find: RGB, Gray, Object, Skeleton
+FORMATS: [RGB,Object]                     # Classes to find: RGB, Gray, Object, Skeleton
 OBJECTS: [Person,]                    # Objects to detect in pictures
 MODEL_COCO: model/cocoModel.h5        # Model for genetare joints of people
 MODEL: model/poseModel.h5             # Model for genetare joints of people

@@ -53,6 +53,13 @@ class Component():
             self.ME_TYPE = SourceTypes.parse(Misc.hasKey(self.CONFIG, 'TYPE', None))
             self.ME_NAME = Misc.hasKey(self.CONFIG, 'NAME', self.ME_PATH)
             
+            if self.THREAD != None:
+                self.THREAD.terminate()
+                self.THREAD = None
+
+            if not self.ENABLED:                
+                return
+            
             self.FILE_CLASS = Misc.hasKey(self.CONFIG, 'FILE_CLASS', None)
             if self.FILE_CLASS == None:
                 raise ValueError(Messages.error_file_class)
@@ -61,13 +68,6 @@ class Component():
                 raise ValueError(Messages.error_class_name)
 
             self.COMMPOOL.logFromCore(Messages.comp_change.format(self.ME_PATH, ('reload' if self.ENABLED else 'stoped')), LogTypes.INFO, self.__class__.__name__)
-            
-            if self.THREAD != None:
-                self.THREAD.terminate()
-                self.THREAD = None
-
-            if not self.ENABLED:                
-                return
             
             _cls = Misc.importModule(self.ME_PATH, self.FILE_CLASS, self.CLASS_NAME)
             obj = _cls()

@@ -17,10 +17,10 @@ import json
 import math
 from time import time, sleep
 
-from cv2 import cv2
-import tensorflow as tf
-from tensorflow.keras import backend as K
-from tensorflow.keras.models import load_model
+#from cv2 import cv2
+#import tensorflow as tf
+#from tensorflow.keras import backend as K
+#from tensorflow.keras.models import load_model
 
 # Including Home Monitor Paths to do visible the modules
 sys.path.insert(0, './Tools/')
@@ -42,6 +42,15 @@ class AnomalousAnalyzer(EventAnalyzer):
     
     def loadModel(self):
         """ Loads model """
+        from textblob.classifiers import NaiveBayesClassifier
+        import nltk
+        nltk.download('punkt')
+        nltk.download('averaged_perceptron_tagger')
+        import pickle
+        ModelPath = normpath(self.ME_PATH + "/" + self.CONFIG['MODEL'])
+        with open(ModelPath, 'rb') as file:
+            self.MODEL = pickle.load(file)
+
         # TODO: Use if you need an special way of loading knowledge
         """ Example:
         ModelPath = normpath(self.ME_PATH + "/" + self.CONFIG['MODEL'])
@@ -57,40 +66,35 @@ class AnomalousAnalyzer(EventAnalyzer):
         if self.STANDALONE:
             self.MODEL.summary() 
         """
-        pass
 
     def loaded(self):
         """ Implement me! :: Just after load the model and channels """
         # TODO: This method is called just after load model
         pass
 
-    def analyze(self, data):
-        """ Implement me! :: Exec analysis of activity """
-        # TODO: This method must return a list oh classes detected in simple events and the auxiliar information.
-        """ Example:
-        x = cv2.cvtColor(data.data, cv2.COLOR_BGR2RGB)
-        x = cv2.resize(x, (256, 256), interpolation = cv2.INTER_AREA)
-        x = np.expand_dims(x, axis=0)
-
-        array = self.MODEL.analyze(x)
-        result = array[0]
-        answer = np.argmax(result)
+    def analyze(self, data:Data):
+        """ Implement me! :: Exec analysis of activity """       
+    
+        Phrase = "At {} the {} detect {} in {} of {}"
+        auxSource = data.strToJSon(data.aux)
+        Phrase = Phrase.format(Misc.timeToString(data.born), data.source_name, data.data, \
+            Misc.hasKey(auxSource,'source_item',''), Misc.hasKey(auxSource,'source_name','') )
 
         dataReturn = []
-        auxData = '"t":"json", "idSource":"{}"'
-
-        dataInf = Data()
-        dataInf.source_type = self.ME_TYPE
-        dataInf.source_name = self.ME_NAME
-        dataInf.source_item = ''
-        dataInf.data = self.CLASSES[answer]
-        dataInf.aux = '{' + auxData.format(data.id) + '}'
-        dataReturn.append(dataInf)
+        auxData = '"phrase":"{}"'
+        
+        typeDetected:str = self.MODEL.classify(Phrase)
+        if typeDetected.lower() != 'none': 
+            dataInf = Data()
+            dataInf.source_type = self.ME_TYPE
+            dataInf.source_name = self.ME_NAME
+            dataInf.source_item = ''
+            dataInf.data = typeDetected
+            dataInf.aux = "{" + auxData.format(Phrase) + "}"
+            dataReturn.append(dataInf)
 
         return dataReturn
-        """
-        return []
-
+        
     def showData(self, dataanalyzeed:Data, dataSource:Data):
         """ Implement me! :: To show data if this module start standalone """
         # TODO: Put code if you want test this module in standalone form.

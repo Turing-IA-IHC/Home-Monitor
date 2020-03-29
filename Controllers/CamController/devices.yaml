@@ -1,14 +1,14 @@
 DEVICES: [
   {
       'id':0,
-      'name':'Front',
+      'name':'Stairs',
       'enabled':y,
       'width':320,
       'height':240
   },
   {
       'id':1,
-      'name':'Back',
+      'name':'LivingRoom1',
       'enabled':n,
       'width':320,
       'height':240

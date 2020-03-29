@@ -14,6 +14,7 @@ import sys
 import logging
 from time import time
 from datetime import datetime
+from os.path import normpath
 
 # Including Home Monitor Paths to do visible the modules
 sys.path.insert(0, './Tools/')
@@ -164,11 +165,6 @@ class Data():
             'state'         : str(self.state),
         }
         return j
-    
-    def toString(self, dataPlain=False, auxPlain=False):
-        """ Returns text Json Representation """
-        x = JSONEncoder().encode(self.getJson(dataPlain, auxPlain))
-        return x #'{' + x + '}'
 
     def parse(self, dataStr:str, dataPlain=False, auxPlain=False):
         """
@@ -199,6 +195,34 @@ class Data():
         self.aux = Misc.hasKey(dict, 'aux', self.aux)
         self.state = Misc.hasKey(dict, 'state', self.state)
         return self
+    
+    def toString(self, dataPlain=False, auxPlain=False):
+        """ Returns text Json Representation """
+        x = JSONEncoder().encode(self.getJson(dataPlain, auxPlain))
+        return x #'{' + x + '}'
+
+    def toFile(self, path:str="./"):
+        """ Save data into file.
+            aux var must have 't', 'ext' values            
+            Formats availables:
+                image: image captured using cv2 of openCV
+        """
+        aux = self.strToJSon(self.aux)
+        t = Misc.hasKey(aux,'t','')
+        ext = Misc.hasKey(aux,'ext','')
+        f = ''
+        if t == 'image':
+            from cv2 import cv2
+            f = normpath(path + "/" + str(self.id) + "." + ext)
+            cv2.imwrite(f, self.data)
+
+        return f
+
+    def strToJSon(self, str:str):
+        """ Return an JSon object from a string """
+        if str == None:
+            return None
+        return json.loads(str)
 
     def valueOf(self, key):
         """ Returns the value of a property """
@@ -233,9 +257,6 @@ class Data():
         o = pickle.loads(ast.literal_eval(data))
         return o
 
-    def strToJSon(self, str:str):
-        """ Return an JSon object from a string """
-        return json.loads(str)
 
 @singleton
 class Binnacle():
@@ -331,7 +352,7 @@ class CommPool():
 
         return p
 
-    def receive(self, data:Data, limit=-1, lastTime=-1):
+    def receive(self, data:Data, limit=-1, lastTime=-1, onlyActive=True):
         """ Allows to query to Data Pool. """
         
         if lastTime == -1:
@@ -353,7 +374,8 @@ class CommPool():
         g = requests.get(url, params={
             'data' : data.toString(),
             'limit' : limit,
-            'lastTime' : lastTime
+            'lastTime' : lastTime,
+            'onlyActive': onlyActive
             }).json()
 
         if g[0]['msg'] != 'ok':
@@ -437,7 +459,7 @@ class CommPool():
     def count(self):
         """ Returns the size of pool """
         x = self.sendCommand('count')
-        return int(x)
+        return x #int(x)
 
 @singleton
 class DataPool(Resource):
@@ -449,8 +471,8 @@ class DataPool(Resource):
     LOGGINGLEVEL:int = 0    # Logging level to write
     LOGGINGFILE = None      # Name of file where write log
     LOGGINGFORMAT = None    # Format to show the log
-    T0 = 30                 # Seconds to keep data in active
-    T1 = T0 + 30            # Seconds to keep data in quarentine
+    T1 = 30                 # Seconds to keep data in active
+    T2 = T1 + 30            # Seconds to keep data in quarentine
 
     Count = 0               # Quantity of data received
 
@@ -481,13 +503,21 @@ class DataPool(Resource):
 
         if onlyActive:
             pool = list(filter(lambda d: PoolStates.parse(d.state) == PoolStates.ACTIVE, pool))
-        
+
         if id != '':
             idRE = re.compile('^' + id + '$')
             pool = list(filter(lambda d: idRE.match(str(d.id)) != None, pool))
         
+        if package != '' and source_type == SourceTypes.CONTROLLER:
+            print('pool 1', len(pool), package)
+            for p in pool:
+                print(p.id, p.package)
+
         if package != '':
             pool = list(filter(lambda d: d.package == package, pool))
+
+        if package != '' and source_type == SourceTypes.CONTROLLER:
+            print('pool 2', len(pool), package)
 
         if source_name != '':
             source_nameRE = re.compile('^' + source_name + '$')
@@ -531,17 +561,15 @@ class DataPool(Resource):
         self.popPool(self.POOL_TICKETS)
         self.popPool(self.POOL_EVENTS)
         self.popPool(self.POOL_ALERTS)
-        #print('Pop', len(self.POOL_TICKETS), self.Count)
-
+        
     def popPool(self, pool):
         """ Move data to Quarantine or remove if life time is over of a pool. """
         try:
             for p in pool:
-                if time() - p.born > self.T1:
+                if time() - p.born > self.T2:
                     self.Count -= 1
-                    #print('... Poping')
                     pool.remove(p)
-                elif time() - p.born > self.T0:
+                elif time() - p.born > self.T1:
                     p.state = PoolStates.QUARANTINE
         except:
             message = Binnacle().errorDetail(Messages.error_pool_pop)
@@ -558,7 +586,7 @@ class DataPool(Resource):
             self.pop()
             message = 'ok'
         elif cmd == 'count':
-            message = self.Count
+            message = 'Total={}\tTickets={}\tEvents={}\tAlerts={}'.format(self.Count, len(self.POOL_TICKETS), len(self.POOL_EVENTS), len(self.POOL_ALERTS))
         else:
             message = Messages.bad_command_name
 
@@ -570,7 +598,7 @@ class DataPool(Resource):
         self.LOGGINGFORMAT = self.CONFIG['LOGGING_FORMAT']
         self.LOGGINGFILE = self.CONFIG['LOGGING_FILE']
         self.T1 = int(self.CONFIG['T1'])
-        self.T2 = int(self.CONFIG['T2'])
+        self.T2 = int(self.CONFIG['T2']) + self.T1
 
     def start(self):
         """ Start api for data pool """
@@ -589,7 +617,7 @@ class DataPool(Resource):
         Binnacle().logFromCore('Starting /events', LogTypes.INFO, self.__class__.__name__)
         api.add_resource(ApiEvents, '/events',   methods=['get', 'post', 'put']) 
         Binnacle().logFromCore('Starting /alerts', LogTypes.INFO, self.__class__.__name__)
-        api.add_resource(ApiAlerts, '/alerts',    methods=['get', 'post', 'put']) 
+        api.add_resource(ApiAlerts, '/alerts',   methods=['get', 'post', 'put']) 
         Binnacle().logFromCore('Starting /logs', LogTypes.INFO, self.__class__.__name__)
         api.add_resource(ApiLogs, '/logs',       methods=['post']) 
         
@@ -678,446 +706,18 @@ class Messages():
     analyzer_error_send = 'Unexpected error sending data from analyzer'
     analyzer_error_get = 'Unexpected error getting data from analyzer'
     analyzer_error_stop = 'Pool not available activity analyzer will be stoped'
+    analyzer_error_Channels = 'Unexpected error Loading channels'
 
-
-#@singleton
-#class EventPool(Resource):
-#    """ Class to query events pool """
-#    def __init__(self):
-#        """ Start class variables """
-#        self.Config = Misc.readConfig("./config.yaml")
-#        self.URL = self.Config['POOL_PATH']             # URL to start event pool reader
-#        self.dp = DataPool()                            # Pool object        
-#        
-#    """ Class to get events data """
-#    def get(self):
-#        """ Return all active data """
-#        result = list(filter(lambda d: PoolStates.parse(d.state) == PoolStates.ACTIVE, self.dp.pool))
-#        resultRECOGNIZERs = list(filter(lambda d: SourceTypes.parse(d.source) == SourceTypes.RECOGNIZER, result))
-#        resultControllers = list(filter(lambda d: SourceTypes.parse(d.source) == SourceTypes.CONTROLLER, result))
-#        for res in resultRECOGNIZERs:
-#            oriData = list(filter(lambda d: d.id == res.id, resultControllers))
-#            if len(oriData) > 0:
-#                res.controller = oriData[-1].controller
-#                res.device = oriData[-1].device                
-#
-#        parser = reqparse.RequestParser()
-#        parser.add_argument('id')
-#        parser.add_argument('controller')
-#        parser.add_argument('device')
-#        parser.add_argument('RECOGNIZER')
-#        parser.add_argument('limit')
-#        parser.add_argument('lastTime')
-#        args = parser.parse_args()
-#
-#        id = args.id
-#        controller = args.controller
-#        device = args.device
-#        RECOGNIZER = args.RECOGNIZER
-#        limit = args.limit
-#        lastTime = args.lastTime
-#
-#        id = '' if id == None else id
-#        controller = '' if controller == None else controller
-#        device = '' if device == None else device
-#        RECOGNIZER = '' if RECOGNIZER == None else RECOGNIZER
-#        limit = -1 if limit == None else int(limit)
-#        lastTime = 0 if lastTime == None else float(lastTime)
-#
-#        result = resultRECOGNIZERs
-#        if id != '':
-#            idRE = re.compile('^' + id + '$')
-#            result = list(filter(lambda d: idRE.match(d.id) != None, result))
-#        
-#        if device != '':
-#            deviceRE = re.compile('^' + device + '$')
-#            result = list(filter(lambda d: deviceRE.match(d.device) != None, result))
-#        
-#        if controller != '':
-#            controllerRE = re.compile('^' + controller + '$')
-#            result = list(filter(lambda d: controllerRE.match(d.controller) != None, result))
-#            
-#        if RECOGNIZER != '':
-#            RECOGNIZERRE = re.compile('^' + RECOGNIZER + '$')
-#            result = list(filter(lambda d: RECOGNIZERRE.match(d.RECOGNIZER) != None, result))
-#        
-#        if lastTime > 0:
-#            result = list(filter(lambda d: d.born >= lastTime, result))
-#        
-#        if limit > -1:
-#            result = result[-limit:]
-#
-#        result = list(map(lambda d: d.getJson(), result))
-#        result.insert(0, {'timeQuery' : time()})
-#
-#        return result
-#    
-#    def post(self):
-#        """ Save events  """
-#        try:             
-#            parser = reqparse.RequestParser()
-#            parser.add_argument('ids')
-#            parser.add_argument('analyzer')
-#            parser.add_argument('message')
-#            args = parser.parse_args()
-#
-#            ids = self.dp.deserialize(args.ids)
-#            analyzer = args.analyzer
-#            message = args.message
-#
-#            result = self.dp.pool
-#            #resultRECOGNIZERs = list(filter(lambda d: SourceTypes.parse(d.source) == SourceTypes.RECOGNIZER, result))
-#            resultControllers = list(filter(lambda d: SourceTypes.parse(d.source) == SourceTypes.CONTROLLER, result))
-#        
-#            pathBase = self.Config["SAVE_PATH"] + '{0:%Y%m%d_%H%M}'.format(datetime.now()) + "-" + analyzer
-#            Misc.createFolders(pathBase)
-#            f = open(pathBase + "/message.txt","a+")
-#            f.write(message)
-#            f.write('\n')
-#            f.close()
-#
-#            for id in ids:
-#                oriData = list(filter(lambda d: d.id == id, resultControllers))
-#                if len(oriData) == 0:
-#                    continue
-#                package = oriData[-1].package
-#                oriData = list(filter(lambda d: d.package == package, resultControllers))
-#                
-#                for o in oriData:
-#                    aux = json.loads(o.valueOf('aux'))
-#                    Misc.saveByType(o.valueOf('data'), aux['t'], "{}/{}{}.{}".format(pathBase, o.valueOf('device'), o.valueOf('id'), aux['ext']))
-#
-#            message = 'ok'
-#        
-#        except:
-#            logging.exception('Unexpected saving event data. :: Err: {}.'.format(str(sys.exc_info()[0])))
-#            message = 'Unexpected saving event data. :: Err: {}.'.format(str(sys.exc_info()[0]))
-#
-#        return message
-#
-#    def getEvents(self, idData='', controller='', device='', RECOGNIZER='', limit=-1, lastTime=0):
-#        """ Get data from pool. """
-#        g = get(self.URL, params={
-#            'id': idData,
-#            'controller': controller, 
-#            'device': device, 
-#            'RECOGNIZER': RECOGNIZER, 
-#            'limit': limit,
-#            'lastTime': lastTime
-#            }).json()
-#
-#        for i in range(1, len(g)):
-#            g[i]['data'] = self.dp.deserialize(g[i]['data'])
-#
-#        return g    
-#
-#    def getEventsFormatted(self, Custom='', Tokens=[], idData='', controller='', device='', RECOGNIZER='', limit=-1, lastTime=0):
-#        """ Get data from pool.
-#            Tokens Availiables:
-#                'id',
-#                'source',
-#                'controller',
-#                'device',
-#                'RECOGNIZER',
-#                'born',
-#                'data',
-#                'aux'        
-#         """        
-#        g = self.getEvents(idData, controller, device, RECOGNIZER, limit, lastTime)
-#
-#        Tokens = Tokens if len(Tokens) > 0 else ['id', 'born', 'RECOGNIZER', 'data', 'device', 'controller']
-#        Formater = '{}: At {} the {} detected {} in {} of {}.' if Custom == '' else Custom
-#
-#        Messages = []
-#        for i in range(1, len(g)):
-#            res = g[i]
-#            Values = []
-#            for t in range(len(Tokens)):
-#                Values.append(Tokens[t])
-#
-#            msg = Formater.format(*Values).replace('[','').replace(']','')
-#            Messages.append(msg)
-#        
-#        Messages.insert(0, g[0])
-#
-#        return Messages
-#    
-#    def sendDetection(self, analyzer, idsData, message):
-#        """ Send detection from analyzer to save data """
-#        p = post(self.URL, data={
-#            'analyzer' : analyzer, 
-#            'message' : message, 
-#            'ids': self.dp.serialize(idsData)
-#            })
-#        return p
-#
-#@singleton
-#class DataPoolold(Resource):
-#    """ Class to controlate life time of data """
-#    def __init__(self):
-#        """ Start class variables """
-#        self.URL = ""               # URL to start Pool
-#        self.TimeDiff = 0           # Defference between pool server and local time
-#
-#        self.pool = []              # Store of data
-#        self.countData = 0          # Amount of data received
-#
-#        self.T0 = 30                # Seconds to keep data in active
-#        self.T1 = self.T0 + 30      # Seconds to keep data in quarentine
-#        
-#        self.loggingLevel:int = 0   # logging level to write
-#        self.loggingFile = None     # Name of file where write log
-#        self.loggingFormat = None   # Format to show the log
-##
-##    def append(self, data:Data):
-#        """ Add new data to the pool """
-#        if data.source == SourceTypes.CONTROLLER:
-#            data.id += '-' + str(len(self.pool))
-#        self.countData += 1
-#        self.pool.append(data)
-##
-##    def pop(self):
-#        """ Move data if life time is over """
-#        for p in self.pool:
-#            if time() - p.born > self.T1:
-#                self.pool.remove(p)
-#            elif time() - p.born > self.T0:
-#                p.state = PoolStates.QUARANTINE
-##
-##    def get(self):
-#        """ Return all active data:
-#        Controller and device coulbe Exp Reg.
-#        Ex. 'CamController' for single or 'CamController.*?' for all from CamController """
-#        parser = reqparse.RequestParser()
-#        parser.add_argument('id')
-#        parser.add_argument('source')
-#        parser.add_argument('package')
-#        parser.add_argument('controller')
-#        parser.add_argument('device')
-#        parser.add_argument('RECOGNIZER')
-#        parser.add_argument('limit')
-#        parser.add_argument('lastTime')
-#        args = parser.parse_args()
-#        
-#        id = args.id
-#        source = args.source
-#        package = args.package
-#        controller = args.controller
-#        device = args.device
-#        RECOGNIZER = args.RECOGNIZER
-#        limit = args.limit
-#        lastTime = args.lastTime
-#
-#        id = '' if id == None else id
-#        package = '' if package == None else package
-#        source = '' if source == None else source
-#        controller = '' if controller == None else controller
-#        device = '' if device == None else device
-#        RECOGNIZER = '' if RECOGNIZER == None else RECOGNIZER
-#        limit = -1 if limit == None else int(limit)
-#        lastTime = 0 if lastTime == None else float(lastTime)
-#
-#        #result = self.pool[:]
-#        result = list(filter(lambda d: PoolStates.parse(d.state) == PoolStates.ACTIVE, self.pool))
-#              
-#        if id != '':
-#            idRE = re.compile('^' + id + '$')
-#            result = list(filter(lambda d: idRE.match(d.id) != None, result))
-#        
-#        if device != '':
-#            deviceRE = re.compile('^' + device + '$')
-#            result = list(filter(lambda d: deviceRE.match(d.device) != None, result))
-#        
-#        if controller != '':
-#            controllerRE = re.compile('^' + controller + '$')
-#            result = list(filter(lambda d: controllerRE.match(d.controller) != None, result))
-#            
-#        if RECOGNIZER != '':
-#            RECOGNIZERRE = re.compile('^' + RECOGNIZER + '$')
-#            result = list(filter(lambda d: RECOGNIZERRE.match(d.RECOGNIZER) != None, result))
-#        
-#        if source != '':
-#            result = list(filter(lambda d: SourceTypes.parse(d.source) == SourceTypes.parse(source), result))
-#        
-#        if package != '':
-#            result = list(filter(lambda d: d.package == package, result))
-#            
-#        if lastTime > 0:
-#            result = list(filter(lambda d: d.born >= lastTime, result))
-#        
-#        if limit > -1:
-#            result = result[-limit:]
-#        
-#        result = list(map(lambda d: d.getJson(), result))
-#        result.insert(0, {'timeQuery' : time()})
-#
-#        return result
-##
-##    def post(self):
-#        """ Load data in pool """
-#        try:             
-#            parser = reqparse.RequestParser()
-#            parser.add_argument('id')
-#            parser.add_argument('source')
-#            parser.add_argument('package')
-#            parser.add_argument('controller')
-#            parser.add_argument('device')
-#            parser.add_argument('RECOGNIZER')
-#            parser.add_argument('data')
-#            parser.add_argument('aux')
-#            args = parser.parse_args()
-#
-#            data = Data()
-#            
-#            if SourceTypes.parse(args.source) == SourceTypes.CONTROLLER:
-#                data.id = str(time())
-#                data.source = SourceTypes.CONTROLLER
-#                data.controller = args.controller
-#                data.device = args.device
-#                data.package = args.package
-#            elif SourceTypes.parse(args.source) == SourceTypes.RECOGNIZER:
-#                data.id = args.id
-#                data.source = SourceTypes.RECOGNIZER
-#                data.RECOGNIZER = args.RECOGNIZER
-#                pass
-#            
-#            data.data = args.data
-#            data.aux = args.aux
-#            data.born = time()
-#            self.append(data)
-#            self.pop()
-#
-#            message = 'ok'
-#        
-#        except:
-#            logging.exception('Unexpected writting data in pool. :: Err: {}.'.format(str(sys.exc_info()[0])))
-#            message = 'Unexpected writting data in pool. :: Err: {}.'.format(str(sys.exc_info()[0]))
-#
-#        return message
-##
-##    def put(self):
-##        """ Exec commands on pool """
-##        parser = reqparse.RequestParser()
-##        parser.add_argument('command')
-##        args = parser.parse_args()
-##        message = ''
-#        if args.command == 'time':
-#            message = time()
-#        elif args.command == 'isLive':
-#            message = True
-#        elif args.command == 'pop':
-#            self.pop()
-#            message = 'ok'
-#        elif args.command == 'count':
-#            message = len(self.pool)
-#        else:
-#            message = 'Bad command name'
-#
-#        return message
-#
-#    def start(self):
-#        """ Start api for data pool """
-#
-#        Misc.loggingConf(self.loggingLevel, self.loggingFile, self.loggingFormat)
-#
-#        app = Flask(__name__)
-#        log = logging.getLogger('werkzeug')
-#        log.setLevel(self.loggingLevel + 10)
-#        app.logger = logging.getLogger()
-#        api = Api(app)
-#        api.add_resource(DataPool, 
-#            '/pool',
-#            methods=['get', 'post', 'put']) 
-#        
-#        api.add_resource(EventPool, 
-#            '/events',
-#            methods=['get', 'post'])
-#
-#        app.run()
-#        logging.info('Pool api stoped.')
-#
-#    """ Functions to interact with Pool """
-#
-#    def sendCommand(self, command):
-#        """ Function generic to send commands to pool """
-#        x = put(self.URL, data={'command': command}).json()
-#        return x
-#
-#    def getTime(self):
-#        """ Get system time in pool server """
-#        x = self.sendCommand('time')
-#        return float(x)
-#
-#    def getTimeDiff(self):
-#        """ Get diference between system time in pool server and local time """
-#        t_server = self.getTime()
-#        t_local = time()
-#        t_diff = t_server - t_local
-#        return t_diff
-#
-#    def isLive(self):
-#        """ Shows if pool is living """
-#        try:
-#            x = self.sendCommand('isLive')
-#            return bool(x)
-#        except:
-#            logging.error(str(sys.exc_info()[0]))
-#            return False
-#
-#    def count(self):
-#        """ Returns the size of pool """
-#        x = self.sendCommand('count')
-#        return int(x)
-#
-#    def sendData(self, controller, device, data, aux=None, package=''):
-#        """ Send data to pool """
-#        p = post(self.URL, data={
-#            'source': SourceTypes.CONTROLLER,
-#            'controller' : controller, 
-#            'device': device, 
-#            'data': self.serialize(data),
-#            'aux':aux,
-#            'package':package
-#            })
-#            
-#        return p
-#
-#    def sendDetection(self, RECOGNIZER, idData, classes, aux=None):
-#        """ Send detection data to pool """
-#        p = post(self.URL, data={
-#            'source': SourceTypes.RECOGNIZER,
-#            'RECOGNIZER' : RECOGNIZER, 
-#            'id': idData, 
-#            'data': self.serialize(classes),
-#            'aux':aux
-#            })
-#        return p
-#
-#    def getData(self, idData='', source:SourceTypes=None, controller='', device='', RECOGNIZER='', limit=-1, lastTime=0):
-#        """ Get data from pool """
-#        g = get(self.URL, params={
-#            'id': idData, 
-#            'source': source, 
-#            'controller': controller, 
-#            'device': device, 
-#            'RECOGNIZER': RECOGNIZER, 
-#            'limit': limit,
-#            'lastTime': lastTime
-#            }).json()
-#
-#        for i in range(1, len(g)):
-#            g[i]['data'] = self.deserialize(g[i]['data'])
-#
-#        return g
-#
-#    def serialize(self, data):
-#        """ Serialize to transfer estructures and objects """
-#        f = pickle.dumps(data, protocol=0) # protocol 0 is printable ASCII
-#        return str(f)
-#
-#    def deserialize(self, data:str):
-#        """ Deserialize from transfered estructures and objects """
-#        o = pickle.loads(ast.literal_eval(data))
-#        return o
-#
-#
+    system_channels_error = 'Ooops an error on channels service ocurred'
+    system_channels_start = 'System starting channels service. Pool Url: '
+    system_channels_restart = 'Channels service is stopped. System auto restart it'
+    system_channels_started = 'Channels service started. Pool Url: '
+    system_channels_connect = 'Trying to connect to Pool ({}) from loader of Abalyzers ...'
+    channel_start = 'Starting activity channel {}'
+    channel_started = 'Activity channel {} started'
+    channel_searching = 'Searching for new activity channels...'
+    channel_stop = 'Loader of Channels stoped'
+    channel_error_send = 'Unexpected error sending data from channel'
+    channel_error_get = 'Unexpected error getting data from channel'
+    channel_error_stop = 'Pool not available activity channel will be stoped'
+    channel_error_put_msg = 'Unexpected error putting a new message in pool of messages'

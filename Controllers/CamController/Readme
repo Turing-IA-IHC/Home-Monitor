@@ -1,0 +1,9 @@
+# Install pycocotools
+    pip install git+https://github.com/philferriere/cocoapi.git#egg=pycocotools^&subdirectory=PythonAPI
+    or
+    pip install pycocotools
+
+# If appear error of pycocotools._mask 
+    # Download: PythonAPI from https://github.com/waleedka/coco
+    # Compile Coco module
+    python setup.py build_ext install # On PythonAPI folder and in conda cmd

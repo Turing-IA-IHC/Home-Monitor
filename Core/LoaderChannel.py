@@ -10,107 +10,225 @@ Class information:
     Class to control all Channels to load in system.
 """
 
-import sys
+#import sys
 from os.path import normpath
-import logging
-from time import sleep
-from multiprocessing import Process
+#import logging
+from time import sleep, time
+from multiprocessing import Process, Queue, Value
 import hashlib
+#
+import Misc, Formats
+from Component import Component
+from DataPool import Data, LogTypes, SourceTypes, Messages, CommPool
+from CommChannel import CommChannel, Dispatch
 
-import Misc
-from DataPool import DataPool
+class Carrier:
+    """ Class to keep couple message and channel """
+    born = time()                   # Momentun of creation
+    sent = False                    # Turn to Tre when message was sent
+    message : Dispatch              # Message to send
+    channel : CommChannel           # Channel used to send message
+    attempt : int = 0               # Failed Attempts
+    def __init__(self, message : Dispatch, channel : CommChannel):
+        self.message = message
+        self.channel = channel
+        self.born = time()
+
+    def equals(self, carrier):
+        """ Verify if two coarrier has a similar message throw same channel """
+        return self.message.equals(carrier.message) and \
+            self.channel.ME_PATH == carrier.channel.ME_PATH
 
 class LoaderChannel:
     """ Class to control all Channels to load in system. """
-    
-    def __init__(self):
+    POOL_DISPATCHES = []            # List of messages to send
+
+    def __init__(self, config, commPool:CommPool):
         """ Initialize all variables """
-        self.URL = ''               # URL of pool server
-        self.channels = []         # List of channels
-        self.loggingLevel:int = 0   # logging level to write
-        self.loggingFile = None     # Name of file where write log
-        self.loggingFormat = None   # Format to show the log
-    
-    def loadChannels(self):
-        """ Load all channels in './Channels' folder. 
-            Each channel have to be a sub folder and must to have a 'config.yaml' file.
-        """
-        logging.debug('Searching for new channels...')
-        channelsFolders =  Misc.lsFolders("./Channels")
-        for cf in channelsFolders:
-            if Misc.existsFile("config.yaml", cf):
-                try:
-                    _pathFile = normpath(cf + "/config.yaml")
-                    _config = Misc.readConfig(_pathFile)
-                    _enabled = Misc.toBool(str(_config['ENABLED']))
-                    _check = hashlib.md5(str(_config).encode('utf-8')).hexdigest()
+        self.CONFIG = config
+        self.COMMPOOL = commPool
+        self.CHECKING_TIME = int(Misc.hasKey(self.CONFIG, 'CHECKING_TIME', 10)) # Time in seconds to check service availability
+        self.channels = {}                  # List of channels
+        self.authoraizedChannels = []       # List of authorized channels to notify
+        self.authoraizedAttachments = []    # List of authorized attachments to notify
 
-                    _moduleName = Misc.hasKey(_config, 'MACHINE_NAME', 'No MACHINE_NAME')
-                    _className = Misc.hasKey(_config, 'CLASS_NAME', 'No CLASS_NAME')
+    def start(self, queueMessages:Queue):
+        """ Start load of all device channels """
+        self.COMMPOOL.logFromCore(Messages.system_channels_connect.format(self.COMMPOOL.URL_BASE), LogTypes.INFO, self.__class__.__name__)
+
+        err = ''
+        for _ in range(10):
+            if self.COMMPOOL.isLive():
+                err = ''
+                break
+            else:
+                err = 'Failed'
+                sleep(1)
+
+        if err != '':
+            self.COMMPOOL.logFromCore(Messages.error_pool_connection.format(self.COMMPOOL.URL_BASE), LogTypes.ERROR, self.__class__.__name__)
+            self.COMMPOOL.logFromCore(Messages.misc_terminate_process, LogTypes.ERROR, self.__class__.__name__)
+            return
+
+        self.authoraizedChannels = Misc.hasKey(self.CONFIG,'AUTHORIZED_CHANNELS', [])
+        self.authoraizedAttachments = Misc.hasKey(self.CONFIG,'AUTHORIZED_ATTACHMENTS', [])
+        
+
+        while True:
+            self.COMMPOOL.logFromCore(Messages.channel_searching, LogTypes.INFO, self.__class__.__name__)
+            channelsFolders =  Misc.lsFolders("./Channels")
+            for cf in channelsFolders:
+                if not Misc.existsFile("config.yaml", cf):
+                    continue
+
+                config = Misc.readConfig(normpath(cf + "/config.yaml"))
+                comp = Misc.hasKey(self.channels, cf, None)
+                if comp == None or comp.ME_CHECK != hashlib.md5(str(config).encode('utf-8')).hexdigest():
+                    comp = self.loadChannel(config, cf)
+                    self.channels[cf] = comp
+            
+            for _ in range(self.CHECKING_TIME):
+                if not queueMessages.empty():
+                    msj = queueMessages.get()
+                    self.putMessagePool(Data().parse(msj, True, True))
+
+                for disp in self.POOL_DISPATCHES:
+                    try:
+                        if disp.sent:
+                            if time() - disp.born > Misc.hasKey(self.CONFIG, 'MESSAGES_LIFE', 90): # Keep 90 seconds
+                                self.POOL_DISPATCHES.remove(disp)
+                        else:
+                            disp.channel.notify(disp.message)
+                            disp.sent = True
+                            #del disp.message
+                    except:
+                        disp.attempt += 1
+                        if disp.attempt > 2:
+                            self.POOL_DISPATCHES.remove(disp)
+                            del disp.message              
+
+                sleep(1)
+
+        self.COMMPOOL.logFromCore(Messages.channel_stop, LogTypes.INFO, self.__class__.__name__)
+
+    def loadChannel(self, config, cf:str):
+        """ Load channel objects """
+        file_class = Misc.hasKey(config, 'FILE_CLASS', '')
+        class_name = Misc.hasKey(config, 'CLASS_NAME', '')
+        if file_class != '' and class_name != '': 
+            _cls = Misc.importModule(cf, file_class, class_name)
+            obj = _cls()
+            obj.CONFIG =  config
+            obj.ME_PATH = cf
+            obj.COMMPOOL = self.COMMPOOL
+            obj.ME_CHECK = hashlib.md5(str(obj.CONFIG).encode('utf-8')).hexdigest()
+            obj.ENABLED = Misc.toBool(Misc.hasKey(obj.CONFIG, 'ENABLED', 'False'))
+            obj.ME_TYPE = SourceTypes.parse(Misc.hasKey(obj.CONFIG, 'TYPE', None))
+            obj.ME_NAME = Misc.hasKey(obj.CONFIG, 'NAME', class_name)
+            return obj
+        else:
+            comp = Component()
+            comp.ENABLED = False
+            return comp
+
+    def putMessagePool(self, data:Data):
+        """ Put new messages into pool to send then """
+        try:
+            d = Dispatch()
+            d.alerts.append(data)
+            d.tokens = {}
+            d.tickets = []
+            d.events = []
+            d.alerts = []
+            d.files = []
+
+            dataRecognizer = []
+            auxAnalyzer = data.strToJSon(data.aux)
+            filterRecognizer = Data()
+            filterRecognizer.id = ''
+            filterRecognizer.package = Misc.hasKey(auxAnalyzer, 'source_package', '-')
+            filterRecognizer.source_type = SourceTypes.RECOGNIZER
+            dataRecognizer = self.COMMPOOL.receive(data=filterRecognizer, limit=-1, lastTime=0, onlyActive=False)
+            event = Data()
+            for ev in dataRecognizer[1:]:
+                event = Data().fromDict(ev)
+                d.events.append(event)
+
+            dataController = []
+            auxRecognizer = event.strToJSon(event.aux)
+            filterController = Data()
+            filterController.id =  ''
+            filterController.package = Misc.hasKey(auxRecognizer, 'source_package', '-')
+            filterController.source_type = SourceTypes.CONTROLLER
+            dataController = self.COMMPOOL.receive(data=filterController, limit=-1, lastTime=0, onlyActive=False)
+            ticket = Data()
+            for ti in dataController[1:]:
+                ticket = Data().fromDict(ti)
+                d.events.append(ticket)
+                for attallow in self.authoraizedAttachments:
+                    attsallow = attallow.split(':')
+                    if len(attsallow) == 3 and \
+                        (attsallow[0] == '*' or SourceTypes.parse(attsallow[0]) == ticket.source_type) and \
+                        (attsallow[1] == '*' or attsallow[1] == ticket.source_name) and \
+                        (attsallow[2] == '*' or attsallow[2] == ticket.source_item):
+                        f = ticket.toFile()
+                        if f != '':
+                            d.files.append(f)
+
+            # Tokens list
+            d.tokens['controller_source_id']   = ticket.id
+            d.tokens['controller_source_type'] = ticket.source_type
+            d.tokens['controller_source_name'] = ticket.source_name
+            d.tokens['controller_source_item'] = ticket.source_item
+            d.tokens['recognizer_source_id']   = event.id
+            d.tokens['recognizer_source_type'] = event.source_type
+            d.tokens['recognizer_source_name'] = event.source_name
+            d.tokens['recognizer_source_item'] = event.source_item
+            d.tokens['analyzer_source_id']   = data.id
+            d.tokens['analyzer_source_type'] = data.source_type
+            d.tokens['analyzer_source_name'] = data.source_name
+            d.tokens['analyzer_source_item'] = data.source_item
+            d.tokens['server_time'] = time()
+            d.tokens['server_time_human'] = Misc.timeToString(time(), '%H:%M')
+            d.tokens['device_data'] = ticket.data
+            d.tokens['device_aux'] = ticket.aux
+            d.tokens['event_data'] = event.data
+            d.tokens['event_aux'] = event.aux
+            d.tokens['analysis_data'] = data.data
+            d.tokens['analysis_aux'] = data.aux
+            d.tokens['analysis_phrase'] = Misc.hasKey(Misc.hasKey(auxAnalyzer, 'source_aux', ''), 'phrase', '')
+            
+            for c in self.channels:
+                chnl = self.channels[c]
+                if chnl.ENABLED:
+                    if len(self.authoraizedChannels) > 0 and chnl.ME_NAME not in self.authoraizedChannels:
+                        continue # Skip not authorized channels
+
+                    msg = d.copy()                                
+                    msg.of = Misc.hasKey(chnl.CONFIG, 'OF', '')
+                    msg.to = Misc.hasKey(chnl.CONFIG, 'TO', '')
+                    msg.cc = Misc.hasKey(chnl.CONFIG, 'CC', '')
+                    msg.bcc = Misc.hasKey(chnl.CONFIG, 'BCC', '')
+                    msg.subject = Misc.hasKey(chnl.CONFIG, 'SUBJECT', '')
+                    msg.message = Misc.hasKey(chnl.CONFIG, 'MESSAGE', '')
+                    msg.aux = Misc.hasKey(chnl.CONFIG, 'AUX', '')
+                    msg.tokenize()
+                    crr = Carrier(msg, chnl)
                     
-                    _found = False
-
-                    for cc in range(len(self.channels)):
-                        # Check file changes
-                        _ctrl = self.channels[cc]
-                        if _ctrl["configFile"] == _pathFile:
-                            _found = True
-                            if _ctrl["check"] != _check:
-                                logging.info('Something changed in {}. It will be {}.'.format(_pathFile,
-                                    ('reload' if _enabled else 'stoped')))
-
-                                if "thread" in _ctrl and _ctrl["thread"].is_alive():
-                                    _ctrl["thread"].terminate()
-                                    del _ctrl["thread"]
-
-                                self.channels[cc] = {
-                                "check": _check,
-                                "configFile": _pathFile,
-                                "path": cf,
-                                "moduleName": _moduleName,
-                                "className": _className,
-                                "enabled": _enabled,
-                                "config" : _config,
-                            }
+                    existsCarrier = False
+                    for crrDis in self.POOL_DISPATCHES:
+                        if crrDis.equals(crr):
+                            existsCarrier = True
                             break
-
-                    if not _found:
-                        logging.info('There is a new module in {}. {}.'.format(_pathFile,
-                            ('It will be Load' if _enabled else 'But is disabled')))
-                        self.channels.append({
-                                "check": _check,
-                                "configFile": _pathFile,
-                                "path": cf,
-                                "moduleName": _moduleName,
-                                "className": _className,
-                                "enabled": _enabled,
-                                "config" : _config,
-                            })
-                except:
-                    logging.exception('Unexpected error loading channel in folder {} :: {}.'.format(cf, str(sys.exc_info()[0])))
-
-    def send(self):
-        """ Start load of all Channels """
-
-        Misc.loggingConf(self.loggingLevel, self.loggingFile, self.loggingFormat)
-        self.loadChannels()
-        for cc in range(len(self.channels)):
-            _ctrl = self.channels[cc]
-            _cls = None
-            if _ctrl["enabled"] and not "thread" in _ctrl:
-                """ Load componente and class using config file information """
-                logging.info('Starting Channel {}.'.format(_ctrl['moduleName']))
-                _cls = Misc.importModule(_ctrl["path"], _ctrl['moduleName'], _ctrl['className'])
-                _cls = _cls(_ctrl["config"])
-                _cls.URL = self.URL
-                _cls.Me_Path = _ctrl["path"]
-                _cls.loggingLevel = self.loggingLevel
-                _cls.loggingFile = self.loggingFile
-                _cls.loggingFormat = self.loggingFormat
-
-                ChannelHARThread = Process(target=_cls.send, args=())
-                ChannelHARThread.start()
-                del _cls
-                logging.info('Channel {} sending message.'.format(_ctrl['moduleName']))                
-
-        logging.info('Sending messages finished.')
+                        else:
+                            crrDis.equals(crr)
+                    if not existsCarrier:
+                        self.POOL_DISPATCHES.append(crr)                        
+        except:
+            dataE = Data()
+            dataE.source_type = SourceTypes.ANALYZER
+            dataE.source_name = 'LoaderChannel'
+            dataE.source_item = ''
+            dataE.data = self.COMMPOOL.errorDetail(Messages.channel_error_put_msg)
+            dataE.aux = ''
+            self.COMMPOOL.logFromCore(dataE, LogTypes.ERROR)

@@ -20,8 +20,7 @@ from Component import Component
 from DataPool import DataPool
 
 class Dispatch:
-    """ Structure to represent a message to send throw aome channel.
-    """
+    """ Structure to represent a message to send throw aome channel. """
     born = time()       # Momentum when message was created
     of:str = ''         # Sender
     to:str = ''         # Receiver       
@@ -30,8 +29,14 @@ class Dispatch:
     subject:str = ''    # Title of message 
     message:str = ''    # Body of message
     aux:str = ''        # Auxiliar data
+    tokens = {}         # List of variables availables to replace
+    tickets = []        # Tickets related to dispatch
+    events = []         # Events related to dispatch
+    alerts = []         # Alerts related to dispatch
+    files = []          # Path of files to attach
 
     def __init__(self, of:str = '', to:str = '', cc:str = '', bcc:str = '', subject:str = '', message:str = '', aux:str = ''):
+        """ Allow to create a message structure to send """
         self.of = of
         self.to = to
         self.cc = cc
@@ -40,20 +45,47 @@ class Dispatch:
         self.message = message
         self.aux = aux
 
-class CommChannel(Component):
-    """ Generic class that represents all the communication channles that can be loaded. """
-    
-    def __init__(self, cfg=None):
-        self.dp = DataPool()        # Object to send information
-        self.URL = ""               # Pool URL
-        self.Me_Path = "./"         # Path of current component
-        self.Standalone = False     # If a child start in standalone
-        
-        self.Config = cfg           # Object with all config params
+    def equals(self, dispatch):
+        """ Compare two message and identify if are similar """
+        return  self.of == dispatch.of and \
+                self.to == dispatch.to and \
+                self.subject == dispatch.subject and \
+                self.message == dispatch.message
 
-        self.loggingLevel = None    # logging level to write
-        self.loggingFile = None     # Name of file where write log
-        self.loggingFormat = None   # Format to show the log
+    def tokenize(self):
+        """ Replace texts in all variables by tokens values """
+        for key in self.tokens:
+            self.of = self.of.replace('['+key+']', str(self.tokens[key]))
+            for tos in self.to:
+                tos = tos.replace('['+key+']', str(self.tokens[key]))
+            for ccs in self.cc:
+                ccs = ccs.replace('['+key+']', str(self.tokens[key]))
+            for bccs in self.bcc:
+                bccs = bccs.replace('['+key+']', str(self.tokens[key]))
+            self.subject = self.subject.replace('['+key+']', str(self.tokens[key]))
+            self.message = self.message.replace('['+key+']', str(self.tokens[key]))
+            self.aux = self.aux.replace('['+key+']', str(self.tokens[key]))
+
+    def copy(self):
+        """ Return a copy of full message """
+        d = Dispatch()
+        d.born = self.born
+        d.of = self.of
+        d.to = self.to
+        d.cc = self.cc
+        d.bcc = self.bcc
+        d.subject = self.subject
+        d.message = self.message
+        d.aux = self.aux
+        d.tokens = self.tokens
+        d.tickets = self.tickets
+        d.events = self.events
+        d.alerts = self.alerts
+        d.files = self.files
+        return d
+
+class CommChannel(Component):
+    """ Generic class that represents all the communication channels that can be loaded. """
 
     """ Abstract methods """
     @abc.abstractmethod

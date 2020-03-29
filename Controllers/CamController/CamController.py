@@ -103,7 +103,7 @@ class CamController(DeviceController):
 
         if self.getObject:
             auxPer = auxData.format('image', 'png', width, height)
-            auxPer += '"ClassName":"{}", "backColor":{}, "Y1":{}, "X1":{}, "Y2":{}, "X2":{}'
+            auxPer += ',"ClassName":"{}", "backColor":{}, "Y1":{}, "X1":{}, "Y2":{}, "X2":{}'
             objs = self.cce.locatePeople(frame)
             for obj in objs:
                 dataPerson = Data()
@@ -206,7 +206,7 @@ class CamController(DeviceController):
 
         if self.getObject:
             auxPer = auxData.format('image', 'png', width, height)
-            auxPer += '"ClassName":"{}", "backColor":{}, "Y1":{}, "X1":{}, "Y2":{}, "X2":{}'
+            auxPer += ',"ClassName":"{}", "backColor":{}, "Y1":{}, "X1":{}, "Y2":{}, "X2":{}'
             objs = self.cce.locatePeople(frame)
             for obj in objs:
                 dataPerson = Data()

@@ -75,10 +75,12 @@ class ActivityRecognizer(Component):
                     dataPredictedList = self.predict(objData)
                     for dataPredicted in dataPredictedList:
                         dataPredicted.package = package
+                        auxData = '"t":"json", "source_id":"{}", "source_item":"{}", "source_name":"{}", "source_type":"{}", "source_package":"{}","source_aux":"{}"'
+                        dataPredicted.aux = '{' + auxData.format(objData.id, objData.source_item, objData.source_name, objData.source_type, objData.package, dataPredicted.aux) + '}'
+
                         if Misc.toBool(self.STANDALONE):
                             self.showData(dataPredicted, objData)
                         else:
-                            print('\t\t## Sending: ', dataPredicted.data)
                             self.send(dataPredicted)
                         failedSend = 0
                 except:

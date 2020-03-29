@@ -7,9 +7,13 @@ VERSION: 1.0.0                        # Module id version.
 ENABLED: Y                            # Module is enabled to run.
 DESCRIPTION: Description of AnomalousAnalyzer. # Description for humans.
 # ------ Vars of Analyzers
+MODEL: model/model.textblob.NaiveBayesClassifier.pickle   # Path to file of model.
+AUTHORIZED_CHANNELS: [MailChannel,]   # Limit the channels available to send messages.
+AUTHORIZED_ATTACHMENTS: ['*:CamController:*',] # Limit the source allow to attach Type:Name:Item. Example *:RGB:*
+MESSAGES_LIFE: 90                     # Seconds to keep messages in memory.
 CLASSES: [None, New]                  # List of classes able to detect, separate by commas.
-MODEL: model/model.h5                 # Path to file of model.
 #FILTER_NAME: NameRecognizer          # Recognizer data source.
 #FILTER_ITEM: NameRecognizer          # Item data source.
 FILTER_LIMIT: -1                      # Elements to return from pool each time.
+
 # ------ Other specific config vars

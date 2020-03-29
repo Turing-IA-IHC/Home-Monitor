@@ -35,7 +35,8 @@ class ApiBase():
                     'state'         : str(self.state),
                 },
                 limit,
-                lastTime
+                lastTime,
+                all
             
             Controller and device could be an Exp Reg.
             Ex. 'CamController' for single or 'CamController.*?' for all from CamController
@@ -45,6 +46,7 @@ class ApiBase():
             parser.add_argument('data')
             parser.add_argument('limit')
             parser.add_argument('lastTime')
+            parser.add_argument('onlyActive')
             args = parser.parse_args()
 
             dataIn = args.data
@@ -56,8 +58,9 @@ class ApiBase():
 
             limit = args.limit
             lastTime = args.lastTime
+            onlyActive = True if args.onlyActive == '' else Misc.toBool(args.onlyActive)
             
-            result = DataPool().getPool(data=data, limit=limit, lastTime=lastTime)
+            result = DataPool().getPool(data=data, limit=limit, lastTime=lastTime, onlyActive=onlyActive)
             
             result = list(map(lambda d: d.getJson(), result))
             result.insert(0, {'msg':'ok', 'queryTime' : time()})        

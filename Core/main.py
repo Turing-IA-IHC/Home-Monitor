@@ -110,6 +110,7 @@ class main():
 
     def heart_beat(self):
         """ Keep system running """
+        print('', flush=True)
         Binnacle().logFromCore(Messages.system_start_heart_beat, LogTypes.INFO, self.__class__.__name__)
         while True:
             try:
@@ -120,7 +121,7 @@ class main():
                 
                 if self.must_start_pool:
                     self.commPool.sendCommand('pop')
-                    print(' \t {} data received.'.format(self.commPool.count()))
+                    print('\t{} - Refreshing time: {}'.format(self.commPool.count(), Misc.hasKey(self.CONFIG, 'CHECKING_TIME', 30)), end='\r', flush=True)
 
             except:
                 message = Binnacle().errorDetail(Messages.system_pool_error)
@@ -209,7 +210,7 @@ if __name__ == "__main__":
     #components = 8  # Only Adnormal events
     #components = 15 # All components
 
-    components = 4
+    components = 8
     m = main(components)
     
     
