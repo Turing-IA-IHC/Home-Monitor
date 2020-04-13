@@ -1,0 +1,12 @@
+DEVICES: [
+  {
+      'id':0,
+      'name':'Device 0',
+      'enabled':y
+  },
+  {
+      'id':1,
+      'name':'Device 1',
+      'enabled':n
+  }
+]

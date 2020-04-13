@@ -12,9 +12,10 @@ Class information:
 
 import sys
 import logging
-from time import time
+from time import time, sleep
 from datetime import datetime
 from os.path import normpath
+import numpy as np
 
 # Including Home Monitor Paths to do visible the modules
 sys.path.insert(0, './Tools/')
@@ -210,11 +211,18 @@ class Data():
         aux = self.strToJSon(self.aux)
         t = Misc.hasKey(aux,'t','')
         ext = Misc.hasKey(aux,'ext','')
-        f = ''
+        dataType:str = str(type(self.data))
+        f = normpath(path + "/attachments/" + str(self.id) + "." + ext)
         if t == 'image':
             from cv2 import cv2
-            f = normpath(path + "/" + str(self.id) + "." + ext)
             cv2.imwrite(f, self.data)
+        elif 'numpy' in dataType:
+            w = np.squeeze(self.data)
+            np.savetxt(f, w, delimiter=",", fmt="%s")
+        else:
+            nf = open(f, "w")
+            nf.write(self.data)
+            nf.close()
 
         return f
 
@@ -257,7 +265,6 @@ class Data():
         o = pickle.loads(ast.literal_eval(data))
         return o
 
-
 @singleton
 class Binnacle():
 
@@ -296,7 +303,6 @@ class Binnacle():
     def logFromCore(self, msg:str, logType:LogTypes, origin:str):
         """ Put a message of core in Binnacle """
         msg:str='origin: {}, msg: {}'.format(origin, msg)
-        msg = msg.format(origin, msg)
         self.log(msg, logType.value)
 
     def errorDetail(self, msg:str=''):
@@ -428,11 +434,23 @@ class CommPool():
     """ Generics function to interact with pool """
     def sendCommand(self, command):
         """ Function generic to send commands to pool """
-        url = self.URL_BASE + "/" + self.PREFERRED_URL
-        x = requests.put(url, data={'command': command}).json()
-        if x[0]['msg'] != 'ok':
-            raise ValueError(x[0]['msg'])
-        return x[0]['res']
+        try:
+            url = self.URL_BASE + "/" + self.PREFERRED_URL
+            x = [{'msg': 'Consulting ' + url},]
+            x = requests.put(url, data={'command': command})
+
+            if x.status_code == 404:
+                return Messages.pool_wrong_url + '' + url, x._content, x.status_code
+            elif x.status_code == 429:
+                return Messages.pool_many_requests, x._content, x.status_code
+            else:
+                x = x.json()
+
+            return x[0]['res'], x[0]['msg'], 200
+        except:
+                message = Binnacle().errorDetail(Messages.system_pool_error)
+                Binnacle().logFromCore(message, LogTypes.ERROR, x[0]['msg'])
+                return message, x[0]['msg'], 0
 
     def getTime(self):
         """ Get system time in pool server """
@@ -450,7 +468,7 @@ class CommPool():
         """ Shows if pool is living """
         try:
             x = self.sendCommand('isLive')
-            return bool(x)
+            return Misc.toBool(x[0])
         except Exception as ex:
             message = '{} :: Err: {}."'.format(Messages.error_pool_life, ex)
             self.logFromCore(message, LogTypes.ERROR, self.__class__.__name__)
@@ -508,16 +526,11 @@ class DataPool(Resource):
             idRE = re.compile('^' + id + '$')
             pool = list(filter(lambda d: idRE.match(str(d.id)) != None, pool))
         
-        if package != '' and source_type == SourceTypes.CONTROLLER:
-            print('pool 1', len(pool), package)
-            for p in pool:
-                print(p.id, p.package)
-
         if package != '':
             pool = list(filter(lambda d: d.package == package, pool))
 
-        if package != '' and source_type == SourceTypes.CONTROLLER:
-            print('pool 2', len(pool), package)
+        #for px in pool:
+        #    print('pool', len(pool), source_name, px.source_name)
 
         if source_name != '':
             source_nameRE = re.compile('^' + source_name + '$')
@@ -586,7 +599,8 @@ class DataPool(Resource):
             self.pop()
             message = 'ok'
         elif cmd == 'count':
-            message = 'Total={}\tTickets={}\tEvents={}\tAlerts={}'.format(self.Count, len(self.POOL_TICKETS), len(self.POOL_EVENTS), len(self.POOL_ALERTS))
+            message = '"Total":{}, "Tickets":{}, "Events":{}, "Alerts":{}'.format(self.Count, len(self.POOL_TICKETS), len(self.POOL_EVENTS), len(self.POOL_ALERTS))
+            message = '{' + message + '}'
         else:
             message = Messages.bad_command_name
 
@@ -609,17 +623,24 @@ class DataPool(Resource):
         app.logger = logging.getLogger()
         api = Api(app)
 
+        if Misc.toBool(Misc.hasKey(self.CONFIG, 'RUN_IN_COLLAB', 'N')):
+            from flask_ngrok import run_with_ngrok
+            run_with_ngrok(app)   #starts ngrok when the app is run            
+            @app.route("/")
+            def home():
+                return "<h1>Running Home-Monitor on Google Colab!</h1>"
+
         from ApiServices import ApiAlerts, ApiEvents, ApiTickets, ApiLogs
         
         Binnacle().loggingConf(self.CONFIG)
-        Binnacle().logFromCore('Starting /tickets', LogTypes.INFO, self.__class__.__name__)
-        api.add_resource(ApiTickets, '/tickets', methods=['get', 'post', 'put']) 
-        Binnacle().logFromCore('Starting /events', LogTypes.INFO, self.__class__.__name__)
-        api.add_resource(ApiEvents, '/events',   methods=['get', 'post', 'put']) 
-        Binnacle().logFromCore('Starting /alerts', LogTypes.INFO, self.__class__.__name__)
-        api.add_resource(ApiAlerts, '/alerts',   methods=['get', 'post', 'put']) 
-        Binnacle().logFromCore('Starting /logs', LogTypes.INFO, self.__class__.__name__)
-        api.add_resource(ApiLogs, '/logs',       methods=['post']) 
+        Binnacle().logFromCore('Starting /api/tickets', LogTypes.INFO, self.__class__.__name__)
+        api.add_resource(ApiTickets, '/api/tickets', methods=['get', 'post', 'put']) 
+        Binnacle().logFromCore('Starting /api/events', LogTypes.INFO, self.__class__.__name__)
+        api.add_resource(ApiEvents, '/api/events',   methods=['get', 'post', 'put']) 
+        Binnacle().logFromCore('Starting /api/alerts', LogTypes.INFO, self.__class__.__name__)
+        api.add_resource(ApiAlerts, '/api/alerts',   methods=['get', 'post', 'put']) 
+        Binnacle().logFromCore('Starting /api/logs', LogTypes.INFO, self.__class__.__name__)
+        api.add_resource(ApiLogs, '/api/logs',       methods=['post']) 
         
         app.run()
         Binnacle().logFromCore(Messages.pool_stoped, LogTypes.INFO, self.__class__.__name__)
@@ -641,6 +662,8 @@ class Messages():
     config_no_file = 'Config file does not exits '
     
     pool_stoped = 'Pool api stoped'
+    pool_wrong_url = 'Too Many Requests'
+    pool_many_requests = 'Too Many Requests'
 
     error_class_name = 'Must be set CLASS_NAME variable into config.yaml file'
     error_file_class = 'Must be set FILE_CLASS variable into config.yaml file'

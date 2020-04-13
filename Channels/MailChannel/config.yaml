@@ -1,15 +1,17 @@
 # Config params of MailChannel.
 NAME: MailChannel                     # Name for humans.
-MACHINE_NAME: MailChannel             # Name for no Humans.
+TYPE: CHANNEL                         # Type of component.
+FILE_CLASS: MailChannel               # Py file where initial class is located.
 CLASS_NAME: MailChannel               # Class name to load.
 VERSION: 1.0.0                        # Module id version.
 ENABLED: Y                            # Module is enabled to run.
-DESCRIPTION: Class to send messages by email. # Description for humans.
-# ------
-FROM: <Value>                         # Sender mail.
-PASSWORD: <Value>                     # Sender Password
-TO: [<Value>]                         # Recipients
-#CC:                                  # Recipients
-#BCC:                                 # Recipients
-SUBJECT: 'HM: a [type] was detected!' # Subject, can use tokens
-MESSAGE: 'HM: a [type] was detected!' # Body message, can use tokens
+DESCRIPTION: Description of MailChannel. # Description for humans.
+# ------ Vars of Channels
+OF: <Value>                          # Sender.
+TO: [<Value>]                        # Recipients.
+#CC:  [<Value>]                       # Recipients.
+#BCC:  [<Value>]                      # Recipients.
+SUBJECT: 'HM: an [event_data] was detected!' # Subject, can use tokens.
+MESSAGE: '<div style="float: left;margin-right: 5px; padding-top: 5px;">HM: an</div><div style="float: left;margin-right: 5px;font-size: large;font-weight: bold;color: red;">[event_data]</div><div style="float: left;margin-right: 5px;padding-top: 5px;">was detected</div>. <br/><br/>[analysis_phrase]' # Body message, can use tokens.
+# ------ Other specific config vars
+PASSWORD: <Value>                    # Sender Password

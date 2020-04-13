@@ -7,15 +7,15 @@ Home-Monitor:
     Licensed under the MIT License (see LICENSE for details)
 
 Class information:
-    Class to analyze anomalous events.
+    Template to analyze classes of recognizers.
 """
 
 import sys
 import numpy as np
 from os.path import dirname, normpath
-import logging
 import json
 import math
+from time import time, sleep
 
 from cv2 import cv2
 import tensorflow as tf
@@ -27,62 +27,104 @@ sys.path.insert(0, './Tools/')
 sys.path.insert(0, './Core/')
 
 import Misc
-from EventAnayzer import EventAnalyzer
+from ActivityAnalyzer import ActivityAnalyzer
+from DataPool import LogTypes, SourceTypes, Messages, Data
 
-class AnomalousEventAnalyzer(EventAnalyzer):
-    """ Class to analyze anomalous events. """
+class AnomalousEventAnalyzer(ActivityAnalyzer):
+    """ Template to analyze classes of recognizers. """
+
+    Simulating = False
 
     def preLoad(self):
-        """ Load knowledge for prediction """
-        """ Load keras + tensorflow model """
-        ## TODO: Put here, everything you need to load before you start event analysis
+        """ Implement me! :: Do anything necessary for processing """
+        # TODO: Put here, everything you need to load before you start processing
+        pass
+    
+    def loadModel(self):
+        """ Loads model """
+        from textblob.classifiers import NaiveBayesClassifier
+        import nltk
+        nltk.download('punkt')
+        nltk.download('averaged_perceptron_tagger')
+        import pickle
+        ModelPath = normpath(self.ME_PATH + "/" + self.CONFIG['MODEL'])
+        with open(ModelPath, 'rb') as file:
+            self.MODEL = pickle.load(file)
+
+    def loaded(self):
+        """ Implement me! :: Just after load the model and channels """
+        # TODO: This method is called just after load model
+        pass
+
+    def analyze(self, data):
+        """ Exec analysis of activity """
+        Phrase = "At {} the {} detect {} in {} of {}"
+        auxSource = data.strToJSon(data.aux)
+        Phrase = Phrase.format(Misc.timeToString(data.born), data.source_name, data.data, \
+            Misc.hasKey(auxSource,'source_item',''), Misc.hasKey(auxSource,'source_name','') )
+
+        dataReturn = []
+        auxData = '"phrase":"{}"'
         
-        """ Example:
-        ModelPath = normpath(dirname(__file__) + "/" + self.Config['MODEL'])
-        logging.debug('Loadding model for {} from {} ...'.format(self.__class__.__name__, ModelPath))       
-        self.NET = load_model(ModelPath)
-        self.NET._make_predict_function()
-        if logging.getLogger().level < logging.INFO: # Only shows in Debug
-            self.NET.summary()
+        typeDetected:str = self.MODEL.classify(Phrase)
+        if typeDetected.lower() != 'none': 
+            dataInf = Data()
+            dataInf.source_type = self.ME_TYPE
+            dataInf.source_name = self.ME_NAME
+            dataInf.source_item = ''
+            dataInf.data = typeDetected
+            dataInf.aux = "{" + auxData.format(Phrase) + "}"
+            dataReturn.append(dataInf)
+
+        return dataReturn
+
+    def showData(self, dataanalyzeed:Data, dataSource:Data):
+        """ Implement me! :: To show data if this module start standalone """
+        # TODO: Put code if you want test this module in standalone form.
+        """ Exmple:
+        print('Classes detected: {}. Aux: {}.'.format(dataanalyzeed.data, dataanalyzeed.aux))
         """
-        self.Controller = Misc.hasKey(self.Config, 'CONTROLLER', '')    # Controller to filter data
-        self.Device = Misc.hasKey(self.Config, 'DEVICE', '')            # Device name to filter data
-        self.Limit = -1                                                 # Amount of data to filter data
+        pass
+    
+    def simulateData(self, dataFilter:Data, limit:int=-1, lastTime:float=-1):
+        """ Allows to simulate data if this module start standalone """
+        Phrase = "At {} the {} detect {} in {} of {}"
+        dataReturn = []
+        try:
+            if self.Simulating == None or self.Simulating == False:
+                self.Simulating = True
+                self.Counter = 0
+                self.file = open("RGBInfarctRecignizer_OutPut.txt", 'r').readlines()
+                self.file_length = len(self.file)
 
-    def predict(self, data):
-        """ Do prediction and return class found """
-        # TODO: Make predictions and return like an array of classes and the auxiliar information.
-        # Avoid returning class None or background.
-        #print('Data to analyze:', data['id'])
-        #f = open(dirname(__file__) + "/DataTestAnalyzer.txt","a+")
-        #f.write(str(data))
-        #f.write('\n')
-        #f.close()
-        return np.array([ data['id'], ]), 'Aux'
-  
-    def showData(self, data, ids, aux):
-        """ To show data if this module start standalone.
-            set self.Standalone = True before start. """
-        # TODO: Put code if you want test this module in standalone form.
-        print('IDs to notify: {}. Aux: {}.'.format(ids, aux))
+            if self.Counter < self.file_length:            
+                limit = limit if limit > -1 else self.file_length - self.Counter
+                for _ in range(limit):
+                    if self.file[self.Counter] != '' and len(self.file[self.Counter]) > 10:
+                        #"At {} the {InfarctSkeleton} detect {``Infarct''} in {livingRoom1} of {CamController}.".format()
 
-    def testData(self):
-        """ Data t test if this module start standalone. 
-            You must return an array as expected if you query the data pool.
-            set self.Standalone = True before start. """
-        # TODO: Put code if you want test this module in standalone form.
-        
-        f = open(dirname(__file__) + "/DataTestAnalyzer.txt","r")
-        lines = f.readlines()
-        auxData = lines[self.countTest]
-        self.countTest = 0 if self.countTest + 1 >= len(lines) else (self.countTest + 1)
-        return [{'timeQuery':0}, json.loads(auxData)]
+                        dataSimulated = Data()
+                        dataSimulated = dataSimulated.parse(self.file[self.Counter], True, True)
+                        dataNarrator = Data()
+                        dataAux = dataNarrator.strToJSon(dataSimulated.aux)
+                        source_item = Misc.hasKey(dataAux, 'source_item', '')
+                        source_name = Misc.hasKey(dataAux, 'source_name', '')
+                        dataNarrator.data = Phrase.format(dataSimulated.born, 
+                            dataSimulated.source_name, dataSimulated.data, source_item, source_name)
+                        print(dataNarrator.data)
+                        dataReturn.append(dataSimulated)
+                    self.Counter += 1
+            else:
+                self.Started = False
+        except:
+            self.COMMPOOL.errorDetail('Error simulateData: ')
+            self.Started = False
+
+        dataReturn.insert(0, {'timeQuery':time()})
+        sleep(300/1000)
+        return dataReturn
     
 # =========== Start standalone =========== #
 if __name__ == "__main__":
-    config = Misc.readConfig(dirname(__file__) + "/config.yaml")
-    Alz = AnomalousEventAnalyzer(config)
-    Alz.Me_Path = dirname(__file__)
-    Alz.Standalone = True
-    Alz.countTest = 0
-    Alz.start()
+    comp = AnomalousEventAnalyzer()
+    comp.init_standalone(Me_Path=dirname(__file__))

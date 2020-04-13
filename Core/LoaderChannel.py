@@ -11,6 +11,7 @@ Class information:
 """
 
 #import sys
+import os
 from os.path import normpath
 #import logging
 from time import sleep, time
@@ -42,6 +43,7 @@ class Carrier:
 class LoaderChannel:
     """ Class to control all Channels to load in system. """
     POOL_DISPATCHES = []            # List of messages to send
+    ANALYZER_PATH   = "./"          # Path of current analyzer
 
     def __init__(self, config, commPool:CommPool):
         """ Initialize all variables """
@@ -56,23 +58,15 @@ class LoaderChannel:
         """ Start load of all device channels """
         self.COMMPOOL.logFromCore(Messages.system_channels_connect.format(self.COMMPOOL.URL_BASE), LogTypes.INFO, self.__class__.__name__)
 
-        err = ''
-        for _ in range(10):
-            if self.COMMPOOL.isLive():
-                err = ''
-                break
-            else:
-                err = 'Failed'
-                sleep(1)
-
-        if err != '':
-            self.COMMPOOL.logFromCore(Messages.error_pool_connection.format(self.COMMPOOL.URL_BASE), LogTypes.ERROR, self.__class__.__name__)
-            self.COMMPOOL.logFromCore(Messages.misc_terminate_process, LogTypes.ERROR, self.__class__.__name__)
-            return
-
         self.authoraizedChannels = Misc.hasKey(self.CONFIG,'AUTHORIZED_CHANNELS', [])
         self.authoraizedAttachments = Misc.hasKey(self.CONFIG,'AUTHORIZED_ATTACHMENTS', [])
         
+        if not os.path.exists("./Channels"):
+            os.makedirs("./Channels")
+        if not os.path.exists(self.ANALYZER_PATH + "/attachments/"):
+            os.makedirs(self.ANALYZER_PATH + "/attachments/")
+
+            
 
         while True:
             self.COMMPOOL.logFromCore(Messages.channel_searching, LogTypes.INFO, self.__class__.__name__)
@@ -171,7 +165,7 @@ class LoaderChannel:
                         (attsallow[0] == '*' or SourceTypes.parse(attsallow[0]) == ticket.source_type) and \
                         (attsallow[1] == '*' or attsallow[1] == ticket.source_name) and \
                         (attsallow[2] == '*' or attsallow[2] == ticket.source_item):
-                        f = ticket.toFile()
+                        f = ticket.toFile(path="./" + self.ANALYZER_PATH)
                         if f != '':
                             d.files.append(f)
 

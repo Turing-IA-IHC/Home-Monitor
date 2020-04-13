@@ -47,6 +47,12 @@ def startSystem(components:int, vars):
     from main import main as mainHM
     mainHM(components , vars)
 
+def startHealthMonitor( vars):
+    """ Start the module to monitor the health of the entire system """
+    sys.path.insert(0, './Core/')
+    from monitor import monitor as monitorHM
+    monitorHM(vars)
+
 def createComponent(me_type, me_name):
     path = os.path.normpath(me_type + "s" + "/" + me_name)
     if not os.path.exists(path):
@@ -93,6 +99,10 @@ def main(argv):
 
     if argv[0] in ['-s', 's', '--start', 'start']:
         startSystem(int(argv[1]), argv[2:])
+        sys.exit(0)
+
+    if argv[0] in ['-m', 'm', '--monitor', 'monitor']:
+        startHealthMonitor(argv[1:])
         sys.exit(0)
 
     if argv[0] in ['-g', 'g', '--generate', 'generate']:
