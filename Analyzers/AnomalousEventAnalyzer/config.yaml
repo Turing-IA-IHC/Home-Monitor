@@ -1,18 +1,12 @@
-# Config params of NewANALYZER.
+# Config params of NewHAR.
 NAME: AnomalousEventAnalyzer          # Name for humans.
-TYPE: ANALYZER                        # Type of component.
-FILE_CLASS: AnomalousEventAnalyzer    # Py file where initial class is located.
+MACHINE_NAME: AnomalousEventAnalyzer  # Name for no Humans.
 CLASS_NAME: AnomalousEventAnalyzer    # Class name to load.
 VERSION: 1.0.0                        # Module id version.
-ENABLED: Y                            # Module is enabled to run.
-DESCRIPTION: Description of AnomalousEventAnalyzer. # Description for humans.
-# ------ Vars of Analyzers
-MODEL: model/model.textblob.NaiveBayesClassifier.pickle   # Path to file of model.
-AUTHORIZED_CHANNELS: [MailChannel, ConsoleChannel]               # Limit the channels available to send messages.
-AUTHORIZED_ATTACHMENTS: ['*:*:*',]    # Limit the source allow to attach Type:Name:Item. Example *:RGB:*
-MESSAGES_LIFE: 90                     # Seconds to keep messages in memory.
-CLASSES: [None, AnomalousAlert]       # List of classes able to detect, separate by commas.
-#FILTER_NAME: NameRecognizer          # Recognizer data source.
-#FILTER_ITEM: EventDetected           # Item data source.
-FILTER_LIMIT: -1                      # Elements to return from pool each time.
-# ------ Other specific config vars
+MODEL: model/model.h5                 # Path to file of model.
+ENABLED: N                            # Module is enabled to run.
+DESCRIPTION: Module to analyze anomalous events. # Description for humans.
+# ------
+#CONTROLLER:                          # name or regular expresion to filter by a controller.
+#DEVICE:                              # name or regular expresion to filter by a device.
+CLASSES: [None, New]                  # List of classes able to detect, separate by commas.

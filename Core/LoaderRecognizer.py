@@ -37,6 +37,20 @@ class LoaderRecognizer:
         cp = CommPool(self.CONFIG, preferred_url=CommPool.URL_TICKETS)
         cp.logFromCore(Messages.system_recognizers_connect.format(cp.URL_BASE), LogTypes.INFO, self.__class__.__name__)
 
+        err = ''
+        for _ in range(10):
+            if cp.isLive():
+                err = ''
+                break
+            else:
+                err = 'Failed'
+                sleep(1)
+
+        if err != '':
+            cp.logFromCore(Messages.error_pool_connection.format(cp.URL_BASE), LogTypes.ERROR, self.__class__.__name__)
+            cp.logFromCore(Messages.misc_terminate_process, LogTypes.ERROR, self.__class__.__name__)
+            return
+
         while True:
             cp.logFromCore(Messages.recognizer_searching, LogTypes.INFO, self.__class__.__name__)
             recognizersFolders =  Misc.lsFolders("./Recognizers")

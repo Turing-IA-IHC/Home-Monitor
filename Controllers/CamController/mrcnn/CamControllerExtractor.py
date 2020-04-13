@@ -52,14 +52,12 @@ class CamControllerExtractor:
     ]
     CLASSES_TO_DETECT = ['person']
 
-    def __init__(self, cocoConfig=None, Me_Component_Path:str="./", coco_model_path=None):
+    def __init__(self, cocoConfig=None, Me_Component_Path:str="./"):
         if cocoConfig == None:
             cocoConfig = InferenceConfig()
-        if coco_model_path == None or coco_model_path == "":
-            coco_model_path = "model/cocoModel.h5"
-        coco_model_path = os.path.normpath(os.path.join(Me_Component_Path, "model/cocoModel.h5"))
-            
+        
         model_dir = os.path.join(Me_Component_Path, "logs")
+        coco_model_path = os.path.normpath(os.path.join(Me_Component_Path, "mrcnn/mask_rcnn_coco.h5"))
 
         self.ME_MODEL = modellib.MaskRCNN(mode="inference", model_dir=model_dir, config=cocoConfig)
         self.ME_MODEL.load_weights(coco_model_path, by_name=True)

@@ -2,12 +2,12 @@
 Home-Monitor: 
     AI system for the detection of anomalous and possibly harmful events for people.
 
-    Written by Gabriel Rojas - 2019 (Change)
-    Copyright (c) 2019 G0 S.A.S. (Change)
+    Written by Gabriel Rojas - 2019
+    Copyright (c) 2019 G0 S.A.S.
     Licensed under the MIT License (see LICENSE for details)
 
 Class information:
-    Template to get data from a device type CamController.
+    Class to get RGB data from cams.
 """
 
 import sys
@@ -34,7 +34,7 @@ from DataPool import Data
 
 class CamController(DeviceController):
     """ Class to get RGB data from cams. """
-    
+
     Simulating = False
 
     def preLoad(self):
@@ -47,9 +47,9 @@ class CamController(DeviceController):
         if self.getObject:
             sys.path.insert(0, self.ME_PATH)
             from mrcnn.CamControllerExtractor import CamControllerExtractor
-            cocoH5 = Misc.hasKey(self.CONFIG, 'MODEL_COCO', 'model/cocoModel.h5')
-            self.cce = CamControllerExtractor(Me_Component_Path=self.ME_PATH, coco_model_path=cocoH5)
+            self.cce = CamControllerExtractor(Me_Component_Path=self.ME_PATH)
             self.cce.CLASSES_TO_DETECT = [x.lower() for x in self.CONFIG['OBJECTS']]
+
         if self.getSkeleton:
             ModelPath = normpath(dirname(__file__) + "/" + self.CONFIG['MODEL'])
             logging.debug('Loadding model for {} from {} ...'.format(self.__class__.__name__, ModelPath))
@@ -57,7 +57,7 @@ class CamController(DeviceController):
             self.joinsBodyNET._make_predict_function()
             if logging.getLogger().level < logging.INFO: # Only shows in Debug
                 self.joinsBodyNET.summary()
-  
+
     def initializeDevice(self, device):
         """ Initialize device """
         capture = cv2.VideoCapture(device['id'])
@@ -67,12 +67,11 @@ class CamController(DeviceController):
         capture.set(cv2.CAP_PROP_FRAME_HEIGHT, _height)
         return capture
 
-    def getData(self, device, frame=None):
+    def getData(self, device):
         """ Returns a list of tuples like {controller, device, data} with data elements """
 
         cam = self.Devices[device["id"]]['objOfCapture']
-        if frame is None:
-            _, frame = cam.read()
+        _, frame = cam.read()
 
         if frame is None:
             return []
@@ -125,12 +124,14 @@ class CamController(DeviceController):
             dataReturn.append(dataSkeleton)
         
         return dataReturn
-      
+  
     def showData(self, data:Data):
-        """ To show data if this module start standalone """
+        """ To show data if this module start standalone.
+        set self.Standalone = True before start. """
+        #print('show', data.source_type, data.source_comp, data.source_name)
         
         if data.source_name == 'CamController/Skeleton':
-            people = data.data #Points of skeleton
+            people = self.dp.deserialize(data.data) #For capture the image in RGB color space
             rgbImage = np.zeros((self.CONFIG['FRAME_HEIGHT'], self.CONFIG['FRAME_WIDTH'], 3), np.uint8)            
             for person in people:
                 for join in person:
@@ -138,22 +139,19 @@ class CamController(DeviceController):
                         cv2.circle(rgbImage, (join[0], join[1]), 5, [255, 0, 0], thickness=-1)        
         else:
             rgbImage = data.data # For capture the image in RGB color space
-        
-        # Display the resulting frame
-        cv2.imshow(data.source_name + '-' + data.source_item, rgbImage)
+            # Display the resulting frame
+            cv2.imshow(data.source_name + '-' + data.source_item, rgbImage)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            self.stop()
-            cv2.destroyAllWindows()
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                self.stop()
+                cv2.destroyAllWindows()
 
-        #with open("CamController_OutPut.txt",'a+') as file:
-        #    file.write('\n' + data.toString(False, True))
+        with open("CamController_OutPut.txt",'a+') as file:
+            file.write('\n' + data.toString(False, True))
 
     def simulateData(self, device):
         """ Allows simulate input data """
-        fromCam = False
-        simulFilePath = "M:/tmp/testInfarct.mp4"
-
+        fromCam:bool = False
         if fromCam:            
             return self.getData(device) # From cam
 
@@ -161,20 +159,75 @@ class CamController(DeviceController):
         if self.Simulating == None or self.Simulating == False:
             self.Simulating = True
             self.Counter = 0
-            self.capture = cv2.VideoCapture(simulFilePath)
+            self.capture = cv2.VideoCapture("M:/tmp/testInfarct.mp4")
             self.video_length = int(self.capture.get(cv2.CAP_PROP_FRAME_COUNT))
-            
+        
         if self.capture.isOpened() and self.Counter < self.video_length:            
             _, frame = self.capture.read()
-            self.Counter += 1
             if frame is None:
                 return []
-            return self.getData(device, frame=frame)
         else:
             self.Simulating = False
             return []
 
-        return []
+        # Ajust size
+        withExpected = Misc.hasKey(self.CONFIG, 'FRAME_WIDTH', 300)
+        scale_percent = withExpected / frame.shape[1]
+        width = int(frame.shape[1] * scale_percent)
+        height = int(frame.shape[0] * scale_percent)
+        dim = (width, height)
+        # resize image
+        frame = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA) 
+        self.Counter += 1
+        deviceName = 'File'
+        
+        height = np.size(frame, 0)
+        width = np.size(frame, 1)
+        dataReturn = []
+        auxData = '"t":"{}", "ext":"{}", "W":"{}", "H":"{}"'
+        
+        if self.getRGB:
+            dataRgb = Data()
+            dataRgb.source_type = self.ME_TYPE
+            dataRgb.source_name = 'CamController'
+            dataRgb.source_item = deviceName
+            dataRgb.data = frame
+            dataRgb.aux = '{' + auxData.format('image', 'png', width, height) + '}'
+            dataReturn.append(dataRgb)
+        
+        if self.getGray:
+            dataGray = Data()
+            dataGray.source_type = self.ME_TYPE
+            dataGray.source_name = 'CamController/Gray'
+            dataGray.source_item = deviceName
+            dataGray.data = self.preProc_Gray(frame)
+            dataGray.aux = '{' + auxData.format('image', 'png', width, height) + '}'
+            dataReturn.append(dataGray)
+
+        if self.getObject:
+            auxPer = auxData.format('image', 'png', width, height)
+            auxPer += ',"ClassName":"{}", "backColor":{}, "Y1":{}, "X1":{}, "Y2":{}, "X2":{}'
+            objs = self.cce.locatePeople(frame)
+            for obj in objs:
+                dataPerson = Data()
+                dataPerson.source_type = self.ME_TYPE
+                dataPerson.source_name = 'CamController/' + obj.ClassName
+                dataPerson.source_item = deviceName
+                dataPerson.data = obj.Frame
+                dataPerson.aux = '{' + auxPer.format(obj.ClassName, obj.backColor, obj.Y1, obj.X1, obj.Y2, obj.X2) + '}'
+                dataReturn.append(dataPerson)
+
+        if self.getSkeleton and not self.joinsBodyNET is None:
+            dataSkeleton = Data()
+            dataSkeleton.source_type = self.ME_TYPE
+            dataSkeleton.source_name = 'CamController/Skeleton'
+            dataSkeleton.source_item = deviceName
+            dataSkeleton.data = self.preProc_Skeleton(frame)
+            dataSkeleton.aux = '{' + auxData.format('csv', 'csv', width, height) + '}'
+            dataReturn.append(dataSkeleton)
+        
+        #sleep(3/1000)
+        return dataReturn
 
     # =========== Auxiliar methods =========== #
 
@@ -429,4 +482,3 @@ class CamController(DeviceController):
 if __name__ == "__main__":
     comp = CamController()
     comp.init_standalone(Me_Path=dirname(__file__))
-    sleep(600)

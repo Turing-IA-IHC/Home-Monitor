@@ -50,11 +50,11 @@ class DeviceController(Component):
 
                 gdList = []
                 try:
-                    self.STANDALONE = True
                     if Misc.toBool(self.STANDALONE):
                         gdList = self.simulateData(device)
                     else:
-                        gdList = self.getData(device)
+                        gdList = self.simulateData(device)
+                        #gdList = self.getData(device)
                 except:
                     dataE = Data()
                     dataE.source_type = SourceTypes.CONTROLLER
@@ -72,7 +72,6 @@ class DeviceController(Component):
                 for data in gdList:
                     try:
                         data.package = package
-                        self.STANDALONE = False
                         if Misc.toBool(self.STANDALONE):
                             self.showData(data)
                         else:

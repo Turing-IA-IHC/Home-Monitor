@@ -20,12 +20,12 @@ from Component import Component
 from DataPool import DataPool
 
 class Dispatch:
-    """ Structure to represent a message to send throw some channel. """
+    """ Structure to represent a message to send throw aome channel. """
     born = time()       # Momentum when message was created
     of:str = ''         # Sender
-    to = []             # Receiver       
-    cc = []             # Other receiver to copy       
-    bcc = []            # Other hidden receiver
+    to:str = ''         # Receiver       
+    cc:str = ''         # Other receiver to copy       
+    bcc:str = ''        # Other hidden receiver
     subject:str = ''    # Title of message 
     message:str = ''    # Body of message
     aux:str = ''        # Auxiliar data
@@ -35,7 +35,7 @@ class Dispatch:
     alerts = []         # Alerts related to dispatch
     files = []          # Path of files to attach
 
-    def __init__(self, of:str = '', to=[], cc=[], bcc=[], subject:str='', message:str='', aux:str=''):
+    def __init__(self, of:str = '', to:str = '', cc:str = '', bcc:str = '', subject:str = '', message:str = '', aux:str = ''):
         """ Allow to create a message structure to send """
         self.of = of
         self.to = to

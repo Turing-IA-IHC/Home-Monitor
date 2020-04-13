@@ -1,0 +1,8 @@
+# Config params of Infarct Basic Detect HAR Module.
+NAME: Infarct Basic Detect            # Name for humans.
+MACHINE_NAME: InfarctSimpleCnnHAR     # Name for no Humans
+VERSION: 1.0.0                        # Modele id version.
+PREDICTOR: src/ibdHAR.py              # File with predic function.
+CONTROLLERS: [CamsController>=1.0.0]  # List of devices type controllers, separate by commas.
+CLASSES: [Infarto:Predict]            # List of classes able to detect,  separate by commas.
+DESCRIPTION: Module to detect people in posible infarct.  # Description for humans.

@@ -87,14 +87,6 @@ def showConfig(config):
     """ Shows data in config file loaded """
     print('\t' + str(config).replace(',', '\n\t'), '\n')    
 
-def replaceConfigVars(config, vars=[]):            
-    # Replacing config vars
-    for v in vars:
-        vParam = str(v).split('=')
-        if len(vParam) > 0:
-            t = type(hasKey(config, vParam[0], ''))
-            config[vParam[0]] = t(vParam[1])
-
 def importModule(path:str, moduleName:str, className:str=None):
     """ Load and returns a module.
         path: Path of folder where is the modeule
@@ -116,7 +108,7 @@ def hasKey(dict, key, default):
 
 def toBool(value:str):
     """ Chech if the value is true or false """
-    return str.lower(str(value)) in ['true', '1', 't', 'y', 'yes', 'ok', 'yeah', 'yup', 'certainly', 'uh-huh']
+    return str.lower(str(value)) in ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh']
 
 def randomString(stringLength=10):
     """ Generate a random string of fixed length """
