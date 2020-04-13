@@ -12,7 +12,6 @@ Class information:
 
 import sys
 from os.path import normpath
-import logging
 from time import sleep
 from multiprocessing import Process
 import hashlib
@@ -36,20 +35,6 @@ class LoaderController:
         """ Start load of all device controllers """
         cp = CommPool(self.CONFIG, preferred_url=CommPool.URL_TICKETS)
         cp.logFromCore(Messages.system_controllers_connect.format(cp.URL_BASE), LogTypes.INFO, self.__class__.__name__)
-
-        err = ''
-        for _ in range(10):
-            if cp.isLive():
-                err = ''
-                break
-            else:
-                err = 'Failed'
-                sleep(1)
-
-        if err != '':
-            cp.logFromCore(Messages.error_pool_connection.format(cp.URL_BASE), LogTypes.ERROR, self.__class__.__name__)
-            cp.logFromCore(Messages.misc_terminate_process, LogTypes.ERROR, self.__class__.__name__)
-            return
 
         while True:
             cp.logFromCore(Messages.controller_searching, LogTypes.INFO, self.__class__.__name__)

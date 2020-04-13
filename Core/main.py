@@ -64,14 +64,9 @@ class main():
             Binnacle().logFromCore(Messages.config_no_file + self.CONFIG_FILE, LogTypes.ERROR, self.__class__.__name__)
             return
         self.CONFIG = Misc.readConfig(self.CONFIG_FILE)
-
         
         # Replacing config vars
-        for v in vars:
-            vParam = str(v).split('=')
-            if len(vParam) > 0:
-                t = type(Misc.hasKey(self.CONFIG, vParam[0], ''))
-                self.CONFIG[vParam[0]] = t(vParam[1])
+        Misc.replaceConfigVars(self.CONFIG, vars)
         Misc.showConfig(self.CONFIG)
 
         # Logging Configuration
@@ -82,25 +77,26 @@ class main():
             self.CONFIG['LOGGING_FILE'] = loggingFile
         Binnacle().loggingConf(self.CONFIG)
 
-        #if components > 1:
-        self.commPool = CommPool(self.CONFIG)
-
         # Define which component should be started
         toStart = "%04d"% int(str(bin(components)).replace("0b",""))
-        print('')
+        #print('')
         Binnacle().logFromCore(Messages.system_start, LogTypes.INFO, self.__class__.__name__)
         Binnacle().logFromCore(Messages.system_start_components + toStart, LogTypes.INFO, self.__class__.__name__)
-        print('')
+        #print('')
 
         self.must_start_pool = toStart[3] == '1'
         self.must_start_controllers = toStart[2] == '1'
         self.must_start_recognizers = toStart[1] == '1'
         self.must_start_analyzers = toStart[0] == '1'
+        
+        self.commPool = CommPool(self.CONFIG)
+        if not self.must_start_pool and components > 1:
+            self.check_pool_connection()
 
         if self.must_start_pool:
             self.start_pool()
         if self.must_start_controllers:
-            self.start_controllers()        
+            self.start_controllers()
         if self.must_start_recognizers:
             self.start_recognizers()
         if self.must_start_analyzers:
@@ -110,19 +106,13 @@ class main():
 
     def heart_beat(self):
         """ Keep system running """
-        print('', flush=True)
         Binnacle().logFromCore(Messages.system_start_heart_beat, LogTypes.INFO, self.__class__.__name__)
         while True:
             try:
                 """ Section to control the execution of the pool """
                 if self.must_start_pool and not self.poolThread.is_alive():
                     Binnacle().logFromCore(Messages.system_pool_restart, LogTypes.INFO, self.__class__.__name__)
-                    self.start_pool()
-                
-                if self.must_start_pool:
-                    self.commPool.sendCommand('pop')
-                    print('\t{} - Refreshing time: {}'.format(self.commPool.count(), Misc.hasKey(self.CONFIG, 'CHECKING_TIME', 30)), end='\r', flush=True)
-
+                    self.start_pool()                
             except:
                 message = Binnacle().errorDetail(Messages.system_pool_error)
                 Binnacle().logFromCore(message, LogTypes.ERROR, self.__class__.__name__) 
@@ -153,6 +143,13 @@ class main():
             except:
                 message = Binnacle().errorDetail(Messages.system_analyzers_error)
                 self.commPool.logFromCore(message, LogTypes.ERROR, self.__class__.__name__)
+            
+            if self.must_start_pool and not Misc.toBool(Misc.hasKey(self.CONFIG, 'RUN_IN_COLLAB', 'N')) :
+                self.commPool.sendCommand('pop')
+                cont = self.commPool.count()
+                #cont = Data().strToJSon(cont[0]) if cont[2] == 200 else ''
+                print('\t{} - Refreshing time: {}'.format(cont[0], 
+                    Misc.hasKey(self.CONFIG, 'CHECKING_TIME', 30)), end='\r', flush=True)
 
             sleep(Misc.hasKey(self.CONFIG, 'CHECKING_TIME', 30))
 
@@ -198,6 +195,23 @@ class main():
         sleep(2)
         self.commPool.logFromCore(Messages.system_analyzers_started + self.CONFIG['URL_BASE'], LogTypes.INFO, self.__class__.__name__)
         
+    def check_pool_connection(self):
+        """ Validate connection with pool - if not connect stop aplication """        
+        err = ''
+        for _ in range(3):
+            if self.commPool.isLive():
+                err = ''
+                break
+            else:
+                err = 'Failed'
+                sleep(1)
+
+        if err != '':
+            msg:str='origin: {}, msg: {}'
+            msg = msg.format(self.__class__.__name__, Messages.error_pool_connection.format(self.commPool.URL_BASE))
+            logging.log(LogTypes.CRITICAL.value, msg)
+            sys.exit(1) 
+
 if __name__ == "__main__":
     components = 0   # Message no one component
     components = 1   # Only pool
@@ -211,6 +225,6 @@ if __name__ == "__main__":
     #components = 15 # All components
 
     components = 8
-    m = main(components)
+    m = main(components, [])
     
     

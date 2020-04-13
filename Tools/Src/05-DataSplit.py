@@ -15,9 +15,9 @@ import shutil
 
 # === Configuration vars ===
 # Path of image folder (use slash at the end)
-INPUT_PATH = "M:/IA/HomeOLD/001PersonExtracted/"
+INPUT_PATH = "M:/IA/HomeOLD/21scaled/"
 # Path where new images goes don't put (use slash at the end)
-OUTPUT_PATH = "M:/IA/HomeOLD/0010Data"
+OUTPUT_PATH = "M:/IA/HomeOLD/22Splited"
 
 # Percent to take for each folder
 TRAIN = .7
