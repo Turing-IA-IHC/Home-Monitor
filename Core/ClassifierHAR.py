@@ -4,7 +4,7 @@ Home-Monitor:
 
     Written by Gabriel Rojas - 2019
     Copyright (c) 2019 G0 S.A.S.
-    Licensed under the MIT License (see LICENSE for details)
+    See LICENSE file for details
 
 Class information:
     Generic class that represents all the classifiers that can be loaded.
@@ -18,6 +18,7 @@ from time import time
 from DataPool import DataPool
 import Misc
 
+#TODO: Parece wque esta clase ya no va
 class ClassifierHAR(abc.ABC):
     """ Generic class that represents all the classifiers that can be loaded. """
     

@@ -4,7 +4,7 @@ Home-Monitor:
 
     Written by Gabriel Rojas - 2019
     Copyright (c) 2019 G0 S.A.S.
-    Licensed under the MIT License (see LICENSE for details)
+    See LICENSE file for details
 
 Class information:
     Class to controlate input data throw api rest
@@ -42,6 +42,8 @@ class ApiBase():
             Ex. 'CamController' for single or 'CamController.*?' for all from CamController
         """
         try:
+            #TODO: Si en lugar de data se reciben las variables id, package, source_name y source_item
+            # como se registra en la documentación. Además el tipo lo debe sacar de la url que se usa
             parser = reqparse.RequestParser()
             parser.add_argument('data')
             parser.add_argument('limit')
@@ -88,6 +90,8 @@ class ApiBase():
                 }
         """
         try:
+            #TODO: Validar tipo de dato y si no coiside emitir error
+            #TODO: E ltipo de dato esperado lo debe sacar de la clase en su instanciación
             parser = reqparse.RequestParser()
             parser.add_argument('data')
             args = parser.parse_args()

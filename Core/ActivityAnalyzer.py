@@ -4,7 +4,7 @@ Home-Monitor:
 
     Written by Gabriel Rojas - 2019
     Copyright (c) 2019 G0 S.A.S.
-    Licensed under the MIT License (see LICENSE for details)
+    See LICENSE file for details
 
 Class information:
     Generic class that represents all the analyzers that can be loaded.
@@ -24,7 +24,7 @@ import Misc
 from Component import Component
 from DataPool import Data, Messages, LogTypes, SourceTypes
 from LoaderChannel import LoaderChannel
-
+#TODO: Cambiar el nombre a FactAnalyzer
 class ActivityAnalyzer(Component):
     """ Generic class that represents all the analyzers that can be loaded. """
     MODEL = None

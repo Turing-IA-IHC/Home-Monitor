@@ -4,7 +4,7 @@ Home-Monitor:
 
     Written by Gabriel Rojas - 2019 (Change)
     Copyright (c) 2019 G0 S.A.S. (Change)
-    Licensed under the MIT License (see LICENSE for details)
+    See LICENSE file for details
 
 Class information:
     Template to get data from a device type NewController.
@@ -28,8 +28,6 @@ from DataPool import Data
 class NewController(DeviceController):
     """ Template to get data from a device type New. """
     
-    Simulating = False
-
     def preLoad(self):
         """ Do anything necessary for processing """
         # TODO: Put here, everything you need to load before you start capturing data
@@ -83,13 +81,13 @@ class NewController(DeviceController):
 
     def simulateData(self, device):
         """ Allows simulate input data """
-        if self.Simulating == None or self.Simulating == False:
-            self.Simulating = True
         # TODO: Put code if you want test this module in standalone form.
         dataReturn = []        
         return dataReturn
 
 # =========== Start standalone =========== #
 if __name__ == "__main__":
+    from DataPool import Binnacle
+    Binnacle().loggingSettings(LogTypes.INFO, None, '%(asctime)s - %(name)s - %(levelname)s - %(message)s')    
     comp = NewController()
-    comp.init_standalone(Me_Path=dirname(__file__))
+    comp.init_standalone(path=dirname(__file__))

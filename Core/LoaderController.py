@@ -4,7 +4,7 @@ Home-Monitor:
 
     Written by Gabriel Rojas - 2019
     Copyright (c) 2019 G0 S.A.S.
-    Licensed under the MIT License (see LICENSE for details)
+    See LICENSE file for details
 
 Class information:
     Class to load all device controllers.
@@ -28,8 +28,8 @@ class LoaderController:
         """ Initialize all variables """
         self.CONFIG = config
         self.CHECKING_TIME = int(Misc.hasKey(self.CONFIG, 'CHECKING_TIME', 10)) # Time in seconds to check service availability
-        self.URL = self.CONFIG['URL_BASE']  # URL of pool server
-        self.controllers = {}               # List of controllers
+        self.URL = self.CONFIG['URL_BASE']  # URL of pool server TODO: URL_POOL
+        self.controllers = {}               # List of controllers TODO: Controllers Variables en nuscula primera mayus
     
     def start(self):
         """ Start load of all device controllers """

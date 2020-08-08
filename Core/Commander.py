@@ -4,7 +4,7 @@ Home-Monitor:
 
     Written by Gabriel Rojas - 2019
     Copyright (c) 2019 G0 S.A.S.
-    Licensed under the MIT License (see LICENSE for details)
+    See LICENSE file for details
 
 Class information:
     Module to generate components and more.
@@ -128,3 +128,6 @@ def main(argv):
 
 if __name__ == "__main__":
     main(sys.argv[1:])
+
+    #TODO: Crear comando para creación de datasets -d
+    #TODO: Crear comando para validación del entorno -e

@@ -4,7 +4,7 @@ Home-Monitor:
 
     Written by Gabriel Rojas - 2019
     Copyright (c) 2019 G0 S.A.S.
-    Licensed under the MIT License (see LICENSE for details)
+    See LICENSE file for details
 
 Class information:
     Class to control all Channels to load in system.
@@ -169,6 +169,7 @@ class LoaderChannel:
                         if f != '':
                             d.files.append(f)
 
+            # TODO: Actualizar tokens disponibles
             # Tokens list
             d.tokens['controller_source_id']   = ticket.id
             d.tokens['controller_source_type'] = ticket.source_type

@@ -4,7 +4,7 @@ Home-Monitor:
 
     Written by Gabriel Rojas - 2019
     Copyright (c) 2019 G0 S.A.S.
-    Licensed under the MIT License (see LICENSE for details)
+    See LICENSE file for details
 
 Class information:
     Class to control all Analyzer components to load in system.
@@ -21,7 +21,7 @@ import Misc
 from Component import Component
 from DataPool import LogTypes, Messages, CommPool
 from ActivityAnalyzer import ActivityAnalyzer
-
+#TODO cambiar a LoaderOfController igual para los demás cargadores
 class LoaderAnalyzer:
     """ Class to control all Analyzer components to load in system. """
     def __init__(self, config):

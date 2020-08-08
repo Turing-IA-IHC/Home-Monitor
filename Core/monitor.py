@@ -4,7 +4,7 @@ Home-Monitor:
 
     Written by Gabriel Rojas - 2019
     Copyright (c) 2019 G0 S.A.S.
-    Licensed under the MIT License (see LICENSE for details)
+    See LICENSE file for details
 
 Class information:
     Class to monitor the health of the entire system
@@ -76,3 +76,4 @@ class monitor:
 if __name__ == "__main__":
     #hms = monitor(['URL_BASE=http://9f9e80a7.ngrok.io',])
     hms = monitor()
+    #TODO: Entre las principales datos presentados están: cantidad de elementos en cada una de las pilas de datos, últimas alertas detectadas y tiempos de ejecución.

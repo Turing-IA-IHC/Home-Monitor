@@ -4,7 +4,7 @@ Home-Monitor:
 
     Written by Gabriel Rojas - 2019
     Copyright (c) 2019 G0 S.A.S.
-    Licensed under the MIT License (see LICENSE for details)
+    See LICENSE file for details
 
 Class information:
     Class to controlate life time of data
@@ -152,7 +152,7 @@ class Data():
 
     def getJson(self, dataPlain=False, auxPlain=False):
         """
-        Returns a string with JSon format which represents this object.
+        Returns a Object with JSon structure which represents this object.
         """
         j = {
             'id'            : self.id,
@@ -311,6 +311,7 @@ class Binnacle():
         fname = exc_tb.tb_frame.f_code.co_filename
         return '{} :: {} :: {} :: {} :: {}'.format(msg, exc_obj, exc_type, fname, exc_tb.tb_lineno)
 
+
 class CommPool():
     """ Class to allow communication between Data Pool and Components. """
     URL_BASE    = ""            # Url of Data Pool Service
@@ -328,7 +329,7 @@ class CommPool():
         if self.STANDALONE:
             Binnacle().loggingConf(self.CONFIG)
         else:
-            self.URL_BASE = Misc.hasKey(self.CONFIG,'URL_BASE','http://127.0.0.1:500')
+            self.URL_BASE = Misc.hasKey(self.CONFIG,'URL_BASE','http://127.0.0.1:5000')
             self.PREFERRED_URL = preferred_url        
 
     def send(self, data:Data):
@@ -684,6 +685,9 @@ class Messages():
     comp_change = 'Something changed in {}. It will be {}.'
     comp_try_start = 'Trying to load a componen from path: {}'
     comp_load_error = 'Unexpected error loading component in folder'
+    comp_started = 'Component {} started.'
+    comp_stop = 'A signal to stop {} was send.'
+    comp_setSimulateMode = 'Component {} set in simulated mode {}.'
     
     system_pool_error = 'Ooops an error on pool service ocurred'
     system_pool_start = 'System starting pool in url: '

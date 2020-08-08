@@ -4,7 +4,7 @@ Home-Monitor:
 
     Written by Gabriel Rojas - 2019
     Copyright (c) 2019 G0 S.A.S.
-    Licensed under the MIT License (see LICENSE for details)
+    See LICENSE file for details
 
 Class information:
     Generic class that represents all the activity recognizers modules that can be loaded.
@@ -26,7 +26,7 @@ from DataPool import Data, Messages, LogTypes, SourceTypes, CommPool
 class EventRecognizer(Component):
     """ Generic class that represents all the activity recognizers modules that can be loaded. """ 
     MODEL = None
-    DATA_FILTER = Data()
+    DATA_FILTER = Data() # Cambiar por las variables de filtrado especificas junto con el cambio en el api get
     Limit:int = -1
     LastTime:float = -1
     CLASSES = []
@@ -127,22 +127,4 @@ class EventRecognizer(Component):
     @abc.abstractmethod
     def predict(self, data:Data):
         """ Implement me! :: Exec prediction to recognize an activity """
-        pass
-
-    def send(self, data:Data):
-        """ Send data to pool """
-        self.COMMPOOL.send(data)
-
-    def stop(self):
-        """ Stop module and getting data """
-        self.running = False
-
-    @abc.abstractmethod
-    def showData(self, dataPredicted:Data, dataSource:Data):
-        """  Implement me! :: To show data if this module start standalone """
-        pass
-
-    @abc.abstractmethod
-    def simulateData(self, device):
-        """  Implement me! :: Allows to simulate data if this module start standalone """
         pass

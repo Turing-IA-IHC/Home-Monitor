@@ -1,12 +1,14 @@
 # Config params of NewController.
 NAME: NewController                   # Name for humans.
-TYPE: CONTROLLER                      # Type of component
+TYPE: CONTROLLER                      # Type of component.
 FILE_CLASS: NewController             # Py file where initial class is located.
 CLASS_NAME: NewController             # Class name to load.
 VERSION: 1.0.0                        # Module id version.
-ENABLED: Y                            # Module is enabled to run
+ENABLED: Y                            # Module is enabled to run.
 DESCRIPTION: Description of NewController. # Description for humans.
+SIMULATING: N                         # Set true if module start with sumaleted data.
+SIMULATING_PATH:                      # Set path to simulated data source.
 # ------ Vars of Controllers
-CHECK_TIME: 30                        # Time in seconds to check if device is active
+CHECK_TIME: 30                        # Time in seconds to check if device is active.
 SAMPLING: 0.0                         # Sampling rate to control frame per second.
 # ------ Other specific config vars

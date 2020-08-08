@@ -4,7 +4,7 @@ Home-Monitor:
 
     Written by Gabriel Rojas - 2019
     Copyright (c) 2019 G0 S.A.S.
-    Licensed under the MIT License (see LICENSE for details)
+    See LICENSE file for details
 
 Class information:
     Generic class that represents all the devices that can be loaded.
@@ -31,7 +31,11 @@ class DeviceController(Component):
     InactiveDevices = []   # List of devices unpluged
 
     def start(self):
-        """ Start module isolated """
+        """ Start module """
+
+        if self.Simulating == None or self.Simulating == False:
+            print(0)
+
         self.preLoad()
         self.Devices = self.getDeviceList()
         
@@ -39,7 +43,7 @@ class DeviceController(Component):
             device['objOfCapture'] = self.initializeDevice(device)
         
         self.running = True
-        Sampling = Misc.hasKey(self.CONFIG, 'SAMPLING', 1) # Sampling rate
+        Sampling = Misc.hasKey(self.ME_CONFIG, 'SAMPLING', 1) # Sampling rate
         failedSend = 0
 
         while self.running:
@@ -50,19 +54,12 @@ class DeviceController(Component):
 
                 gdList = []
                 try:
-                    self.STANDALONE = True
-                    if Misc.toBool(self.STANDALONE):
+                    if Misc.toBool(self.Simulating):
                         gdList = self.simulateData(device)
                     else:
                         gdList = self.getData(device)
                 except:
-                    dataE = Data()
-                    dataE.source_type = SourceTypes.CONTROLLER
-                    dataE.source_name = self.ME_NAME
-                    dataE.source_item = Misc.hasKey(device, 'name', device['id'])
-                    dataE.data = self.COMMPOOL.errorDetail(Messages.controller_error_get)
-                    dataE.aux = '{}'.format(str(device['objOfCapture']))
-                    self.COMMPOOL.logFromComponent(dataE, LogTypes.ERROR)
+                    self.log(Messages.controller_error_get, LogTypes.ERROR, 'Device: ' + Misc.hasKey(device, 'name', device['id']))
                     self.InactiveDevices.append(device)
                     import threading
                     x = threading.Thread(target=self.checkDevice, args=(device,))
@@ -72,31 +69,16 @@ class DeviceController(Component):
                 for data in gdList:
                     try:
                         data.package = package
-                        self.STANDALONE = False
-                        if Misc.toBool(self.STANDALONE):
+                        if Misc.toBool(self.ME_STANDALONE):
                             self.showData(data)
                         else:
                             self.send(data)
                         failedSend = 0
                     except:
-                        dataE = Data()
-                        dataE.source_type = SourceTypes.CONTROLLER
-                        dataE.source_name = self.ME_NAME
-                        dataE.source_item = Misc.hasKey(device, 'name', device['id'])
-                        dataE.data = self.COMMPOOL.errorDetail(Messages.controller_error_send)
-                        dataE.aux = '{}'.format(str(device['objOfCapture']))
-                        self.COMMPOOL.logFromComponent(dataE, LogTypes.ERROR)
-
+                        self.log(Messages.controller_error_send, LogTypes.ERROR, 'Device: ' + Misc.hasKey(device, 'name', device['id']))
                         failedSend += 1
 
-                        if failedSend > 2 and (Misc.toBool(self.STANDALONE) or not self.COMMPOOL.isLive()):
-                            dataE = Data()
-                            dataE.source_type = SourceTypes.CONTROLLER
-                            dataE.source_name = self.ME_NAME
-                            dataE.source_item = Misc.hasKey(device, 'name', device['id'])
-                            dataE.data = Messages.controller_error_stop
-                            dataE.aux = '{}'.format(str(device['objOfCapture']))
-                            self.COMMPOOL.logFromComponent(dataE, LogTypes.WARNING)
+                        if failedSend > 2:
                             self.stop()
                             break
 
@@ -105,8 +87,8 @@ class DeviceController(Component):
     """ Abstract methods """
     @abc.abstractmethod
     def preLoad(self):
-        """ Implement me! :: Load knowledge o whatever need for pre processing """
-        pass
+        """ Implement me! :: Load knowledge o whatever need for pre processing. """
+        raise ValueError('Implement me! :: Load knowledge o whatever need for pre processing')
 
     @abc.abstractmethod
     def getDeviceList(self):
@@ -118,17 +100,13 @@ class DeviceController(Component):
 
     @abc.abstractmethod
     def initializeDevice(self, device):
-        """  Implement me! :: Initialize device """
-        pass
+        """ Implement me! :: Initialize device. """
+        raise ValueError('Implement me! :: Initialize device.')
     
     @abc.abstractmethod
     def getData(self, device):
-        """ Implement me! :: Returns a list of tuples like {controller, device, data} with data elements """
-        pass
-
-    def send(self, data:Data):
-        """ Send data to pool """
-        self.COMMPOOL.send(data)
+        """ Implement me! :: Returns a list of tuples like {controller, device, data} with data elements. """
+        raise ValueError('Implement me! :: Returns a list of tuples like {controller, device, data} with data elements')
     
     def checkDevice(self, device):
         """ Check if a device is on line again """
@@ -144,19 +122,4 @@ class DeviceController(Component):
             except:
                 pass
 
-            sleep(int(Misc.hasKey(self.CONFIG, 'CHECKING_TIME', 10)))
-
-    def stop(self):
-        """ Stop module and getting data """
-        self.running = False
-
-    @abc.abstractmethod
-    def showData(self, data:Data):
-        """  Implement me! :: To show data if this module start standalone.
-        call init_standalone before start. """
-        pass
-    @abc.abstractmethod
-    def simulateData(self, device):
-        """  Implement me! :: Allows to simulate data if this module start standalone.
-        call init_standalone before start. """
-        pass
+            sleep(int(Misc.hasKey(self.ME_CONFIG, 'CHECKING_TIME', 10)))
