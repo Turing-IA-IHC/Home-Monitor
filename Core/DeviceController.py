@@ -33,9 +33,6 @@ class DeviceController(Component):
     def start(self):
         """ Start module """
 
-        if self.Simulating == None or self.Simulating == False:
-            print(0)
-
         self.preLoad()
         self.Devices = self.getDeviceList()
         
@@ -54,7 +51,7 @@ class DeviceController(Component):
 
                 gdList = []
                 try:
-                    if Misc.toBool(self.Simulating):
+                    if self.Simulating:
                         gdList = self.simulateData(device)
                     else:
                         gdList = self.getData(device)
@@ -69,7 +66,7 @@ class DeviceController(Component):
                 for data in gdList:
                     try:
                         data.package = package
-                        if Misc.toBool(self.ME_STANDALONE):
+                        if self.ME_STANDALONE:
                             self.showData(data)
                         else:
                             self.send(data)

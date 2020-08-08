@@ -1,7 +1,7 @@
 DEVICES: [
   {
       'id':0,
-      'name':'LivingRoom 1',
+      'name':'Outdoor 1',
       'enabled':y
   },
   {

@@ -22,9 +22,10 @@ class InferenceConfig(coco.CocoConfig):
     IMAGES_PER_GPU = 1
 
 class ObjectDetected():
-    def __init__(self, className:str, frame, backColor, y1, x1, y2, x2):
+    def __init__(self, className:str, frame, mask, backColor, y1, x1, y2, x2):
         self.ClassName:str=className
         self.Frame = frame
+        self.Mask = mask
         self.backColor = backColor
         self.Y1 = y1
         self.X1 = x1
@@ -56,8 +57,8 @@ class CamControllerExtractor:
         if cocoConfig == None:
             cocoConfig = InferenceConfig()
         if coco_model_path == None or coco_model_path == "":
-            coco_model_path = "model/cocoModel.h5"
-        coco_model_path = os.path.normpath(os.path.join(Me_Component_Path, "model/cocoModel.h5"))
+            coco_model_path = "model/objectsModel.h5"
+        coco_model_path = os.path.normpath(os.path.join(Me_Component_Path, coco_model_path))
             
         model_dir = os.path.join(Me_Component_Path, "logs")
 
@@ -98,7 +99,7 @@ class CamControllerExtractor:
                     image[:, :, n]
                 )
             
-            obj = ObjectDetected(self.CLASSES_AVAILABLES[ids[i]], image, backColor, y1, x1, y2, x2)
+            obj = ObjectDetected(self.CLASSES_AVAILABLES[ids[i]], image, mask, backColor, y1, x1, y2, x2)
             Detections.append(obj)
 
         return Detections    

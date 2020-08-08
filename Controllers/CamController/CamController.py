@@ -11,12 +11,12 @@ Class information:
 """
 
 import sys
+import os
 from os.path import dirname, normpath
 
 import math
 import numpy as np
-import logging
-from time import sleep
+from time import sleep, time
 
 from cv2 import cv2 #pip install opencv-python
 from scipy.ndimage.filters import gaussian_filter
@@ -34,6 +34,14 @@ from DataPool import Data, LogTypes
 
 class CamController(DeviceController):
     """ Class to get RGB data from cams. """
+
+    simulationStep = 0
+    # visualize
+    colors = [[255, 0, 0], [255, 85, 0], [255, 170, 0], [255, 255, 0], [170, 255, 0], [85, 255, 0],
+          [0, 255, 0], \
+          [0, 255, 85], [0, 255, 170], [0, 255, 255], [0, 170, 255], [0, 85, 255], [0, 0, 255],
+          [85, 0, 255], \
+          [170, 0, 255], [255, 0, 255], [255, 0, 170], [255, 0, 85]]
     
     def preLoad(self):
         """ Load knowledge for pre processing """
@@ -45,16 +53,15 @@ class CamController(DeviceController):
         if self.getObject:
             sys.path.insert(0, self.ME_PATH)
             from mrcnn.CamControllerExtractor import CamControllerExtractor
-            cocoH5 = Misc.hasKey(self.ME_CONFIG, 'MODEL_COCO', 'model/cocoModel.h5')
+            cocoH5 = Misc.hasKey(self.ME_CONFIG, 'MODEL_MSK', 'model/objectsModel.h5')
             self.cce = CamControllerExtractor(Me_Component_Path=self.ME_PATH, coco_model_path=cocoH5)
             self.cce.CLASSES_TO_DETECT = [x.lower() for x in self.ME_CONFIG['OBJECTS']]
         if self.getSkeleton:
-            ModelPath = normpath(dirname(__file__) + "/" + self.ME_CONFIG['MODEL'])
-            logging.debug('Loadding model for {} from {} ...'.format(self.__class__.__name__, ModelPath))
+            ModelPath = Misc.hasKey(self.ME_CONFIG, 'MODEL_SKl', 'model/poseModel.h5')
+            ModelPath = os.path.normpath(os.path.join(self.ME_PATH, ModelPath))
+            self.log('Loadding model from {} ...'.format(ModelPath), LogTypes.DEBUG)
             self.joinsBodyNET = load_model(ModelPath)
             self.joinsBodyNET._make_predict_function()
-            if logging.getLogger().level < logging.INFO: # Only shows in Debug
-                self.joinsBodyNET.summary()
   
     def initializeDevice(self, device):
         """ Initialize device """
@@ -81,6 +88,7 @@ class CamController(DeviceController):
 
         dataReturn = []
         auxData = '"t":"{}", "ext":"{}", "W":"{}", "H":"{}"'
+        t0 = time()
         
         if self.getRGB:
             dataRgb = Data()
@@ -103,13 +111,13 @@ class CamController(DeviceController):
         if self.getObject:
             auxPer = auxData.format('image', 'png', width, height)
             auxPer += ',"ClassName":"{}", "backColor":{}, "Y1":{}, "X1":{}, "Y2":{}, "X2":{}'
-            objs = self.cce.locatePeople(frame)
+            objs = self.preProcObject(frame)
             for obj in objs:
                 dataPerson = Data()
                 dataPerson.source_type = self.ME_TYPE
                 dataPerson.source_name = self.ME_NAME + '/Person'
                 dataPerson.source_item = deviceName
-                dataPerson.data = obj.Frame
+                dataPerson.data = obj.Mask
                 dataPerson.aux = '{' + auxPer.format(obj.ClassName, obj.backColor, obj.Y1, obj.X1, obj.Y2, obj.X2) + '}'
                 dataReturn.append(dataPerson)
 
@@ -117,23 +125,33 @@ class CamController(DeviceController):
             dataSkeleton = Data()
             dataSkeleton.source_type = self.ME_TYPE
             dataSkeleton.source_name = self.ME_NAME + '/Skeleton'
-            dataSkeleton.source_item = deviceName
+            dataSkeleton.source_item = deviceName            
             dataSkeleton.data = self.preProcSkeleton(frame)
             dataSkeleton.aux = '{' + auxData.format('csv', 'csv', width, height) + '}'
             dataReturn.append(dataSkeleton)
         
+        print("Time elapsed: ", time() - t0) # CPU seconds elapsed (floating point)
+
         return dataReturn
-      
+  
     def showData(self, data:Data):
         """ To show data if this module start standalone """
         
         if data.source_name == self.ME_NAME + '/Skeleton':
             people = data.data #Points of skeleton
-            rgbImage = np.zeros((self.ME_CONFIG['FRAME_HEIGHT'], self.ME_CONFIG['FRAME_WIDTH'], 3), np.uint8)            
+            aux = data.strToJSon(data.aux)
+            h = int(Misc.hasKey(aux, 'H',self.ME_CONFIG['FRAME_HEIGHT']))
+            w = int(Misc.hasKey(aux, 'W',self.ME_CONFIG['FRAME_WIDTH']))
+            rgbImage = np.zeros((h, w, 3), np.uint8)            
             for person in people:
-                for join in person:
+                for idj, join in enumerate(person):
                     if join[0] != None:
-                        cv2.circle(rgbImage, (join[0], join[1]), 5, [255, 0, 0], thickness=-1)
+                        cv2.circle(rgbImage, (join[0], join[1]), 5, self.colors[idj], thickness=-1)
+        elif data.source_name == self.ME_NAME + '/Person':
+            rgbImage = np.zeros( (data.data.shape[0], data.data.shape[1], 3), dtype=np.uint8)
+            rgbImage[:,:,0] = np.where(data.data[:,:] == 1, 255, 0 )
+            rgbImage[:,:,1] = np.where(data.data[:,:] == 1, 255, 0 )
+            rgbImage[:,:,2] = np.where(data.data[:,:] == 1, 255, 0 )            
         else:
             rgbImage = data.data # For capture the image in RGB color space
         
@@ -148,30 +166,21 @@ class CamController(DeviceController):
         #    file.write('\n' + data.toString(False, True))
 
     def simulateData(self, device):
-        """ Allows simulate input data """
-        fromCam = False
-        simulFilePath = "M:/tmp/testInfarct.mp4" # TODO: Tomar Variable de componente
-
-        if fromCam:            
-            return self.getData(device) # From cam
-
-        # From Video file
-        if self.Simulating == None or self.Simulating == False:
-            self.Counter = 0
-            self.capture = cv2.VideoCapture(simulFilePath)
+        """ Allows simulate input data """        
+        if self.simulationStep == 0:
+            self.capture = cv2.VideoCapture(self.SimulatingPath)
             self.video_length = int(self.capture.get(cv2.CAP_PROP_FRAME_COUNT))
             
-        if self.capture.isOpened() and self.Counter < self.video_length:            
+        if self.capture.isOpened() and self.simulationStep < self.video_length:            
             _, frame = self.capture.read()
-            self.Counter += 1
+            self.simulationStep += 1
+            sleep(1)
             if frame is None:
                 return []
             return self.getData(device, frame=frame)
         else:
-            self.Simulating = False
-            return []
-
-        return []
+            self.simulationStep = 0
+            return self.simulateData(device)
 
     # =========== Auxiliar methods =========== #
 
@@ -180,6 +189,15 @@ class CamController(DeviceController):
 
     def preProcObject(self, frame):
         return self.cce.locatePeople(frame)
+        #Detections = self.cce.locatePeople(frame)
+        #for d in Detections:
+        #    img =  np.zeros((d.Frame.shape[0], d.Frame.shape[1]), dtype=int)
+        #    img[:,:] = np.where(d.Frame[:,:,0] == d.backColor[0], 1 , 0)
+        #    img[:,:] += np.where(d.Frame[:,:,1] == d.backColor[1], 1 , 0)
+        #    img[:,:] += np.where(d.Frame[:,:,2] == d.backColor[2], 1 , 0)
+        #    img[:,:] = np.where(img[:,:] == 3, 0 , 1)
+        #    d.Frame = d.Mask
+        #return Detections      
 
     def preProcSkeleton(self, frame):
 
@@ -424,8 +442,7 @@ class CamController(DeviceController):
 
 # =========== Start standalone =========== #
 if __name__ == "__main__":
-    from DataPool import Binnacle
-    Binnacle().loggingSettings(LogTypes.INFO, None, '%(asctime)s - %(name)s - %(levelname)s - %(message)s')    
     comp = CamController()
+    comp.setLoggingSettings(LogTypes.DEBUG)
     comp.init_standalone(path=dirname(__file__))
     sleep(600)

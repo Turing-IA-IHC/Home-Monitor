@@ -31,12 +31,14 @@ class Component():
     ME_LOADED:bool = False 
     ME_STANDALONE:bool = False 
     CP:CommPool = None
-
+    BC:Binnacle = None
+    
     Check:str = ''              # Hash of config file
     Thread:Process = None       # Thread of compoment executing
     Running:bool = False        # Shows if component is executing
     Simulating:bool = False     # Flag to control if data is simulated from a file
     SimulatingPath:str = None   # Path to simulating file
+    loggingLevel:LogTypes = LogTypes.INFO # Level of logging
 
     def __init__(self, path="./", cp:CommPool=None):
         """ Build a new component un memory """
@@ -91,7 +93,7 @@ class Component():
                 raise ValueError(Messages.error_class_name)
 
             self.Simulating = Misc.toBool(Misc.hasKey(self.ME_CONFIG, 'SIMULATING', 'False'))
-            self.SimulatingPath = Misc.toBool(Misc.hasKey(self.ME_CONFIG, 'SIMULATING_PATH', ''))
+            self.SimulatingPath = Misc.hasKey(self.ME_CONFIG, 'SIMULATING_PATH', '')
             if self.Simulating:
                 self.setSimulatedMode(self.Simulating, self.SimulatingPath)
             
@@ -103,8 +105,19 @@ class Component():
             obj.ME_TYPE = self.ME_TYPE
             obj.ME_PATH = self.ME_PATH
             obj.ME_CONFIG = self.ME_CONFIG
+            obj.ME_CONFIG_PATH = self.ME_CONFIG_PATH
+            obj.ME_FILE_CLASS = self.ME_FILE_CLASS
+            obj.ME_CLASS_NAME = self.ME_CLASS_NAME
+            obj.ME_ENABLED = self.ME_ENABLED
+            obj.ME_LOADED = self.ME_LOADED
             obj.ME_STANDALONE = self.ME_STANDALONE
             obj.CP = self.CP
+            obj.BC = self.BC
+            obj.Check = self.Check
+            obj.Running = self.Running
+            obj.Simulating = self.Simulating
+            obj.SimulatingPath = self.SimulatingPath
+            obj.loggingLevel = self.loggingLevel
 
             DeviceControllerThread = Process(target=obj.start, args=())
             DeviceControllerThread.start()
@@ -134,12 +147,20 @@ class Component():
             fname = exc_tb.tb_frame.f_code.co_filename
             dataLog.data +=  ' == {} :: {} :: {} :: {}'.format(exc_obj, exc_type, fname, exc_tb.tb_lineno)
         
-        self.CP.logFromComponent(dataLog, logType)
+        self.BC.logFromComponent(dataLog, logType)
+        if not self.ME_STANDALONE:
+            self.CP.logFromComponent(dataLog, logType)
+
+    def setLoggingSettings(self, loggingLevel:LogTypes=LogTypes.INFO, loggingFile=None, loggingFormat=None):
+        """ set logging configurations """
+        self.BC = Binnacle()
+        self.loggingLevel = loggingLevel
+        self.BC.loggingSettings(loggingLevel, loggingFile, loggingFormat)
 
     def setSimulatedMode(self, simulate:bool, path:str):
         """ Set if the capturing is simulated """
         self.Simulating = simulate
-        self.SimulatingFile = path
+        self.SimulatingPath = path
         self.log(Messages.comp_setSimulateMode.format(self.ME_NAME, str(simulate)), LogTypes.INFO)
         
     @abc.abstractmethod
