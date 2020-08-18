@@ -16,6 +16,7 @@ from os.path import dirname, normpath
 import math
 import logging
 import numpy as np
+from time import sleep, time
 
 # Including Home Monitor Paths to do visible the modules
 sys.path.insert(0, './Tools/')
@@ -23,7 +24,7 @@ sys.path.insert(0, './Core/')
 
 import Misc
 from DeviceController import DeviceController
-from DataPool import Data
+from DataPool import Data, LogTypes
 
 class NewController(DeviceController):
     """ Template to get data from a device type New. """
@@ -79,7 +80,7 @@ class NewController(DeviceController):
         # TODO: Put code if you want test this module in standalone form.
         pass
 
-    def simulateData(self, device):
+    def simulateData(self, dataFilter:Data):
         """ Allows simulate input data """
         # TODO: Put code if you want test this module in standalone form.
         dataReturn = []        
@@ -87,7 +88,7 @@ class NewController(DeviceController):
 
 # =========== Start standalone =========== #
 if __name__ == "__main__":
-    from DataPool import Binnacle
-    Binnacle().loggingSettings(LogTypes.INFO, None, '%(asctime)s - %(name)s - %(levelname)s - %(message)s')    
     comp = NewController()
+    comp.setLoggingSettings(LogTypes.DEBUG)
     comp.init_standalone(path=dirname(__file__))
+    sleep(600)

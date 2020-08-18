@@ -27,10 +27,10 @@ sys.path.insert(0, './Tools/')
 sys.path.insert(0, './Core/')
 
 import Misc
-from ActivityAnalyzer import ActivityAnalyzer
+from FactAnalyzer import FactAnalyzer
 from DataPool import LogTypes, SourceTypes, Messages, Data
 
-class NewAnalyzer(ActivityAnalyzer):
+class NewAnalyzer(FactAnalyzer):
     """ Template to analyze classes of recognizers. """
 
     Simulating = False

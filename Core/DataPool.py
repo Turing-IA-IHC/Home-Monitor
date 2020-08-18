@@ -326,10 +326,10 @@ class CommPool():
         """ Initialize object to communicate with Data Pool. """
         self.CONFIG = config
         self.STANDALONE = standAlone
+        self.URL_BASE = Misc.hasKey(self.CONFIG,'URL_BASE','http://127.0.0.1:5000')
         if self.STANDALONE:
             Binnacle().loggingConf(self.CONFIG)
         else:
-            self.URL_BASE = Misc.hasKey(self.CONFIG,'URL_BASE','http://127.0.0.1:5000')
             self.PREFERRED_URL = preferred_url        
 
     def send(self, data:Data):
@@ -391,6 +391,7 @@ class CommPool():
         for i in range(1, len(g)):
             g[i]['data'] = data.deserialize(g[i]['data'])
             g[i]['aux'] = data.deserialize(g[i]['aux'])
+            g[i] = Data().fromDict(g[i])
 
         self.lastTime = g[0]['queryTime']
         return g

@@ -5,7 +5,7 @@ Home-Monitor:
 This code split image in Train, Validate and Test
 Written by Gabriel Rojas - 2019
 Copyright (c) 2019 G0 S.A.S.
-Licensed under the MIT License (see LICENSE for details)
+See LICENSE file for details
 """
 
 import os

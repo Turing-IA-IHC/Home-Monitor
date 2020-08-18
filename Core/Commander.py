@@ -126,8 +126,15 @@ def main(argv):
         createComponent(ME_TYPE, ME_NAME)
         sys.exit(0)
 
+    if argv[0] in ['-d', 'd', '--dataset', 'dataset']:
+        # TODO Crear plantilla dataset
+        pass
+
+    if argv[0] in ['-e', 'e', '--environment', 'environment']:
+        # TODO Solo muestra estado del entorno
+        # -f intenta reparar el entorno
+        # -f all intenta reparar dependencias de componentes
+        pass
+
 if __name__ == "__main__":
     main(sys.argv[1:])
-
-    #TODO: Crear comando para creación de datasets -d
-    #TODO: Crear comando para validación del entorno -e

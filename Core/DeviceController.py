@@ -16,10 +16,9 @@ if __name__ == "__main__":
 
 import sys
 from os.path import dirname, normpath
-from time import sleep
-import threading
-import logging
+from time import sleep, time
 import abc
+import threading
 
 import Misc
 from Component import Component
@@ -32,6 +31,8 @@ class DeviceController(Component):
 
     def start(self):
         """ Start module """
+        
+        self.setLoggingSettings(self.loggingLevel)
 
         self.preLoad()
         self.Devices = self.getDeviceList()
@@ -39,11 +40,11 @@ class DeviceController(Component):
         for device in self.Devices:
             device['objOfCapture'] = self.initializeDevice(device)
         
-        self.running = True
+        self.Running = True
         Sampling = Misc.hasKey(self.ME_CONFIG, 'SAMPLING', 1) # Sampling rate
         failedSend = 0
 
-        while self.running:
+        while self.Running:
 
             for device in self.Devices:
                 if device in self.InactiveDevices:
@@ -51,10 +52,14 @@ class DeviceController(Component):
 
                 gdList = []
                 try:
+                    t0 = time()
                     if self.Simulating:
-                        gdList = self.simulateData(device)
+                        dsimul = Data()
+                        dsimul.source_item = device
+                        gdList = self.simulateData(dsimul)
                     else:
                         gdList = self.getData(device)
+                    self.log('Time elapsed to get data: ' + str(round(time() - t0, 4)), logType=LogTypes.INFO, item=self.ME_NAME)
                 except:
                     self.log(Messages.controller_error_get, LogTypes.ERROR, 'Device: ' + Misc.hasKey(device, 'name', device['id']))
                     self.InactiveDevices.append(device)
@@ -74,7 +79,6 @@ class DeviceController(Component):
                     except:
                         self.log(Messages.controller_error_send, LogTypes.ERROR, 'Device: ' + Misc.hasKey(device, 'name', device['id']))
                         failedSend += 1
-
                         if failedSend > 2:
                             self.stop()
                             break

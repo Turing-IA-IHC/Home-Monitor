@@ -33,7 +33,7 @@ from DataPool import LogTypes, SourceTypes, Messages, Data
 class NewRecognizer(EventRecognizer):
     """ Template to predict classes of New Recognizer. """
 
-    Simulating = False
+    simulationStep = 0
 
     def preLoad(self):
         """ Implement me! :: Do anything necessary for processing """
@@ -44,18 +44,12 @@ class NewRecognizer(EventRecognizer):
         """ Loads model """
         # TODO: Use if you need an special way of loading knowledge
         """ Example:
-        ModelPath = normpath(self.ME_PATH + "/" + self.CONFIG['MODEL'])
-        dataC = Data()
-        dataC.source_type = SourceTypes.RECOGNIZER
-        dataC.source_name = self.ME_NAME
-        dataC.source_item = ''
-        dataC.data = Messages.controller_loading_model.format(ModelPath)
-        dataC.aux = ''
-        self.COMMPOOL.logFromComponent(dataC, LogTypes.INFO)
+        ModelPath = normpath(self.ME_PATH + "/" + self.ME_CONFIG['MODEL'])
+        self.log(Messages.controller_loading_model.format(ModelPath), LogTypes.DEBUG)
         self.MODEL = load_model(ModelPath)
         self.MODEL._make_predict_function()
-        if self.STANDALONE:
-            self.MODEL.summary() 
+        if self.ME_STANDALONE:
+            self.MODEL.summary()
         """
         pass
 
@@ -64,7 +58,7 @@ class NewRecognizer(EventRecognizer):
         # TODO: This method is called just after load model
         pass
 
-    def predict(self, data):
+    def predict(self, data:Data):
         """ Implement me! :: Exec prediction to recognize an activity """
         # TODO: This method must return a list of classes detected in Input Data and the auxiliar information.
         # Avoid returning class None or background.
@@ -96,14 +90,13 @@ class NewRecognizer(EventRecognizer):
         """ Implement me! :: To show data if this module start standalone """
         # TODO: Put code if you want test this module in standalone form.
         """ Exmple:
-        print('Classes detected: {}. Aux: {}.'.format(dataPredicted.data, dataPredicted.aux))
+        self.log('Class detected:' + dataPredicted.data['class'] + \
+            ' with acc:' + str(dataPredicted.data['acc']), LogTypes.INFO)
         """
         pass
     
     def simulateData(self, dataFilter:Data, limit:int=-1, lastTime:float=-1):
-        """ Implement me! :: Allows to simulate data if this module start standalone """
-        if self.Simulating == None or self.Simulating == False:
-            self.Simulating = True
+        """ Implement me! :: Allows to simulate data if this module start standalone """        
         # TODO: Put code if you want test this module in standalone form.
         """ Example:
         dataReturn = []
@@ -115,4 +108,6 @@ class NewRecognizer(EventRecognizer):
 # =========== Start standalone =========== #
 if __name__ == "__main__":
     comp = NewRecognizer()
-    comp.init_standalone(Me_Path=dirname(__file__))
+    comp.setLoggingSettings(LogTypes.DEBUG)
+    comp.init_standalone(path=dirname(__file__))
+    sleep(600)

@@ -31,7 +31,7 @@ class Component():
     ME_LOADED:bool = False 
     ME_STANDALONE:bool = False 
     CP:CommPool = None
-    BC:Binnacle = None
+    BC:Binnacle = Binnacle()
     
     Check:str = ''              # Hash of config file
     Thread:Process = None       # Thread of compoment executing
@@ -55,14 +55,13 @@ class Component():
         self.ME_CONFIG_PATH = normpath(self.ME_PATH + "/config.yaml")
         self.ME_CONFIG = Misc.readConfig(self.ME_CONFIG_PATH) if config == None else config
         self.CP = CommPool(self.ME_CONFIG, standAlone=True)
-        
+
         self.load()
 
     def load(self, forceLoad:bool=False):
         """ Loads the component """
         self.ME_LOADED = False
         try:
-
             if self.ME_CONFIG == None or forceLoad:
                 if not Misc.existsFile("config.yaml", self.ME_PATH):
                     raise ValueError(Messages.config_no_file)
@@ -153,7 +152,6 @@ class Component():
 
     def setLoggingSettings(self, loggingLevel:LogTypes=LogTypes.INFO, loggingFile=None, loggingFormat=None):
         """ set logging configurations """
-        self.BC = Binnacle()
         self.loggingLevel = loggingLevel
         self.BC.loggingSettings(loggingLevel, loggingFile, loggingFormat)
 
@@ -176,6 +174,13 @@ class Component():
     def send(self, data:Data):
         """ Send data to pool """
         self.CP.send(data)
+    
+    def receive(self, dataFilter:Data, limit:int=-1, lastTime:float=-1):
+        """ Returns a list objects type Data from pool """
+        if self.Simulating:
+            return self.simulateData(dataFilter, limit, lastTime)
+        else:
+            return self.CP.receive(dataFilter, limit=limit, lastTime=lastTime)
 
     @abc.abstractmethod
     def showData(self, data:Data):
@@ -183,8 +188,8 @@ class Component():
         Call init_standalone before start. """
         raise ValueError('Implement me! :: To show data if this module start standalone. Call init_standalone before start.')
     @abc.abstractmethod
-    def simulateData(self, device):
+    def simulateData(self, dataFilter:Data, limit:int=-1, lastTime:float=-1):
         """  Implement me! :: Allows to simulate data if this module start standalone.
         Call init_standalone before start. """
         raise ValueError('Implement me! :: Allows to simulate data if this module start standalone. Call init_standalone before start.')
-
+    

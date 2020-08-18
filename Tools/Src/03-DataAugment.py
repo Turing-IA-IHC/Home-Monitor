@@ -5,9 +5,10 @@ Home-Monitor:
 This code allow to increse cuantity of image to process
 Written by Gabriel Rojas - 2019
 Copyright (c) 2019 G0 S.A.S.
-Licensed under the MIT License (see LICENSE for details)
+See LICENSE file for details
 """
 
+#TODO: Convertir en función como se expresa en el documento
 # Code based in: http://sigmoidal.ai/reduzindo-overfitting-com-data-augmentation/
 
 import numpy as np

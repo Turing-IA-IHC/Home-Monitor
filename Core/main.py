@@ -25,9 +25,9 @@ sys.path.insert(0, './Core/')
 import Misc
 from DataPool import SourceTypes, LogTypes, Messages, PoolStates, Data, Binnacle, DataPool, CommPool
 
-from LoaderController import LoaderController
-from LoaderRecognizer import LoaderRecognizer
-from LoaderAnalyzer import LoaderAnalyzer
+from LoaderOfController import LoaderOfController
+from LoaderOfRecognizer import LoaderOfRecognizer
+from LoaderOfAnalyzer import LoaderOfAnalyzer
 
 class main():
     """ Main class to start whole system """
@@ -128,7 +128,7 @@ class main():
                   
             try:
                 """ Section to control the execution of the recognizers """
-                if self.must_start_recognizers and not self.loaderRecognizersThread.is_alive():
+                if self.must_start_recognizers and not self.LoaderOfRecognizersThread.is_alive():
                     self.commPool.logFromCore(Messages.system_recognizers_restart, LogTypes.INFO, self.__class__.__name__)
                     self.start_recognizers()
             except:
@@ -137,7 +137,7 @@ class main():
                   
             try:
                 """ Section to control the execution of the lanalyzers """
-                if self.must_start_analyzers and not self.loaderAnalyzersThread.is_alive():
+                if self.must_start_analyzers and not self.LoaderOfAnalyzersThread.is_alive():
                     self.commPool.logFromCore(Messages.system_analyzers_restart, LogTypes.INFO, self.__class__.__name__)
                     self.start_recognizers()
             except:
@@ -168,30 +168,30 @@ class main():
     def start_controllers(self):
         """ Start input data controller and all device controllers """
         self.commPool.logFromCore(Messages.system_controllers_start + self.CONFIG['URL_BASE'], LogTypes.INFO, self.__class__.__name__)
-        loaderController = LoaderController(self.CONFIG)
-        self.inputDataThread = Process(target=loaderController.start, args=())
+        loc = LoaderOfController(self.CONFIG)
+        self.inputDataThread = Process(target=loc.start, args=())
         self.inputDataThread.start()
-        del loaderController
+        del loc
         sleep(2)
         self.commPool.logFromCore(Messages.system_controllers_started + self.CONFIG['URL_BASE'], LogTypes.INFO, self.__class__.__name__)
                 
     def start_recognizers(self):
         """ Start loader of Recognizers and all recognizers """
         self.commPool.logFromCore(Messages.system_recognizers_start + self.CONFIG['URL_BASE'], LogTypes.INFO, self.__class__.__name__)
-        loaderRecognizer = LoaderRecognizer(self.CONFIG)
-        self.loaderRecognizersThread = Process(target=loaderRecognizer.start, args=())
-        self.loaderRecognizersThread.start()
-        del loaderRecognizer
+        lor = LoaderOfRecognizer(self.CONFIG)
+        self.LoaderOfRecognizersThread = Process(target=lor.start, args=())
+        self.LoaderOfRecognizersThread.start()
+        del lor
         sleep(2)
         self.commPool.logFromCore(Messages.system_recognizers_started + self.CONFIG['URL_BASE'], LogTypes.INFO, self.__class__.__name__)
         
     def start_analyzers(self):
         """ Start loader of Analyzers and all all analyzers """
         self.commPool.logFromCore(Messages.system_analyzers_start + self.CONFIG['URL_BASE'], LogTypes.INFO, self.__class__.__name__)
-        loaderAnalyzer = LoaderAnalyzer(self.CONFIG)
-        self.loaderAnalyzersThread = Process(target=loaderAnalyzer.start, args=())
-        self.loaderAnalyzersThread.start()
-        del loaderAnalyzer
+        loa = LoaderOfAnalyzer(self.CONFIG)
+        self.LoaderOfAnalyzersThread = Process(target=loa.start, args=())
+        self.LoaderOfAnalyzersThread.start()
+        del loa
         sleep(2)
         self.commPool.logFromCore(Messages.system_analyzers_started + self.CONFIG['URL_BASE'], LogTypes.INFO, self.__class__.__name__)
         
@@ -215,16 +215,15 @@ class main():
 if __name__ == "__main__":
     components = 0   # Message no one component
     components = 1   # Only pool
-    components = 2   # Only load controller
-    components = 3   # Pool + load controller
+    #components = 2   # Only load controller
+    #components = 3   # Pool + load controller
     #components = 4  # Only Recognizers
-    components = 5  # Pool + Recognizers
+    #components = 5  # Pool + Recognizers
     #components = 6  # Load controller + Recognizers
     #components = 7  # Pool + Load controller + Recognizers
     #components = 8  # Only Adnormal events
     #components = 15 # All components
 
-    components = 8
     m = main(components, [])
     
     

@@ -88,14 +88,14 @@ class CamController(DeviceController):
 
         dataReturn = []
         auxData = '"t":"{}", "ext":"{}", "W":"{}", "H":"{}"'
-        t0 = time()
         
         if self.getRGB:
             dataRgb = Data()
             dataRgb.source_type = self.ME_TYPE
             dataRgb.source_name = self.ME_NAME
             dataRgb.source_item = deviceName
-            dataRgb.data = frame
+            #dataRgb.data = frame
+            dataRgb.data = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             dataRgb.aux = '{' + auxData.format('image', 'png', width, height) + '}'
             dataReturn.append(dataRgb)
         
@@ -130,8 +130,6 @@ class CamController(DeviceController):
             dataSkeleton.aux = '{' + auxData.format('csv', 'csv', width, height) + '}'
             dataReturn.append(dataSkeleton)
         
-        print("Time elapsed: ", time() - t0) # CPU seconds elapsed (floating point)
-
         return dataReturn
   
     def showData(self, data:Data):
@@ -162,25 +160,25 @@ class CamController(DeviceController):
             self.stop()
             cv2.destroyAllWindows()
 
-        #with open("CamController_OutPut.txt",'a+') as file:
-        #    file.write('\n' + data.toString(False, True))
+        with open("M:/tmp/HM-SimulatingData/CamController_OutPut.txt",'a+') as file:
+            file.write('\n' + data.toString(False, True))
 
-    def simulateData(self, device):
+    def simulateData(self, dataFilter:Data):
         """ Allows simulate input data """        
         if self.simulationStep == 0:
             self.capture = cv2.VideoCapture(self.SimulatingPath)
             self.video_length = int(self.capture.get(cv2.CAP_PROP_FRAME_COUNT))
             
-        if self.capture.isOpened() and self.simulationStep < self.video_length:            
+        if self.capture.isOpened() and self.simulationStep < self.video_length:
             _, frame = self.capture.read()
             self.simulationStep += 1
             sleep(1)
             if frame is None:
                 return []
-            return self.getData(device, frame=frame)
+            return self.getData(dataFilter.source_item, frame=frame)
         else:
             self.simulationStep = 0
-            return self.simulateData(device)
+            return self.simulateData(dataFilter.source_item)
 
     # =========== Auxiliar methods =========== #
 

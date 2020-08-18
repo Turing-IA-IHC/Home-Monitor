@@ -4,7 +4,7 @@ Home-Monitor:
 
     Written by Gabriel Rojas - 2019
     Copyright (c) 2019 G0 S.A.S.
-    Licensed under the MIT License (see LICENSE for details)
+    See LICENSE file for details
 
 Class information:
     Template to predict classes of New Rercognizer.
@@ -33,7 +33,7 @@ from DataPool import LogTypes, SourceTypes, Messages, Data
 class ColorInfarctRecognizer(EventRecognizer):
     """ Template to predict classes of New Recognizer. """
 
-    Simulating = False
+    simulationStep = 0
 
     def preLoad(self):
         """ Implement me! :: Do anything necessary for processing """
@@ -42,17 +42,11 @@ class ColorInfarctRecognizer(EventRecognizer):
     
     def loadModel(self):
         """ Loads model """
-        ModelPath = normpath(self.ME_PATH + "/" + self.CONFIG['MODEL'])
-        dataC = Data()
-        dataC.source_type = SourceTypes.RECOGNIZER
-        dataC.source_name = self.ME_NAME
-        dataC.source_item = ''
-        dataC.data = Messages.controller_loading_model.format(ModelPath)
-        dataC.aux = ''
-        self.COMMPOOL.logFromComponent(dataC, LogTypes.INFO)
+        ModelPath = normpath(self.ME_PATH + "/" + self.ME_CONFIG['MODEL'])
+        self.log(Messages.controller_loading_model.format(ModelPath), LogTypes.DEBUG)
         self.MODEL = load_model(ModelPath)
         self.MODEL._make_predict_function()
-        if self.STANDALONE:
+        if self.ME_STANDALONE:
             self.MODEL.summary() 
 
     def loaded(self):
@@ -60,69 +54,112 @@ class ColorInfarctRecognizer(EventRecognizer):
         # TODO: This method is called just after load model
         pass
 
-    def predict(self, data):
+    def predict(self, data:Data):
         """ Exec prediction to recognize an activity """
-        x = cv2.cvtColor(data.data, cv2.COLOR_BGR2RGB)
-        x = cv2.resize(x, (256, 256), interpolation = cv2.INTER_AREA)
+
+        rgbFilter = Data()
+        rgbFilter.id = None
+        rgbFilter.package = data.package
+        rgbFilter.source_name = 'CamController'
+        rgbFilter.source_type = SourceTypes.CONTROLLER
+        rgbData = self.receive(dataFilter=rgbFilter, limit=1, lastTime=0)
+        
+        if len(rgbData) < 2:
+            return []
+
+        rgbData = rgbData[1]
+        img = self.fuzzySilhouetteAndRGB(rgb=rgbData.data, mask=data.data)
+        #x = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        x = cv2.resize(img, (256, 256), interpolation = cv2.INTER_AREA)
         x = np.expand_dims(x, axis=0)
+        data.data = img
 
         array = self.MODEL.predict(x)
         result = array[0]
         answer = np.argmax(result)
 
+        if result[answer] < 0.7:
+            return []
+
         dataReturn = []
-        auxData = ''
         
         dataInf = Data()
-        dataInf.source_type = self.ME_TYPE
-        dataInf.source_name = self.ME_NAME
-        dataInf.source_item = ''
-        dataInf.data = self.CLASSES[answer]
-        dataInf.aux = auxData
+        dataInf.source_item = self.CLASSES[answer]
+        dataInf.data = { 'class':self.CLASSES[answer], 'acc':result[answer] }
         dataReturn.append(dataInf)
 
         return dataReturn
 
     def showData(self, dataPredicted:Data, dataSource:Data):
         """ To show data if this module start standalone """
-        #print('Classes detected: {}. Aux: {}.'.format(dataPredicted.data, dataPredicted.aux))
-        cv2.imshow(dataSource.source_name + '-' + dataSource.source_item, dataSource.data)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            self.stop()
-            cv2.destroyAllWindows()
+        self.log('Class detected:' + dataPredicted.data['class'] + \
+            ' with acc:' + str(dataPredicted.data['acc']), LogTypes.INFO)
 
-        with open("RGBInfarctRecignizer_OutPut.txt",'a+') as file:
-            file.write('\n' + dataPredicted.toString(True, True))
+        #cv2.imshow(dataSource.source_name + '-' + dataSource.source_item, dataSource.data)
+        #if cv2.waitKey(1) & 0xFF == ord('q'):
+        #    self.stop()
+        #    cv2.destroyAllWindows()
+
+        #with open("M:/tmp/HM-SimulatingData/ColorInfarctRecognizer_OutPut.txt",'a+') as file:
+        #    file.write('\n' + dataPredicted.toString(False, True))
     
     def simulateData(self, dataFilter:Data, limit:int=-1, lastTime:float=-1):
         """ Allows to simulate data if this module start standalone """
+
+        if self.simulationStep == 0:
+            self.file = open(self.SimulatingPath, 'r').readlines()
+            self.file_length = len(self.file)
+
         dataReturn = []
-        try:
-            if self.Simulating == None or self.Simulating == False:
-                self.Simulating = True
-                self.Counter = 0
-                self.file = open("CamController_OutPut.txt", 'r').readlines()
-                self.file_length = len(self.file)
 
-            if self.Counter < self.file_length:            
-                limit = limit if limit > -1 else self.file_length - self.Counter
-                for _ in range(limit):
-                    if self.file[self.Counter] != '' and len(self.file[self.Counter]) > 10:
-                        dataSimulated = Data()
-                        dataSimulated = dataSimulated.parse(self.file[self.Counter], False, True)
-                        dataReturn.append(dataSimulated)
-                    self.Counter += 1
-            else:
-                self.Started = False
-        except:
-            print(self.COMMPOOL.errorDetail('Error simulateData: '))
-            self.Started = False
+        if dataFilter.package != '':
+            for target_list in self.file:
+                if len(target_list) < 10:
+                    continue
+                dataSimulated = Data()
+                dataSimulated = dataSimulated.parse(target_list, False, True)
+                if dataSimulated.package == dataFilter.package and dataSimulated.source_name == dataFilter.source_name:
+                    dataReturn.append(dataSimulated)
+                    dataReturn.insert(0, {'queryTime':time()})
+                    return dataReturn
 
-        dataReturn.insert(0, {'timeQuery':time()})
-        #sleep(30/1000)
+        if self.simulationStep < self.file_length:
+            if len(self.file[self.simulationStep]) < 10:
+                dataReturn.insert(0, {'queryTime':time()})
+                self.simulationStep += 1
+                return dataReturn
+
+            dataSimulated = Data()
+            dataSimulated = dataSimulated.parse(self.file[self.simulationStep], False, True)
+
+            if dataSimulated.source_name != dataFilter.source_name:
+                dataReturn.insert(0, {'queryTime':time()})
+                self.simulationStep += 1
+                return dataReturn
+
+            self.simulationStep += 1
+            dataReturn.append(dataSimulated)
+            dataReturn.insert(0, {'queryTime':time()})
+        else:
+            self.simulationStep = 0
+            dataReturn = self.simulateData(dataFilter)
+
         return dataReturn
+
+    # =========== Auxiliar methods =========== #
     
+    def fuzzySilhouetteAndRGB(self, rgb, mask):
+        """ Using mask generate a new RGB image extracting the backgroud """
+        newImg = np.copy(rgb)
+        newMask = np.expand_dims(np.copy(mask), axis=2)
+        newImg[:,:,0] = np.where(newMask[:,:,0] == False, 255, newImg[:,:,0])
+        newImg[:,:,1] = np.where(newMask[:,:,0] == False, 0, newImg[:,:,1])
+        newImg[:,:,2] = np.where(newMask[:,:,0] == False, 255, newImg[:,:,2])
+        return newImg
+
 # =========== Start standalone =========== #
 if __name__ == "__main__":
     comp = ColorInfarctRecognizer()
-    comp.init_standalone(Me_Path=dirname(__file__))
+    comp.setLoggingSettings(LogTypes.INFO)
+    comp.init_standalone(path=dirname(__file__))
+    sleep(600)
