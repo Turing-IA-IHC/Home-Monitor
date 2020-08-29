@@ -7,11 +7,12 @@ VERSION: 1.0.0                        # Module id version.
 ENABLED: Y                            # Module is enabled to run.
 DESCRIPTION: Description of NewChannel. # Description for humans.
 # ------ Vars of Channels
-OF: <Value>                           # Sender.
 TO: [<Value>]                         # Recipients.
-#CC:  [<Value>]                       # Recipients.
-#BCC:  [<Value>]                      # Recipients.
-SUBJECT: 'HM: an [event_data] was detected!' # Subject, can use tokens.
 MESSAGE: '<div style="float: left;margin-right: 5px; padding-top: 5px;">HM: an</div><div style="float: left;margin-right: 5px;font-size: large;font-weight: bold;color: red;">[event_data]</div><div style="float: left;margin-right: 5px;padding-top: 5px;">was detected</div>. <br/><br/>[analysis_phrase]' # Body message, can use tokens.
 # ------ Other specific config vars
-PASSWORD: <Value>                     # Sender Password
+FROM: <Value>                         # Sender.
+USER: <Value>                         # Sender User.
+PASSWORD: <Value>                     # Sender Password.
+SUBJECT: 'HM: an [event_data] was detected!' # Subject, can use tokens.
+#CC:  [<Value>]                       # Recipients.
+#BCC:  [<Value>]                      # Recipients.

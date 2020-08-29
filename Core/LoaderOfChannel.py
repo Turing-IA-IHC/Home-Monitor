@@ -26,7 +26,7 @@ from CommChannel import CommChannel, Dispatch
 class Carrier:
     """ Class to keep couple message and channel """
     born = time()                   # Momentun of creation
-    sent = False                    # Turn to Tre when message was sent
+    sent = False                    # Turn to True when message was sent
     message : Dispatch              # Message to send
     channel : CommChannel           # Channel used to send message
     attempt : int = 0               # Failed Attempts
@@ -64,9 +64,7 @@ class LoaderOfChannel:
         if not os.path.exists("./Channels"):
             os.makedirs("./Channels")
         if not os.path.exists(self.ANALYZER_PATH + "/attachments/"):
-            os.makedirs(self.ANALYZER_PATH + "/attachments/")
-
-            
+            os.makedirs(self.ANALYZER_PATH + "/attachments/")            
 
         while True:
             self.COMMPOOL.logFromCore(Messages.channel_searching, LogTypes.INFO, self.__class__.__name__)
@@ -129,12 +127,13 @@ class LoaderOfChannel:
         """ Put new messages into pool to send then """
         try:
             d = Dispatch()
-            d.alerts.append(data)
+
             d.tokens = {}
             d.tickets = []
             d.events = []
             d.alerts = []
             d.files = []
+            d.alerts.append(data)
 
             dataRecognizer = []
             auxAnalyzer = data.strToJSon(data.aux)
@@ -169,29 +168,41 @@ class LoaderOfChannel:
                         if f != '':
                             d.files.append(f)
 
-            # TODO: Actualizar tokens disponibles
-            # Tokens list
-            d.tokens['controller_source_id']   = ticket.id
-            d.tokens['controller_source_type'] = ticket.source_type
-            d.tokens['controller_source_name'] = ticket.source_name
-            d.tokens['controller_source_item'] = ticket.source_item
-            d.tokens['recognizer_source_id']   = event.id
-            d.tokens['recognizer_source_type'] = event.source_type
-            d.tokens['recognizer_source_name'] = event.source_name
-            d.tokens['recognizer_source_item'] = event.source_item
-            d.tokens['analyzer_source_id']   = data.id
-            d.tokens['analyzer_source_type'] = data.source_type
-            d.tokens['analyzer_source_name'] = data.source_name
-            d.tokens['analyzer_source_item'] = data.source_item
-            d.tokens['server_time'] = time()
-            d.tokens['server_time_human'] = Misc.timeToString(time(), '%H:%M')
-            d.tokens['device_data'] = ticket.data
-            d.tokens['device_aux'] = ticket.aux
-            d.tokens['event_data'] = event.data
-            d.tokens['event_aux'] = event.aux
-            d.tokens['analysis_data'] = data.data
-            d.tokens['analysis_aux'] = data.aux
-            d.tokens['analysis_phrase'] = Misc.hasKey(Misc.hasKey(auxAnalyzer, 'source_aux', ''), 'phrase', '')
+            # Tokens list            
+            d.tokens['server_time'] =               time()
+            d.tokens['server_time_human'] =         Misc.timeToString(time(), '%H:%M')
+            d.tokens['analyzer_source_name'] =      data.source_name
+            d.tokens['analysis_time'] =             data.born
+            d.tokens['analysis_time_human'] =       Misc.timeToString(data.born, '%H:%M')
+            d.tokens['analysis_phrase'] =           Misc.hasKey(Misc.hasKey(auxAnalyzer, 'source_aux', ''), 'phrase', '')
+            d.tokens['analysis_data'] =             data.data
+            d.tokens['analysis_aux'] =              data.aux
+            d.tokens['analysis_id'] =               data.id
+            d.tokens['event_data'] =                event.source_item 
+            d.tokens['recognizer_source_id'] =      event.id
+            d.tokens['recognizer_source_id_0'] =    event.id
+            d.tokens['recognizer_source_id_1'] =    event.id
+            d.tokens['recognizer_source_id_2'] =    event.id
+            d.tokens['recognizer_source_name'] =    event.source_name
+            d.tokens['recognizer_source_name_0'] =  event.source_name
+            d.tokens['recognizer_source_name_1'] =  event.source_name
+            d.tokens['recognizer_source_name_2'] =  event.source_name 
+            d.tokens['recognizer_source_item'] =    event.source_item 
+            d.tokens['recognizer_source_item_0'] =  event.source_item
+            d.tokens['recognizer_source_item_1'] =  event.source_item
+            d.tokens['recognizer_source_item_2'] =  event.source_item
+            d.tokens['controller_source_id'] =      ticket.id 
+            d.tokens['controller_source_id_0'] =    ticket.id 
+            d.tokens['controller_source_id_1'] =    ticket.id 
+            d.tokens['controller_source_id_2'] =    ticket.id 
+            d.tokens['controller_source_name'] =    ticket.source_name 
+            d.tokens['controller_source_name_0'] =  ticket.source_name 
+            d.tokens['controller_source_name_1'] =  ticket.source_name 
+            d.tokens['controller_source_name_2'] =  ticket.source_name 
+            d.tokens['controller_source_item'] =    ticket.source_item
+            d.tokens['controller_source_item_0'] =  ticket.source_item
+            d.tokens['controller_source_item_1'] =  ticket.source_item
+            d.tokens['controller_source_item_2'] =  ticket.source_item
             
             for c in self.channels:
                 chnl = self.channels[c]
@@ -199,15 +210,9 @@ class LoaderOfChannel:
                     if len(self.authoraizedChannels) > 0 and chnl.ME_NAME not in self.authoraizedChannels:
                         continue # Skip not authorized channels
 
-                    msg = d.copy()                                
-                    msg.of = Misc.hasKey(chnl.CONFIG, 'OF', '')
-                    msg.to = Misc.hasKey(chnl.CONFIG, 'TO', '')
-                    msg.cc = Misc.hasKey(chnl.CONFIG, 'CC', '')
-                    msg.bcc = Misc.hasKey(chnl.CONFIG, 'BCC', '')
-                    msg.subject = Misc.hasKey(chnl.CONFIG, 'SUBJECT', '')
-                    msg.message = Misc.hasKey(chnl.CONFIG, 'MESSAGE', '')
-                    msg.aux = Misc.hasKey(chnl.CONFIG, 'AUX', '')
-                    msg.tokenize()
+                    msg = d.copy()                               
+                    msg.to = Misc.hasKey(chnl.ME_CONFIG, 'TO', '')
+                    msg.message = Misc.hasKey(chnl.ME_CONFIG, 'MESSAGE', '')
                     crr = Carrier(msg, chnl)
                     
                     existsCarrier = False

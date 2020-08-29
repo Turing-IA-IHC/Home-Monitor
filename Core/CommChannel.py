@@ -22,65 +22,34 @@ from DataPool import DataPool
 class Dispatch:
     """ Structure to represent a message to send throw some channel. """
     born = time()       # Momentum when message was created
-    of:str = ''         # Sender
     to = []             # Receiver       
-    cc = []             # Other receiver to copy       
-    bcc = []            # Other hidden receiver
-    subject:str = ''    # Title of message 
     message:str = ''    # Body of message
-    aux:str = ''        # Auxiliar data
     tokens = {}         # List of variables availables to replace
-    tickets = []        # Tickets related to dispatch
-    events = []         # Events related to dispatch
-    alerts = []         # Alerts related to dispatch
     files = []          # Path of files to attach
 
-    def __init__(self, of:str = '', to=[], cc=[], bcc=[], subject:str='', message:str='', aux:str=''):
+    def __init__(self, to=[], message:str=''):
         """ Allow to create a message structure to send """
-        self.of = of
         self.to = to
-        self.cc = cc
-        self.bcc = bcc
-        self.subject = subject
         self.message = message
-        self.aux = aux
-
+        
     def equals(self, dispatch):
         """ Compare two message and identify if are similar """
-        return  self.of == dispatch.of and \
-                self.to == dispatch.to and \
-                self.subject == dispatch.subject and \
+        return  self.to == dispatch.to and \
                 self.message == dispatch.message
 
-    def tokenize(self):
+    def replace_tokens(self, text:str):
         """ Replace texts in all variables by tokens values """
         for key in self.tokens:
-            self.of = self.of.replace('['+key+']', str(self.tokens[key]))
-            for tos in self.to:
-                tos = tos.replace('['+key+']', str(self.tokens[key]))
-            for ccs in self.cc:
-                ccs = ccs.replace('['+key+']', str(self.tokens[key]))
-            for bccs in self.bcc:
-                bccs = bccs.replace('['+key+']', str(self.tokens[key]))
-            self.subject = self.subject.replace('['+key+']', str(self.tokens[key]))
-            self.message = self.message.replace('['+key+']', str(self.tokens[key]))
-            self.aux = self.aux.replace('['+key+']', str(self.tokens[key]))
+            text = text.replace('['+key+']', str(self.tokens[key]))            
+        return text
 
     def copy(self):
         """ Return a copy of full message """
         d = Dispatch()
         d.born = self.born
-        d.of = self.of
         d.to = self.to
-        d.cc = self.cc
-        d.bcc = self.bcc
-        d.subject = self.subject
         d.message = self.message
-        d.aux = self.aux
         d.tokens = self.tokens
-        d.tickets = self.tickets
-        d.events = self.events
-        d.alerts = self.alerts
         d.files = self.files
         return d
 
@@ -96,6 +65,8 @@ class CommChannel(Component):
     def notify(self, msg:Dispatch):
         """ Send a message """
         self.preNotify(msg)
+        msg.replace_tokens(msg.to)
+        msg.replace_tokens(msg.message)
         self.tryNotify(msg)
 
     @abc.abstractmethod    
@@ -108,3 +79,6 @@ class CommChannel(Component):
         """ Implement me! :: Send message. """
         pass
     
+    def start(self):
+        """ Method ignored """
+        pass

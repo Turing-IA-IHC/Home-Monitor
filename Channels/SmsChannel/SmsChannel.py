@@ -7,11 +7,15 @@ Home-Monitor:
     See LICENSE file for details
 
 Class information:
-    Class to send notifications.
+    Class to send notifications using SMS.
+    # Previous requirements
+    # Download the helper library from [https://www.twilio.com/docs/python/install](https://www.twilio.com/docs/python/install)
+    pip install twilio
 """
 
 import sys
 from os.path import dirname, normpath
+from twilio.rest import Client # SMS library
 
 # Including Home Monitor Paths to do visible the modules
 sys.path.insert(0, './Tools/')
@@ -20,8 +24,8 @@ sys.path.insert(0, './Core/')
 import Misc
 from CommChannel import CommChannel, Dispatch
 
-class NewChannel(CommChannel):
-    """ Class to send notifications. """
+class SmsChannel(CommChannel):
+    """ Class to send notifications using SMS. """
 
     def preLoad(self):
         """ Implement me! :: Loads configurations for to send message """
@@ -32,18 +36,27 @@ class NewChannel(CommChannel):
         pass
 
     def tryNotify(self, msg:Dispatch):
-        """ Implement me! :: To send the message """
+        """ To send the message using SMS Channel """
         # setup the parameters of the message
         to = msg.to
         message = msg.message
         sender = Misc.hasKey(self.ME_CONFIG, "FROM", '')
-        subject = msg.replace_tokens(Misc.hasKey(self.ME_CONFIG, "SUBJECT", ''))
+        # Your Account Sid and Auth Token from twilio.com/console
+        account_sid = Misc.hasKey(self.ME_CONFIG, "ACCOUNT_SID", '')
+        auth_token = Misc.hasKey(self.ME_CONFIG, "AUTH_TOKEN", '')
+        client = Client(account_sid, auth_token)
 
-        # TODO: Put here any method to send messages
+        for number in to:
+            sms = client.messages.create(
+                to=number, 
+                from_=sender,
+                body=message)
+
+            #print(sms.sid)
 
 # =========== Start standalone =========== #
 if __name__ == "__main__":
-    comp = NewChannel()
+    comp = SmsChannel()
     comp.init_standalone(path=dirname(__file__))
     dispatch = Dispatch( 
         to=comp.ME_CONFIG['TO'], 

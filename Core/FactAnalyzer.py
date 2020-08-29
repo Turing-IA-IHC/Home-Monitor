@@ -136,12 +136,12 @@ class FactAnalyzer(Component):
     def loadChannels(self):
         """ Loads available channels """
         self.COMMPOOL.logFromCore(Messages.system_channels_start, LogTypes.INFO, self.__class__.__name__)
-        LoaderOfChannel = LoaderOfChannel(self.CONFIG, self.COMMPOOL)
-        LoaderOfChannel.ANALYZER_PATH = self.ME_PATH
+        loc = LoaderOfChannel(self.CONFIG, self.COMMPOOL)
+        loc.ANALYZER_PATH = self.ME_PATH
         self.queueMessages = Queue()
-        self.LoaderOfChannelsThread = Process(target=LoaderOfChannel.start, args=(self.queueMessages,))
+        self.LoaderOfChannelsThread = Process(target=loc.start, args=(self.queueMessages,))
         self.LoaderOfChannelsThread.start()
-        del LoaderOfChannel
+        del loc
         self.COMMPOOL.logFromCore(Messages.system_channels_started, LogTypes.INFO, self.__class__.__name__)
 
     @abc.abstractmethod

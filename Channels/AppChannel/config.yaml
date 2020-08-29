@@ -1,0 +1,16 @@
+# Config params of AppChannel.
+NAME: AppChannel                      # Name for humans.
+TYPE: CHANNEL                         # Type of component.
+FILE_CLASS: AppChannel                # Py file where initial class is located.
+CLASS_NAME: AppChannel                # Class name to load.
+VERSION: 1.0.0                        # Module id version.
+ENABLED: Y                            # Module is enabled to run.
+DESCRIPTION: Allow send message to an App using WebSockets. # Description for humans.
+# ------ Vars of Channels
+TO: []                                # Recipients.
+MESSAGE: '[analysis_phrase].' # Body message, can use tokens.
+# ------ Other specific config vars
+SUBJECT: '<p>HM: an<span style="font-weight: bold; color: red;">[event_data]</span>was detected!</p>' # Subject, can use tokens.
+FROM: 'HM'                            # Sender.
+SERVER: 0.0.0.0                       # Server.
+PORT: 5678                            # Port.

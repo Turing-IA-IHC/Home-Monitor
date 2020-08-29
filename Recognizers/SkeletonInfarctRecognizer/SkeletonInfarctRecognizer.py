@@ -7,7 +7,7 @@ Home-Monitor:
     See LICENSE file for details
 
 Class information:
-    Template to predict classes of New Rercognizer.
+    Class to detect a posible person in infarcting.
 """
 
 import sys
@@ -31,7 +31,7 @@ from EventRecognizer import EventRecognizer
 from DataPool import LogTypes, SourceTypes, Messages, Data
 
 class SkeletonInfarctRecognizer(EventRecognizer):
-    """ Template to predict classes of New Recognizer. """
+    """ Class to detect a posible person in infarcting. """
 
     simulationStep = 0
 
@@ -62,7 +62,6 @@ class SkeletonInfarctRecognizer(EventRecognizer):
 
     def predict(self, data:Data):
         """ Exec prediction to recognize an activity """
-
         rgbFilter = Data()
         rgbFilter.id = None
         rgbFilter.package  = data.package
@@ -80,9 +79,9 @@ class SkeletonInfarctRecognizer(EventRecognizer):
             if per[0].any() == None or per[1].any() == None or per[2].any() == None or per[5].any() == None:
                 continue   
 
-            img = self.extract_face(frame=rgbData.data, person=per)
-            
             skeletonResult = self.predict_skeleton(person=per)
+            
+            img = self.extract_face(frame=rgbData.data, person=per)
             faceResult = self.predict_face(frame=img)
 
             array = self.predict_full(skeletonResult, faceResult)
@@ -109,8 +108,8 @@ class SkeletonInfarctRecognizer(EventRecognizer):
         #    self.stop()
         #    cv2.destroyAllWindows()
 
-        with open("M:/tmp/HM-SimulatingData/SkeletonInfarctRecognizer_OutPut.txt",'a+') as file:
-            file.write('\n' + dataPredicted.toString(False, True))
+        #with open("M:/tmp/HM-SimulatingData/SkeletonInfarctRecognizer_OutPut.txt",'a+') as file:
+        #    file.write('\n' + dataPredicted.toString(False, True))
     
     def simulateData(self, dataFilter:Data, limit:int=-1, lastTime:float=-1):
         """ Implement me! :: Allows to simulate data if this module start standalone """
@@ -175,10 +174,134 @@ class SkeletonInfarctRecognizer(EventRecognizer):
         Face = cv2.resize(Face, (64, 64))
         return Face
 
+    def furthest_shouder(self, person):
+        """ Returns the distance to the shoulder furthest from the neck """
+        neck = person[1]
+        if person[2][0] is not None:
+            length_RShoulder = math.pow(person[2][0] - neck[0], 2) + math.pow(person[2][1] - neck[1], 2)
+        else:
+            length_RShoulder = 0
+        if person[5][0] is not None:        
+            length_LShoulder = math.pow(person[5][0] - neck[0], 2) + math.pow(person[5][1] - neck[1], 2)
+        else:
+            length_LShoulder = 0
+
+        if length_RShoulder > length_LShoulder:
+            Shoulder = 2 # Right
+            H = math.sqrt(length_RShoulder)
+        else:
+            Shoulder = 5 # Left
+            H = math.sqrt(length_LShoulder)
+            
+        CosA = (person[Shoulder][0] - neck[0]) / H
+        SinA = (neck[1] - person[Shoulder][1]) / H
+
+        return H, CosA, SinA
+
+    def complete_body(self, person):
+        
+        nose = person[0]
+        neck = person[1]
+        h = math.sqrt(math.pow(neck[0] - nose[0],2) + math.pow(neck[1] - nose[1], 2))
+        h = int(h)
+
+        if person[2][0] is None: # if not RShoulder mirror LShoulder
+            auxX = neck[0] - person[5][0]
+            auxY = person[5][1]
+            person[2] = (neck[0] + auxX, auxY)
+        
+        if person[5][0] is None: # if not LShoulder mirror RShoulder
+            auxX = neck[0] - person[2][0]
+            auxY = person[2][1]
+            person[5] = (neck[0] + auxX, auxY)
+
+        #if person[8][0] is None: # No RHip calculate it
+        #    person[8] = (person[2][0], neck[1] + int(2 * h))
+
+        #if person[9][0] is None: # No LHip calculate it
+        #    person[9] = (person[5][0], neck[1] + int(2 * h))
+
+        if person[3][0] is None: # Not RElbow
+            if not person[6][0] is None: # LElbow
+                auxX = neck[0] - person[6][0]
+                auxY = person[6][1]
+                person[3] = (neck[0] + auxX, auxY)
+            else:
+                person[3] = (person[2][0], person[2][1] + 2*h)
+
+        if person[6][0] is None: # Not LElbow
+            if not person[3][0] is None: # RElbow
+                auxX = neck[0] - person[3][0]
+                auxY = person[3][1]
+                person[6] = (neck[0] + auxX, auxY)
+            else:
+                person[6] = (person[5][0], person[5][1] + 2*h)
+
+        if person[4][0] is None: # Not RWrist
+            if not person[7][0] is None: # LWrist
+                auxX = neck[0] - person[7][0]
+                auxY = person[7][1]
+                person[4] = (neck[0] + auxX, auxY)
+            else:
+                person[4] = (person[3][0], person[3][1] + 2*h)
+
+        if person[7][0] is None: # Not LWrist
+            if not person[4][0] is None: # RWrist
+                auxX = neck[0] - person[4][0]
+                auxY = person[4][1]
+                person[7] = (neck[0] + auxX, auxY)
+            else:
+                person[7] = (person[6][0], person[6][1] + 2*h)
+
+        return person
+
+    def rotate_point(self,cX, cY, cosA, sinA, X, Y):
+        X1 = X - cX
+        Y1 = cY - Y
+        X2 = (X1 * -cosA) - (Y1 * sinA)
+        Y2 = (X1 * sinA) + (Y1 * -cosA)
+        resX = (-1 if cosA > 0.0 else 1) * X2 + cX
+        resY = (1 if cosA > 0.0 else -1) * Y2 + cY
+        return int(resX), int(resY)
+
+    def rotate_person(self, person):
+        """ Rotate joints arround neck """
+        neck = person[1]
+        _, CosA, SinA = self.furthest_shouder(person)
+
+        for p in range(len(person)):
+            point = person[p]
+            if not point[0] is None:
+                x, y = self.rotate_point(neck[0], neck[1], CosA, SinA, point[0], point[1])
+                #x, y = point[0], point[1]
+                person[p] = (x, y)
+
+        return person
+
+    def norm_person(self, person):
+        """ Normalize the distances between joints """
+        H, _, _ = self.furthest_shouder(person)
+        neck = person[1]
+        nPerson = []
+        for p in range(len(person)):
+            point = person[p]
+            if point[0] is None:
+                x = None
+                y = None
+            else:
+                x = (point[0] - neck[0]) / H
+                y = (neck[1] - point[1]) / H
+            nPerson.append((x, y))
+
+        return nPerson   
+
     def predict_skeleton(self, person):
         """ Make skeleton prediction """
-        person = np.expand_dims(person, axis=0)
-        return self.MODEL.predict(person[:,0:8])
+        self.rotate_person(person)
+        self.complete_body(person)
+        nPerson = self.norm_person(person)
+        nPerson = np.expand_dims(person, axis=0)
+        return self.MODEL.predict(nPerson[:,0:8])
         
     def predict_face(self, frame):
         """ Make face prediction """

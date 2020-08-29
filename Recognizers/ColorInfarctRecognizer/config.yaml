@@ -4,7 +4,7 @@ TYPE: RECOGNIZER                      # Type of component.
 FILE_CLASS: ColorInfarctRecognizer    # Py file where initial class is located.
 CLASS_NAME: ColorInfarctRecognizer    # Class name to load.
 VERSION: 1.0.0                        # Module id version.
-ENABLED: Y                            # Module is enabled to run.
+ENABLED: N                            # Module is enabled to run.
 DESCRIPTION: Description of ColorInfarctRecognizer. # Description for humans.
 SIMULATING: Y                         # Set true if module start with sumaleted data.
 SIMULATING_PATH: M:/tmp/HM-SimulatingData/CamController_OutPut.txt     # Set path to simulated data source.

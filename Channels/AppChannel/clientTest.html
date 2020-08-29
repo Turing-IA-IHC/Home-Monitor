@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <title>Home Monitor: App cliet demo</title>
+        <style type="text/css">
+            body {
+                font-family: "Courier New", sans-serif;
+                text-align: center;
+            }
+            .title{
+                font-size: large;
+            }
+            .message{
+                font-size: medium;
+            }
+            .atts{
+
+            }
+            .att{
+
+            }
+            .err{
+            }
+            .errHidden{
+                visibility: hidden;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="title">
+        </div>
+        <div class="message">
+        </div>
+        <div class="atts">
+        </div>
+        <div class="err">
+            Se perdió la conexión con el servidor en breve intentaremos volver a conectar.
+        </div>
+        <script>
+            const delay = ms => new Promise(res => setTimeout(res, ms));
+
+            function conect(params) {
+                var title = document.querySelector('.title'),
+                    message = document.querySelector('.message'),
+                    attaches = document.querySelector('.atts')
+                    err = document.querySelector('.err')
+                    websocket = new WebSocket("ws://127.0.0.1:5678/");
+                
+                websocket.onmessage = function (event) {
+                    err.classList.add('errHidden');
+                    data = JSON.parse(event.data);
+                    title.innerHTML = data.subject;
+                    message.innerHTML = data.message;
+                    attaches.innerHTML = '';
+                    data.att.forEach(element => {
+                        var myImage = new Image(256, 256);
+                        myImage.src = 'data:image/png;base64, ' + element;
+                        attaches.appendChild(myImage);
+                    }); 
+
+                    //console.log(' --------- data -------- ');
+                    //console.log(data);
+                };
+
+                websocket.onerror = async function (error) {
+                    if (websocket.readyState > 1) {
+                        err.classList.remove('errHidden');
+                        await delay(5000); // Try every 5 seconds
+                        conect();
+                    }
+                }
+            }
+            conect();
+        </script>
+    </body>
+</html>

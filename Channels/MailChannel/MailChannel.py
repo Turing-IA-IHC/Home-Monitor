@@ -7,7 +7,7 @@ Home-Monitor:
     See LICENSE file for details
 
 Class information:
-    Class to send notifications.
+    Class to send notifications using mail.
 """
 
 import sys
@@ -30,7 +30,7 @@ import smtplib
 #                   https://myaccount.google.com/lesssecureapps
 
 class MailChannel(CommChannel):
-    """ Class to send notifications. """
+    """ Class to send notifications using mail. """
 
     def preLoad(self):
         """ Implement me! :: Loads configurations for to send message """
@@ -42,25 +42,24 @@ class MailChannel(CommChannel):
 
     def tryNotify(self, msg:Dispatch):
         """ To send the message """
-        # setup the parameters of the message
-        of = Misc.hasKey(self.CONFIG, "OF", '') if msg.of == '' else msg.of
-        to = Misc.hasKey(self.CONFIG, "TO", []) if len(msg.to) == 0 else msg.to
-        cc = Misc.hasKey(self.CONFIG, "CC", []) if len(msg.cc) == 0 else msg.cc
-        bcc = Misc.hasKey(self.CONFIG, "BCC", []) if len(msg.bcc) == 0 else msg.bcc
-        subject = Misc.hasKey(self.CONFIG, "SUBJECT", '') if msg.subject == '' else msg.subject
-        message = Misc.hasKey(self.CONFIG, "MESSAGE", '') if msg.message == '' else msg.message
+        to = msg.to
+        message = msg.message
+        sender = Misc.hasKey(self.ME_CONFIG, "FROM", '')
+        cc = Misc.hasKey(self.ME_CONFIG, "CC", [])
+        bcc = Misc.hasKey(self.ME_CONFIG, "BCC", [])
+        subject = msg.replace_tokens(Misc.hasKey(self.ME_CONFIG, "SUBJECT", ''))
         
         msgMail = MIMEMultipart()
-        msgMail['From'] = of
+        msgMail['From'] = sender
         msgMail['To'] = ', '.join(to)
         msgMail['Cc'] = ', '.join(cc)
-        #msgMail['Bcc'] = ', '.join(bcc)
+        msgMail['Bcc'] = ', '.join(bcc)
         msgMail['Subject'] = subject
         #create server  
-        server = smtplib.SMTP(self.CONFIG["SMTP"], self.CONFIG["PORT"])
+        server = smtplib.SMTP(self.ME_CONFIG["SMTP"], self.ME_CONFIG["PORT"])
         server.starttls()    
         # Login Credentials for sending the mail
-        server.login(of, self.CONFIG["PASSWORD"]) 
+        server.login(self.ME_CONFIG["USER"], self.ME_CONFIG["PASSWORD"]) 
         # add in the message body
         msgMail.attach(MIMEText(message, 'html'))
         
@@ -75,18 +74,18 @@ class MailChannel(CommChannel):
             msgMail.attach(part)
         
         # send the message via the server.
-        server.sendmail(of, to + cc + bcc, msgMail.as_string())
-        
+        server.sendmail(sender, to + cc + bcc, msgMail.as_string())        
         server.quit()
 
 # =========== Start standalone =========== #
 if __name__ == "__main__":
     comp = MailChannel()
-    comp.init_standalone(Me_Path=dirname(__file__), autoload=False)
-    dispatch = Dispatch(of='ProfesorGavit0@gmail.com', 
+    comp.init_standalone(path=dirname(__file__))
+    dispatch = Dispatch( 
         to=['Gavit0@hotmail.com', 'Gavit0Rojas@gmail.com'], 
-        cc=['ProfesorGavit0@gmail.com'],
-        bcc=['luisgabriel.rojasl@uclm.es'],
-        subject='HM Prueba', message='Prueba')
+        message=comp.ME_CONFIG['MESSAGE'])
     dispatch.files.append('img.png')
+    comp.ME_CONFIG['FROM'] = 'ProfesorGavit0@gmail.com'
+    comp.ME_CONFIG['USER'] = 'ProfesorGavit0@gmail.com'
+    comp.ME_CONFIG['PASSWORD'] = '4564gpfpxdpp'
     comp.tryNotify(dispatch)

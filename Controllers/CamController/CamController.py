@@ -154,14 +154,14 @@ class CamController(DeviceController):
             rgbImage = data.data # For capture the image in RGB color space
         
         # Display the resulting frame
-        cv2.imshow(data.source_name + '-' + data.source_item, rgbImage)
+        cv2.imshow(data.source_name + '-' + data.source_item, cv2.cvtColor(rgbImage, cv2.COLOR_BGR2RGB))
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             self.stop()
             cv2.destroyAllWindows()
 
-        with open("M:/tmp/HM-SimulatingData/CamController_OutPut.txt",'a+') as file:
-            file.write('\n' + data.toString(False, True))
+        #with open("M:/tmp/HM-SimulatingData/CamController_OutPut.txt",'a+') as file:
+        #    file.write('\n' + data.toString(False, True))
 
     def simulateData(self, dataFilter:Data):
         """ Allows simulate input data """        

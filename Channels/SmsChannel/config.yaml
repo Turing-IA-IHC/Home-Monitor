@@ -1,0 +1,15 @@
+# Config params of SmsChannel.
+NAME: SmsChannel                  # Name for humans.
+TYPE: CHANNEL                     # Type of component.
+FILE_CLASS: SmsChannel            # Py file where initial class is located.
+CLASS_NAME: SmsChannel            # Class name to load.
+VERSION: 1.0.0                    # Module id version.
+ENABLED: Y                        # Module is enabled to run.
+DESCRIPTION: Send SMS.            # Description for humans.
+# ------ Vars of Channels
+TO: ['+573043532824','+573219953302']                         # Recipients.
+MESSAGE: 'HM: an [event_data] was detected. [analysis_phrase]' # Body message, can use tokens.
+# ------ Other specific config vars
+ACCOUNT_SID : AC6f4bb7d1a6e99c4fe0b2b3be31a1f1a5  # Account
+AUTH_TOKEN : 5d6975a0ded8dae12803e0b087309e61     # Token
+FROM: '+16193893476'              # Sender.
