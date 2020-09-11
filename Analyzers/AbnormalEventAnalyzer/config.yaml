@@ -1,13 +1,13 @@
 # Config params of NewANALYZER.
-NAME: NewAnalyzer                     # Name for humans.
+NAME: AbnormalEventAnalyzer           # Name for humans.
 TYPE: ANALYZER                        # Type of component.
-FILE_CLASS: NewAnalyzer               # Py file where initial class is located.
-CLASS_NAME: NewAnalyzer               # Class name to load.
+FILE_CLASS: AbnormalEventAnalyzer     # Py file where initial class is located.
+CLASS_NAME: AbnormalEventAnalyzer     # Class name to load.
 VERSION: 1.0.0                        # Module id version.
 ENABLED: Y                            # Module is enabled to run.
-DESCRIPTION: Description of NewAnalyzer. # Description for humans.
+DESCRIPTION: Description of AbnormalEventAnalyzer. # Description for humans.
 SIMULATING: Y                         # Set true if module start with sumaleted data.
-SIMULATING_PATH: Path                 # Set path to simulated data source.
+SIMULATING_PATH: M:/tmp/HM-SimulatingData/ColorInfarctRecognizer_OutPut.txt     # Set path to simulated data source.
 #URL_BASE:                            # Url to pool if not simulating.
 # ------ Vars of Analyzers
 ALWAYS_ABNORMAL: [Infarct, Fall,]     # List of events that will always be abnormal, then notify.
@@ -20,3 +20,6 @@ AUTHORIZED_CHANNELS: [MailChannel,]   # Limit the channels available to send mes
 AUTHORIZED_ATTACHMENTS: ['*:*:*',]    # Limit the source allow to attach Type:Name:Item. Example *:RGB:*
 MESSAGES_LIFE: 90                     # Seconds to keep messages in memory.
 # ------ Other specific config vars
+TIMEWINDOW: 7                         # Time in minutes (before and after) to allow occurs an events and cosider the same.
+KEEPING_WEEKS: 16                     # Size in weeks of events database.
+THRESHOLD: 0.5                        # Threshold to consider an event like normal. If is below is abnormal.

@@ -94,22 +94,52 @@ class NewAnalyzer(FactAnalyzer):
     def showData(self, dataanalyzeed:Data, dataSource:Data):
         """ Implement me! :: To show data if this module start standalone """
         # TODO: Put code if you want test this module in standalone form.
-        """ Exmple:
-        print('Classes detected: {}. Aux: {}.'.format(dataanalyzeed.data, dataanalyzeed.aux))
+        """ Exmple:        
+        self.log('An event to notify:' + dataanalyzeed.data, LogTypes.INFO)
         """
         pass
     
     def simulateData(self, dataFilter:Data, limit:int=-1, lastTime:float=-1):
         """ Implement me! :: Allows to simulate data if this module start standalone """
-        if self.Simulating == None or self.Simulating == False:
-            self.Simulating = True
-        # TODO: Put code if you want test this module in standalone form.
-        """ Example:
+        if self.simulationStep == 0:
+            self.file = open(self.SimulatingPath, 'r').readlines()
+            self.file_length = len(self.file)
+
         dataReturn = []
-        dataReturn.insert(0, {'timeQuery':time()})
+
+        #if dataFilter.package != '':
+        #    for target_list in self.file:
+        #        if len(target_list) < 10:
+        #            continue
+        #        dataSimulated = Data()
+        #        dataSimulated = dataSimulated.parse(target_list, False, True)
+        #        if dataSimulated.package == dataFilter.package and dataSimulated.source_name == dataFilter.source_name:
+        #            dataReturn.append(dataSimulated)
+        #            dataReturn.insert(0, {'queryTime':time()})
+        #            return dataReturn
+        #
+        #if self.simulationStep < self.file_length:
+        #    if len(self.file[self.simulationStep]) < 10:
+        #        dataReturn.insert(0, {'queryTime':time()})
+        #        self.simulationStep += 1
+        #        return dataReturn
+        #
+        #    dataSimulated = Data()
+        #    dataSimulated = dataSimulated.parse(self.file[self.simulationStep], False, True)
+        #
+        #    if dataSimulated.source_name != dataFilter.source_name:
+        #        dataReturn.insert(0, {'queryTime':time()})
+        #        self.simulationStep += 1
+        #        return dataReturn
+        #
+        #    self.simulationStep += 1
+        #    dataReturn.append(dataSimulated)
+        #    dataReturn.insert(0, {'queryTime':time()})
+        #else:
+        #    self.simulationStep = 0
+        #    dataReturn = self.simulateData(dataFilter)
+
         return dataReturn
-        """
-        pass
     
 # =========== Start standalone =========== #
 if __name__ == "__main__":
