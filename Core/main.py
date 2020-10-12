@@ -223,6 +223,15 @@ if __name__ == "__main__":
     #components = 7  # Pool + Load controller + Recognizers
     #components = 8  # Only Adnormal events
     #components = 15 # All components
+    components = 8
+
+    #import os
+    #import tensorflow as tf
+    #os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+    #if tf.test.gpu_device_name():
+    #    print('GPU found')
+    #else:
+    #    print("No GPU found")
 
     m = main(components, [])
     

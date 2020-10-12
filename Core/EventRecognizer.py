@@ -71,7 +71,7 @@ class EventRecognizer(Component):
                 try:
                     t0 = time()
                     dataPredictedList = self.predict(objData)
-                    self.log('Time elapsed to get prediction: ' + str(round(time() - t0, 4)), logType=LogTypes.INFO, item= self.ME_NAME)
+                    self.log('Time elapsed to get prediction: ' + str(round(time() - t0, 4)), logType=LogTypes.DEBUG, item= self.ME_NAME)
                     
                     for dataPredicted in dataPredictedList:
                         dataPredicted.source_type = self.ME_TYPE
@@ -85,7 +85,10 @@ class EventRecognizer(Component):
                         if self.ME_STANDALONE:
                             self.showData(dataPredicted, objData)
                         else:
-                            self.send(dataPredicted)
+                            if Misc.hasKey(dataPredicted.data, 'class', 'none').lower() != 'none':
+                                self.send(dataPredicted)
+                                self.log('Detected: ' + str(dataPredicted.data), logType=LogTypes.DEBUG, item=self.ME_NAME)
+                                print('Detected:', dataPredicted.data, self.ME_NAME)
                         failedSend = 0
                 except:
                     self.log(Messages.recognizer_error_send, LogTypes.ERROR)

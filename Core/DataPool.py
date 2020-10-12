@@ -208,14 +208,24 @@ class Data():
             Formats availables:
                 image: image captured using cv2 of openCV
         """
+        if self.aux == None:
+            return ''
         aux = self.strToJSon(self.aux)
         t = Misc.hasKey(aux,'t','')
         ext = Misc.hasKey(aux,'ext','')
         dataType:str = str(type(self.data))
-        f = normpath(path + "/attachments/" + str(self.id) + "." + ext)
-        if t == 'image':
+        f = normpath(path + "/attachments/" + str(time()) + str(self.id) + "." + ext)
+        if t == 'image_rgb':
+            from cv2 import cv2
+            cv2.imwrite(f, cv2.cvtColor(self.data, cv2.COLOR_BGR2RGB))
+        elif t == 'image_bgr':
             from cv2 import cv2
             cv2.imwrite(f, self.data)
+        elif t == 'image_binary':
+            from cv2 import cv2
+            img = np.zeros((self.data.shape[0], self.data.shape[1]), dtype=np.uint8)
+            img[:,:] = np.where(self.data[:,:] == False, 0, 255)
+            cv2.imwrite(f, img)
         elif 'numpy' in dataType:
             w = np.squeeze(self.data)
             np.savetxt(f, w, delimiter=",", fmt="%s")
@@ -352,6 +362,7 @@ class CommPool():
         else:
             raise ValueError(Messages.bad_source_type)
 
+        requests.adapters.DEFAULT_RETRIES = 50
         p = requests.post(url, data={'data' : data.toString()}).json()
         
         if p[0]['msg'] != 'ok':
@@ -406,6 +417,7 @@ class CommPool():
                 Binnacle().logFromComponent(data, logType)
             else:
                 url = self.URL_BASE + "/" + self.URL_LOGS
+                requests.adapters.DEFAULT_RETRIES = 50
                 requests.post(url, data={'data' : data.toString(), 'logType': logType, 'isCore':False})
         except:
             logging.error(Binnacle().errorDetail(Messages.error_pool_log))
@@ -425,6 +437,7 @@ class CommPool():
                 Binnacle().logFromCore(data.data, logType, origin)
             else:
                 url = self.URL_BASE + "/" + self.URL_LOGS
+                requests.adapters.DEFAULT_RETRIES = 50
                 requests.post(url, data={'data' : data.toString(dataPlain=True, auxPlain=True), 'logType': logType, 'isCore':True})
         except:
             logging.error(Binnacle().errorDetail(Messages.error_pool_log))
@@ -483,11 +496,14 @@ class CommPool():
 
 @singleton
 class DataPool(Resource):
+    app = None
+
     """ Class to controlate life time of data """
     CONFIG = None           # Params from config file
     POOL_TICKETS = []       # Base of data received from Controllers
     POOL_EVENTS = []        # Base of data received from Recognizers
     POOL_ALERTS = []        # Base of data received from Analyzers
+
     LOGGINGLEVEL:int = 0    # Logging level to write
     LOGGINGFILE = None      # Name of file where write log
     LOGGINGFORMAT = None    # Format to show the log
@@ -495,7 +511,6 @@ class DataPool(Resource):
     T2 = T1 + 30            # Seconds to keep data in quarentine
 
     Count = 0               # Quantity of data received
-
     def __init__(self):
         """ This method will be removed by singleton pattern """
         pass
@@ -616,8 +631,14 @@ class DataPool(Resource):
         self.T1 = int(self.CONFIG['T1'])
         self.T2 = int(self.CONFIG['T2']) + self.T1
 
-    def start(self):
+    def start(self, prod=False):
         """ Start api for data pool """
+
+        if prod:
+            from os.path import dirname, abspath, exists, split, normpath
+            self.CONFIG_FILE = normpath(abspath('.') + "/config.yaml")
+            self.CONFIG = Misc.readConfig(self.CONFIG_FILE)
+            self.initialize(self.CONFIG)
 
         app = Flask(__name__)
         log = logging.getLogger('werkzeug')
@@ -644,7 +665,11 @@ class DataPool(Resource):
         Binnacle().logFromCore('Starting /api/logs', LogTypes.INFO, self.__class__.__name__)
         api.add_resource(ApiLogs, '/api/logs',       methods=['post']) 
         
-        app.run()
+        if not prod:
+            app.run()
+        else:
+            self.app = app
+
         Binnacle().logFromCore(Messages.pool_stoped, LogTypes.INFO, self.__class__.__name__)
 
 @singleton

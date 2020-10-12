@@ -12,10 +12,12 @@ Class information:
 
 import sys
 import numpy as np
+from numba import guvectorize, boolean, int64
 from datetime import datetime, timedelta
 from time import time, sleep
 from pickle import dump, load
 from os.path import dirname
+import shutil
 
 # Including Home Monitor Paths to do visible the modules
 sys.path.insert(0, './Tools/')
@@ -25,7 +27,7 @@ import Misc
 from FactAnalyzer import FactAnalyzer
 from DataPool import LogTypes, SourceTypes, Messages, Data
 
-class Event(object):
+class Event:
     """ Class to represent an event """
     Moment:float
     Name:str
@@ -36,13 +38,14 @@ class Event(object):
 class AbnormalEventAnalyzer(FactAnalyzer):
     """ Class to analyze classes of recognizers. """
     EventsDatabase = []
+    SimulationStep = 0
+    Simulated_current_time = datetime(2020, 9, 9, 8, 7, 20)
     TimeWindow = 7
     Keeping_Weeks = 16
     Threshold = 0.5
     Backward_events = []
     Expected_events = []
-    simulationStep = 0
-    Simulated_current_time = datetime(2020, 9, 9, 8, 7, 20)
+    Last_Cleaning_Day = datetime(1970, 1, 1)
 
     def preLoad(self):
         """ Implement me! :: Do anything necessary for processing """
@@ -59,29 +62,29 @@ class AbnormalEventAnalyzer(FactAnalyzer):
         self.ME_CONFIG['ALWAYS_NORMAL'] = [x.lower() for x in self.ME_CONFIG['ALWAYS_NORMAL']]
 
     def analyze(self, data):
-        """ Implement me! :: Exec analysis of activity """
+        """ Exec analysis of activity """
         d_current = self.Simulated_current_time if self.Simulating else datetime.fromtimestamp(time())
+        
+        if self.Last_Cleaning_Day < d_current:
+            self.remove_old_data()
+            self.Last_Cleaning_Day = d_current + timedelta(days=1)
 
         dataReturn = []
         event_name = Misc.hasKey(data.data, 'class', '')
         event_name = '' if event_name.lower() == 'none' else event_name.lower()
-        auxData = '"t":"json", "idSource":"{}"'
         if self.analyze_event(event_name) < self.Threshold or event_name in self.ME_CONFIG['ALWAYS_ABNORMAL']:
             if not event_name in self.ME_CONFIG['ALWAYS_NORMAL']:
                 dataInf = self.data_from_event(Event(d_current, event_name))
-                dataInf.aux = '{' + auxData.format(data.id) + '}'
                 dataReturn.append(dataInf)
 
         backward_event_list = self.backward_events_detect()
         for be in backward_event_list:
             dataInf = self.data_from_event(be, occurred=False)
-            dataInf.aux = '{' + auxData.format(data.id) + '}'
             dataReturn.append(dataInf)
 
         expected_event_list = self.expected_events_predict()
         for ee in expected_event_list:
             dataInf = self.data_from_event(ee, occurred=False)
-            dataInf.aux = '{' + auxData.format(data.id) + '}'
             dataReturn.append(dataInf)
         
         self.save_knowledge()
@@ -95,7 +98,7 @@ class AbnormalEventAnalyzer(FactAnalyzer):
     def simulateData(self, dataFilter:Data, limit:int=-1, lastTime:float=-1):
         """ Allows to simulate data if this module start standalone """
 
-        if self.simulationStep == 0:
+        if self.SimulationStep == 0:
             self.file = open(self.SimulatingPath, 'r').readlines()
             self.file_length = len(self.file)
 
@@ -112,25 +115,54 @@ class AbnormalEventAnalyzer(FactAnalyzer):
                     dataReturn.insert(0, {'queryTime':time()})
                     return dataReturn
 
-        if self.simulationStep < self.file_length:
-            if len(self.file[self.simulationStep]) < 10:
+        if self.SimulationStep < self.file_length:
+            if len(self.file[self.SimulationStep]) < 10:
                 dataReturn.insert(0, {'queryTime':time()})
-                self.simulationStep += 1
+                self.SimulationStep += 1
                 return dataReturn
 
             dataSimulated = Data()
-            dataSimulated = dataSimulated.parse(self.file[self.simulationStep], False, True)
+            dataSimulated = dataSimulated.parse(self.file[self.SimulationStep], False, True)
 
-            self.simulationStep += 1
+            self.SimulationStep += 1
             dataReturn.append(dataSimulated)
             dataReturn.insert(0, {'queryTime':time()})
         else:
-            self.simulationStep = 0
+            self.SimulationStep = 0
             dataReturn = self.simulateData(dataFilter)
 
         return dataReturn
 
     # =========== Auxiliar methods =========== #
+
+    @guvectorize([(int64[:], int64, int64, int64, boolean[:])], '(n),(),(),()->(n)', target='parallel')
+    def filter_moment_speedup(moment_list, searched_moment, t0, t1, res):
+        secFloat = searched_moment / 86400 # Seconds per day
+        secOfDay = (float(secFloat) - int(secFloat)) * 86400
+        t0 = secOfDay - (t0 * 60) # change to seconds
+        t1 = secOfDay + (t1 * 60) # change to seconds
+        for i in range(moment_list.shape[0]):
+            srchFloat = moment_list[i] / 86400 # Seconds per day
+            srch = (srchFloat - int(srchFloat)) * 86400
+            res[i] = srch >= t0 and srch <= t1
+
+    moments = []
+    def filter_moment(self, moment, t0:int=None, t1:int=None):
+        """ Allows to filter events in same moment of day """
+        if len(self.moments) != len(self.EventsDatabase):
+            self.moments = np.zeros(len(self.EventsDatabase), dtype=np.int64)
+            for i, e in enumerate(self.EventsDatabase):
+                self.moments[i] = e.Moment.timestamp()
+        searched_moment = int64(moment.timestamp())
+        t0 = int64(self.TimeWindow) if t0 == None else int64(t0)
+        t1 = int64(self.TimeWindow) if t1 == None else int64(t1)
+        out = np.zeros(len(self.moments), dtype=np.bool)
+        AbnormalEventAnalyzer.filter_moment_speedup(self.moments, searched_moment, t0, t1, out)
+        results = []
+        for i, m in enumerate(out):
+            if m:
+                results.append(self.EventsDatabase[i])
+        return results
 
     def at_same_time(self, d_search:datetime):
         """ Define if an hour and now are near or similar moment in day (omits date) """
@@ -162,7 +194,7 @@ class AbnormalEventAnalyzer(FactAnalyzer):
         return result
 
     def distinct(self, event_list):
-        """ Retrive an list of events an return distinct name list """
+        """ Retrive an list of events and return distinct name list """
         new_list = []
         for ev in event_list:
             if not ev.Name in new_list:
@@ -181,63 +213,70 @@ class AbnormalEventAnalyzer(FactAnalyzer):
         """ Principal method to identify if an event is normal or abnormal """
         d_current = self.Simulated_current_time if self.Simulating else datetime.fromtimestamp(time())
         event_name = event_name.lower()
-        #print('Detected a', event_name, 'at', d)
 
-        Events_none  = list(filter(lambda x: x.Name == '', self.EventsDatabase))
-        Events_event = list(filter(lambda x: x.Name == event_name, self.EventsDatabase))
+        Events_moment = self.filter_moment(d_current)
+        Events_none  = list(filter(lambda x: x.Name == '', Events_moment))
+        Events_event = list(filter(lambda x: x.Name == event_name, Events_moment))
 
-        same_day_none  = list(filter(lambda x: self.at_same_time(x.Moment) and self.at_same_week_day(x.Moment), Events_none))
-        same_day_event = list(filter(lambda x: self.at_same_time(x.Moment) and self.at_same_week_day(x.Moment), Events_event))
-        same_day_total = len(same_day_event) + len(same_day_none)
-        same_day_value = 0 if same_day_total == 0 else len(same_day_event) / same_day_total
-        #print('Tasa:', same_day_value, 'Eventos:', len(same_day_event), 'Total:', same_day_total, 'en el mismo día de la semana')
-        
-        last_week_none  = list(filter(lambda x: self.at_same_time(x.Moment) and self.at_last_7_days(x.Moment), Events_none))
-        last_week_event = list(filter(lambda x: self.at_same_time(x.Moment) and self.at_last_7_days(x.Moment), Events_event))
-        last_week_total = len(last_week_event) + len(last_week_none)
-        last_week_value = 0 if last_week_total == 0 else len(last_week_event) / last_week_total
-        #print('Tasa:', last_week_value, 'Eventos:', len(last_week_event), 'Total:', last_week_total, 'en los últimos 7 días')
-        
-        same_month_moment_none  = list(filter(lambda x: self.at_same_time(x.Moment) and self.at_same_month_moment(x.Moment), Events_none))
-        same_month_moment_event = list(filter(lambda x: self.at_same_time(x.Moment) and self.at_same_month_moment(x.Moment), Events_event))
-        same_month_moment_total = len(same_month_moment_event) + len(same_month_moment_none)
-        same_month_moment_value = 0 if same_month_moment_total == 0 else len(same_month_moment_event) / same_month_moment_total
-        #print('Tasa:', same_month_moment_value, 'Eventos:', len(same_month_moment_event), 'Total:', same_month_moment_total, 'en el mismo mometo del mes')
-        
-        acumulated = same_day_value + last_week_value + same_month_moment_value
-        #print('With',min(1, acumulated), 'is', 'Normal' if acumulated >= 0.5 else 'Abnormal')
-
-        # Remove old data
-        self.EventsDatabase = list(filter(lambda x: x.Moment > (d_current - timedelta(weeks=self.Keeping_Weeks)), self.EventsDatabase))
+        if len(Events_event) > 0:
+            same_day_none  = list(filter(lambda x: self.at_same_week_day(x.Moment), Events_none))
+            same_day_event = list(filter(lambda x: self.at_same_week_day(x.Moment), Events_event))
+            same_day_total = len(same_day_event) + len(same_day_none)
+            same_day_value = 0 if same_day_total == 0 else len(same_day_event) / same_day_total
+            #print('Tasa:', same_day_value, 'Eventos:', len(same_day_event), 'Total:', same_day_total, 'en el mismo día de la semana')
+            
+            last_week_none  = list(filter(lambda x: self.at_last_7_days(x.Moment), Events_none))
+            last_week_event = list(filter(lambda x: self.at_last_7_days(x.Moment), Events_event))
+            last_week_total = len(last_week_event) + len(last_week_none)
+            last_week_value = 0 if last_week_total == 0 else len(last_week_event) / last_week_total
+            #print('Tasa:', last_week_value, 'Eventos:', len(last_week_event), 'Total:', last_week_total, 'en los últimos 7 días')
+            
+            same_month_moment_none  = list(filter(lambda x: self.at_same_month_moment(x.Moment), Events_none))
+            same_month_moment_event = list(filter(lambda x: self.at_same_month_moment(x.Moment), Events_event))
+            same_month_moment_total = len(same_month_moment_event) + len(same_month_moment_none)
+            same_month_moment_value = 0 if same_month_moment_total == 0 else len(same_month_moment_event) / same_month_moment_total
+            #print('Tasa:', same_month_moment_value, 'Eventos:', len(same_month_moment_event), 'Total:', same_month_moment_total, 'en el mismo mometo del mes')
+            
+            acumulated = same_day_value + last_week_value + same_month_moment_value
+            #print('With',min(1, acumulated), 'is', 'Normal' if acumulated >= 0.5 else 'Abnormal')
+        else:
+            acumulated = 0
 
         # Avoid same event many times in time window
         if record:
-            exists = list(filter(lambda x: x.Moment >= (d_current - timedelta(minutes=((self.TimeWindow * 2) + 1))) and x.Name == event_name , self.EventsDatabase))
+            Events_moment = self.filter_moment(d_current, self.TimeWindow, 0)
+            exists = list(filter(lambda x: x.Name == event_name, Events_moment))
             if len(exists) == 0:
                 evnt = Event(d_current, event_name)
                 self.EventsDatabase.append(evnt)
-
+        
         # Remove backward events
         self.Backward_events = list(filter(lambda x: x.Name != event_name, self.Backward_events))
         # Remove expected events
         self.Expected_events = list(filter(lambda x: x.Name != event_name, self.Expected_events))
-
+        
         return round(min(1, acumulated), 2)
 
     def backward_events_detect(self):
         """ Detect events wich must to happened but don't do it """
         d_current = self.Simulated_current_time if self.Simulating else datetime.fromtimestamp(time())
-        expected = list(filter(lambda x: self.at_same_time(x.Moment) and x.Name != '' and \
-            (self.at_same_week_day(x.Moment) or self.at_last_7_days(x.Moment) or self.at_same_month_moment(x.Moment))
-            , self.EventsDatabase))
+        
+        Events_moment = self.filter_moment(d_current)
+        Events_no_none  = list(filter(lambda x: x.Name != '', Events_moment))
+        expected = list(filter(lambda x: (self.at_same_week_day(x.Moment) or \
+                self.at_last_7_days(x.Moment) or \
+                self.at_same_month_moment(x.Moment))
+            , Events_no_none))
+
         expected = self.distinct(expected)
+        Events_moment = self.filter_moment(d_current, self.TimeWindow, 60)
         for event_name in expected:
             if self.analyze_event(event_name, record=False) >= self.Threshold:
-                exists = list(filter(lambda x: x.Moment >= (d_current - timedelta(minutes=self.TimeWindow)) and x.Name == event_name, self.EventsDatabase))
+                exists = list(filter(lambda x: x.Name == event_name, Events_moment))
                 if len(exists) == 0:
                     evnt = Event(d_current + timedelta(minutes=self.TimeWindow), event_name)
                     self.Backward_events.append(evnt) # Put in backward events
-
+        
         to_alert = list(filter(lambda x: x.Moment < d_current, self.Backward_events))
         self.Backward_events = list(filter(lambda x: x.Moment >= d_current, self.Backward_events))
         return to_alert
@@ -250,7 +289,8 @@ class AbnormalEventAnalyzer(FactAnalyzer):
             occurrences = list(filter(lambda x: x.Name == event_name, self.EventsDatabase))
             events = []
             for evnt in occurrences:
-                events += list(filter(lambda x: evnt.Moment <= x.Moment and x.Moment <= (evnt.Moment + timedelta(minutes=self.TimeWindow)) and x.Name != '' and x.Name != event_name, self.EventsDatabase))
+                Events_moment = self.filter_moment(evnt.Moment, 0, self.TimeWindow)
+                events += list(filter(lambda x: x.Name != '' and x.Name != event_name, Events_moment))
             events = self.count(events)
             for e in events:
                 e_name = e[0]
@@ -274,15 +314,46 @@ class AbnormalEventAnalyzer(FactAnalyzer):
 
     def load_knowledge(self):
         """ Loads database of events or knowledge """
-        self.EventsDatabase = load(open(dirname(__file__) + '/model/data.ab', 'rb'))
+        try:
+            file_name = dirname(__file__) + "/model/data.ab"
+            self.EventsDatabase = load(open(file_name, 'rb'))
+        except:
+            try:
+                file_name = dirname(__file__) + "/model/data.ab.bck"
+                self.EventsDatabase = load(open(file_name, 'rb'))
+            except:
+                self.reset_knowledge()
 
     def save_knowledge(self):
         """ Save database of events or knowledge """
-        dump(self.EventsDatabase, open(dirname(__file__) + '/model/data.ab', 'wb'))
-   
-    def data_from_event(self, evnt:Event, occurred:bool=True):
-        """ Build a Data object from an Event object 
+        file_name = dirname(__file__) + "/model/data.ab"
+        shutil.copy(file_name, file_name + ".bck")
+        dump(self.EventsDatabase, open(file_name, 'wb'))
+    
+    @guvectorize([(int64[:], int64, boolean[:])], '(n),()->(n)', target='parallel')
+    def remove_old_data_speedup(moment_list, minimus_moment, res):
+        for i in range(moment_list.shape[0]):
+            res[i] = moment_list[i] >= minimus_moment
+
+    def remove_old_data(self):        
+        """ Remove old data """ 
+        d_current = self.Simulated_current_time if self.Simulating else datetime.fromtimestamp(time())
         
+        moments = np.zeros(len(self.EventsDatabase), dtype=np.int64)
+        for i, e in enumerate(self.EventsDatabase):
+            moments[i] = e.Moment.timestamp()
+        
+        min_moment = int64((d_current - timedelta(weeks=self.Keeping_Weeks)).timestamp())
+        out = np.zeros(len(moments), dtype=np.bool)
+        AbnormalEventAnalyzer.remove_old_data_speedup(moments, min_moment, out)
+        res = []
+        for i, evnt in enumerate(self.EventsDatabase):
+            if out[i]:
+                res.append(evnt)
+        self.EventsDatabase = res
+    
+    def data_from_event(self, evnt:Event, occurred:bool=True):
+        """ Build a Data object from an Event object        
             occurred: indicate if event occurred or is backwarded
         """
         dataInf = Data()
@@ -295,7 +366,7 @@ class AbnormalEventAnalyzer(FactAnalyzer):
 # =========== Start standalone =========== #
 if __name__ == "__main__":
     comp = AbnormalEventAnalyzer()
-    comp.reset_knowledge()
-    comp.setLoggingSettings(LogTypes.INFO)
+    #comp.reset_knowledge()
+    comp.setLoggingSettings(LogTypes.DEBUG)
     comp.init_standalone(path=dirname(__file__))
     sleep(600)

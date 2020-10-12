@@ -74,61 +74,68 @@ class CamController(DeviceController):
 
     def getData(self, device, frame=None):
         """ Returns a list of Data objects """
-
-        cam = self.Devices[device["id"]]['objOfCapture']
-        if frame is None:
-            _, frame = cam.read()
-
-        if frame is None:
-            return []
-
-        height = np.size(frame, 0)
-        width = np.size(frame, 1)
-        deviceName = Misc.hasKey(device, 'name', device["id"])
-
         dataReturn = []
-        auxData = '"t":"{}", "ext":"{}", "W":"{}", "H":"{}"'
-        
-        if self.getRGB:
-            dataRgb = Data()
-            dataRgb.source_type = self.ME_TYPE
-            dataRgb.source_name = self.ME_NAME
-            dataRgb.source_item = deviceName
-            #dataRgb.data = frame
-            dataRgb.data = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            dataRgb.aux = '{' + auxData.format('image', 'png', width, height) + '}'
-            dataReturn.append(dataRgb)
-        
-        if self.getGray:
-            dataGray = Data()
-            dataGray.source_type = self.ME_TYPE
-            dataGray.source_name = self.ME_NAME + '/Gray'
-            dataGray.source_item = deviceName
-            dataGray.data = self.preProcGray(frame)
-            dataGray.aux = '{' + auxData.format('image', 'png', width, height) + '}'
-            dataReturn.append(dataGray)
+        try:
+            cam = self.Devices[device["id"]]['objOfCapture']
+            if frame is None:
+                _, frame = cam.read()
 
-        if self.getObject:
-            auxPer = auxData.format('image', 'png', width, height)
-            auxPer += ',"ClassName":"{}", "backColor":{}, "Y1":{}, "X1":{}, "Y2":{}, "X2":{}'
-            objs = self.preProcObject(frame)
-            for obj in objs:
-                dataPerson = Data()
-                dataPerson.source_type = self.ME_TYPE
-                dataPerson.source_name = self.ME_NAME + '/Person'
-                dataPerson.source_item = deviceName
-                dataPerson.data = obj.Mask
-                dataPerson.aux = '{' + auxPer.format(obj.ClassName, obj.backColor, obj.Y1, obj.X1, obj.Y2, obj.X2) + '}'
-                dataReturn.append(dataPerson)
+            if frame is None:
+                return []
 
-        if self.getSkeleton and not self.joinsBodyNET is None:
-            dataSkeleton = Data()
-            dataSkeleton.source_type = self.ME_TYPE
-            dataSkeleton.source_name = self.ME_NAME + '/Skeleton'
-            dataSkeleton.source_item = deviceName            
-            dataSkeleton.data = self.preProcSkeleton(frame)
-            dataSkeleton.aux = '{' + auxData.format('csv', 'csv', width, height) + '}'
-            dataReturn.append(dataSkeleton)
+            height = np.size(frame, 0)
+            width = np.size(frame, 1)
+            deviceName = Misc.hasKey(device, 'name', device["id"])
+
+            auxData = '"t":"{}", "ext":"{}", "W":"{}", "H":"{}"'
+            
+            if self.getRGB:
+                dataRgb = Data()
+                dataRgb.source_type = self.ME_TYPE
+                dataRgb.source_name = self.ME_NAME
+                dataRgb.source_item = deviceName
+                #dataRgb.data = frame
+                dataRgb.data = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                dataRgb.aux = '{' + auxData.format('image_rgb', 'png', width, height) + '}'
+                dataReturn.append(dataRgb)
+            
+            if self.getGray:
+                dataGray = Data()
+                dataGray.source_type = self.ME_TYPE
+                dataGray.source_name = self.ME_NAME + '/Gray'
+                dataGray.source_item = deviceName
+                dataGray.data = self.preProcGray(frame)
+                dataGray.aux = '{' + auxData.format('image_rgb', 'png', width, height) + '}'
+                dataReturn.append(dataGray)
+
+            if self.getObject:
+                auxPer = auxData.format('image_binary', 'png', width, height)
+                auxPer += ',"ClassName":"{}", "backColor":{}, "Y1":{}, "X1":{}, "Y2":{}, "X2":{}'
+                objs = self.preProcObject(frame)
+                for obj in objs:
+                    dataPerson = Data()
+                    dataPerson.source_type = self.ME_TYPE
+                    dataPerson.source_name = self.ME_NAME + '/Person'
+                    dataPerson.source_item = deviceName
+                    dataPerson.data = obj.Mask
+                    dataPerson.aux = '{' + auxPer.format(obj.ClassName, obj.backColor, obj.Y1, obj.X1, obj.Y2, obj.X2) + '}'
+                    dataReturn.append(dataPerson)
+
+            if self.getSkeleton and not self.joinsBodyNET is None:                
+                sklts = self.preProcSkeleton(frame)
+                for sk in sklts:
+                    dataSkeleton = Data()
+                    dataSkeleton.source_type = self.ME_TYPE
+                    dataSkeleton.source_name = self.ME_NAME + '/Skeleton'
+                    dataSkeleton.source_item = deviceName            
+                    dataSkeleton.data = sk
+                    dataSkeleton.aux = '{' + auxData.format('csv', 'csv', width, height) + '}'
+                    dataReturn.append(dataSkeleton)
+
+            for data in dataReturn:
+                self.showData(data)
+        except:
+            self.log('Fail getting data', LogTypes.ERROR, 'Device: ' + Misc.hasKey(device, 'name', device['id']))
         
         return dataReturn
   
@@ -136,15 +143,14 @@ class CamController(DeviceController):
         """ To show data if this module start standalone """
         
         if data.source_name == self.ME_NAME + '/Skeleton':
-            people = data.data #Points of skeleton
+            person = data.data #Points of skeleton
             aux = data.strToJSon(data.aux)
             h = int(Misc.hasKey(aux, 'H',self.ME_CONFIG['FRAME_HEIGHT']))
             w = int(Misc.hasKey(aux, 'W',self.ME_CONFIG['FRAME_WIDTH']))
-            rgbImage = np.zeros((h, w, 3), np.uint8)            
-            for person in people:
-                for idj, join in enumerate(person):
-                    if join[0] != None:
-                        cv2.circle(rgbImage, (join[0], join[1]), 5, self.colors[idj], thickness=-1)
+            rgbImage = np.zeros((h, w, 3), np.uint8)
+            for idj, join in enumerate(person):
+                if join[0] != None:
+                    cv2.circle(rgbImage, (join[0], join[1]), 5, self.colors[idj], thickness=-1)
         elif data.source_name == self.ME_NAME + '/Person':
             rgbImage = np.zeros( (data.data.shape[0], data.data.shape[1], 3), dtype=np.uint8)
             rgbImage[:,:,0] = np.where(data.data[:,:] == 1, 255, 0 )
@@ -172,13 +178,13 @@ class CamController(DeviceController):
         if self.capture.isOpened() and self.simulationStep < self.video_length:
             _, frame = self.capture.read()
             self.simulationStep += 1
-            sleep(1)
+            #sleep(1)
             if frame is None:
                 return []
             return self.getData(dataFilter.source_item, frame=frame)
         else:
             self.simulationStep = 0
-            return self.simulateData(dataFilter.source_item)
+            return self.simulateData(dataFilter)
 
     # =========== Auxiliar methods =========== #
 

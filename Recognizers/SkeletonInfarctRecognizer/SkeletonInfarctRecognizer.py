@@ -37,8 +37,9 @@ class SkeletonInfarctRecognizer(EventRecognizer):
 
     def preLoad(self):
         """ Implement me! :: Do anything necessary for processing """
-        # TODO: Put here, everything you need to load before you start processing
-        pass
+        #pass
+        import os
+        os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
     
     def loadModel(self):
         """ Loads model """
@@ -75,22 +76,24 @@ class SkeletonInfarctRecognizer(EventRecognizer):
 
         dataReturn = []
 
-        for per in data.data:
-            if per[0].any() == None or per[1].any() == None or per[2].any() == None or per[5].any() == None:
-                continue   
+        per = data.data
+        if per[0].any() == None or per[1].any() == None or per[2].any() == None or per[5].any() == None:   
+            return []
 
-            skeletonResult = self.predict_skeleton(person=per)
-            
-            img = self.extract_face(frame=rgbData.data, person=per)
-            faceResult = self.predict_face(frame=img)
+        skeletonResult = self.predict_skeleton(person=per)
+        
+        img = self.extract_face(frame=rgbData.data, person=per)
+        faceResult = self.predict_face(frame=img)
 
-            array = self.predict_full(skeletonResult, faceResult)
-            result = array[0]
-            answer = np.argmax(result)
+        array = self.predict_full(skeletonResult, faceResult)
+        result = array[0]
+        answer = np.argmax(result)
 
-            if result[answer] < 0.7:
-                continue
+        if result[answer] < 0.65:
+            return []
+        #print(result[answer], skeletonResult, faceResult)
 
+        if answer > 0:
             dataInf = Data()
             dataInf.source_item = self.CLASSES[answer]
             dataInf.data = { 'class':self.CLASSES[answer], 'acc':result[answer] }
@@ -99,7 +102,7 @@ class SkeletonInfarctRecognizer(EventRecognizer):
         return dataReturn
 
     def showData(self, dataPredicted:Data, dataSource:Data):
-        """ Implement me! :: To show data if this module start standalone """
+        """ To show data if this module start standalone """
         self.log('Class detected:' + dataPredicted.data['class'] + \
             ' with acc:' + str(dataPredicted.data['acc']), LogTypes.INFO)
         
@@ -300,7 +303,7 @@ class SkeletonInfarctRecognizer(EventRecognizer):
         self.rotate_person(person)
         self.complete_body(person)
         nPerson = self.norm_person(person)
-        nPerson = np.expand_dims(person, axis=0)
+        nPerson = np.expand_dims(nPerson, axis=0)
         return self.MODEL.predict(nPerson[:,0:8])
         
     def predict_face(self, frame):

@@ -1,0 +1,9 @@
+#!/bin/bash
+if [[ "$1" == "--production" ]]; then
+  gunicorn -w 3 -b 0.0.0.0:5000 wsgi:app
+else
+  python3 Core/Commander.py $*;
+fi
+
+
+

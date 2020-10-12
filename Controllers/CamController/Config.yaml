@@ -14,7 +14,7 @@ SAMPLING: 0.0                         # Sampling rate to control frame per secon
 # ------ Other specific config vars
 FRAME_WIDTH: 640                      # With of image.
 FRAME_HEIGHT: 380                     # Height of image.
-FORMATS: [RGB, Gray, Object, Skeleton]        # Classes to find: RGB, Gray, Object, Skeleton.
+FORMATS: [RGB, Skeleton, Object, Gray]      # Classes to find: RGB, Gray, Object, Skeleton.
 OBJECTS: [Person,]                    # Objects to detect in pictures.
 MODEL_MSK: model/objectsModel.h5      # Model for detect objects.
 MODEL_SKl: model/poseModel.h5         # Model for generate joints of people.

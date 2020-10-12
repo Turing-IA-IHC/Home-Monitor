@@ -37,7 +37,7 @@ class LoaderOfController:
         cp.logFromCore(Messages.system_controllers_connect.format(cp.URL_BASE), LogTypes.INFO, self.__class__.__name__)
 
         while True:
-            cp.logFromCore(Messages.controller_searching, LogTypes.INFO, self.__class__.__name__)
+            #cp.logFromCore(Messages.controller_searching, LogTypes.DEBUG, self.__class__.__name__)
             controllersFolders =  Misc.lsFolders("./Controllers")
             for cf in controllersFolders:
                 if Misc.hasKey(self.controllers, cf, None) == None:

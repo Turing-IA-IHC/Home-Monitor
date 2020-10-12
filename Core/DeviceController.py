@@ -59,13 +59,14 @@ class DeviceController(Component):
                         gdList = self.simulateData(dsimul)
                     else:
                         gdList = self.getData(device)
-                    self.log('Time elapsed to get data: ' + str(round(time() - t0, 4)), logType=LogTypes.INFO, item=self.ME_NAME)
+                    self.log('Time elapsed to get data: ' + str(round(time() - t0, 4)), logType=LogTypes.DEBUG, item=self.ME_NAME)
                 except:
                     self.log(Messages.controller_error_get, LogTypes.ERROR, 'Device: ' + Misc.hasKey(device, 'name', device['id']))
-                    self.InactiveDevices.append(device)
-                    import threading
-                    x = threading.Thread(target=self.checkDevice, args=(device,))
-                    x.start()
+                    if not self.Simulating:
+                        self.InactiveDevices.append(device)
+                        import threading
+                        x = threading.Thread(target=self.checkDevice, args=(device,))
+                        x.start()
             
                 package = Misc.randomString()
                 for data in gdList:
@@ -75,6 +76,9 @@ class DeviceController(Component):
                             self.showData(data)
                         else:
                             self.send(data)
+                            self.log('Send data: ' + str(data.source_name), logType=LogTypes.DEBUG, item=self.ME_NAME)
+                            print('Send data:', data.source_name, self.ME_NAME)
+                            
                         failedSend = 0
                     except:
                         self.log(Messages.controller_error_send, LogTypes.ERROR, 'Device: ' + Misc.hasKey(device, 'name', device['id']))

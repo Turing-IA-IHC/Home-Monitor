@@ -38,7 +38,9 @@ class ColorInfarctRecognizer(EventRecognizer):
     def preLoad(self):
         """ Implement me! :: Do anything necessary for processing """
         # TODO: Put here, everything you need to load before you start processing
-        pass
+        #pass
+        import os
+        os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
     
     def loadModel(self):
         """ Loads model """
@@ -160,6 +162,6 @@ class ColorInfarctRecognizer(EventRecognizer):
 # =========== Start standalone =========== #
 if __name__ == "__main__":
     comp = ColorInfarctRecognizer()
-    comp.setLoggingSettings(LogTypes.INFO)
+    comp.setLoggingSettings(LogTypes.DEBUG)
     comp.init_standalone(path=dirname(__file__))
     sleep(600)

@@ -65,8 +65,9 @@ class CommChannel(Component):
     def notify(self, msg:Dispatch):
         """ Send a message """
         self.preNotify(msg)
-        msg.replace_tokens(msg.to)
-        msg.replace_tokens(msg.message)
+        for to in msg.to:
+            to = msg.replace_tokens(to)
+        msg.message = msg.replace_tokens(msg.message)
         self.tryNotify(msg)
 
     @abc.abstractmethod    

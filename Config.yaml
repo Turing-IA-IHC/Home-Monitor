@@ -4,15 +4,16 @@ MACHINE_NAME: HomeMonitor             # Name for no Humans.
 VERSION: 1.0.0                        # Modele id version.
 DESCRIPTION: System to detect abnormal events. # Description for humans.
 URL_BASE: http://127.0.0.1:5000       # Url base for services.
+#URL_BASE: http://3.138.104.200:5000       # Url base for services.
 SAVE_PATH: ./EventsSaved/
 LOGGING_TO_FILE: N                    # Write log in file Y/N.
 LOGGING_PATH: ./                      # Path to save log messages.
-LOGGING_LEVEL: 20                     # CRITICAL=50, ERROR=40, WARNING=30, INFO=20, DEBUG=10, NOTSET=0
+LOGGING_LEVEL: 30                     # CRITICAL=50, ERROR=40, WARNING=30, INFO=20, DEBUG=10, NOTSET=0
 LOGGING_FORMAT: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"  # Format to write log. See https://docs.python.org/3/library/logging.html
 LOGGING_FILE: ""
-T1: 600                               # Time in seconds of active data life 
-T2: 120                               # Time in seconds of quarentine data life
-CHECKING_TIME: 5                      # Time in seconds to check service availability
+T1: 60                               # Time in seconds of active data life 
+T2: 30                               # Time in seconds of quarentine data life
+CHECKING_TIME: 5                     # Time in seconds to check service availability
 
 # -----
 RUN_IN_COLLAB: N                      # If true add othr libraries to do public api-rest service

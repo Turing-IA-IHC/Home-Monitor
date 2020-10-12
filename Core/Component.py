@@ -61,26 +61,28 @@ class Component():
     def load(self, forceLoad:bool=False):
         """ Loads the component """
         self.ME_LOADED = False
-        try:
-            if self.ME_CONFIG == None or forceLoad:
-                if not Misc.existsFile("config.yaml", self.ME_PATH):
-                    raise ValueError(Messages.config_no_file)
-                self.ME_CONFIG_PATH = normpath(self.ME_PATH + "/config.yaml")
-                self.ME_CONFIG = Misc.readConfig(self.ME_CONFIG_PATH)
+        try:            
+            if not Misc.existsFile("config.yaml", self.ME_PATH):
+                raise ValueError(Messages.config_no_file)
+            self.ME_CONFIG_PATH = normpath(self.ME_PATH + "/config.yaml")
+            self.ME_CONFIG = Misc.readConfig(self.ME_CONFIG_PATH)
+            new_check = hashlib.md5(str(self.ME_CONFIG).encode('utf-8')).hexdigest()
 
-            if self.Thread != None and self.Thread.is_alive() and not forceLoad:
+            if new_check == self.Check:
                 return
 
+            self.Check = new_check
+            
             self.log(Messages.comp_try_start.format(self.ME_PATH), LogTypes.INFO)
             self.ME_NAME = Misc.hasKey(self.ME_CONFIG, 'NAME', self.ME_PATH)
             self.ME_TYPE = SourceTypes.parse(Misc.hasKey(self.ME_CONFIG, 'TYPE', None))
             self.ME_ENABLED = Misc.toBool(Misc.hasKey(self.ME_CONFIG, 'ENABLED', 'False')) 
-            self.Check = hashlib.md5(str(self.ME_CONFIG).encode('utf-8')).hexdigest()
             
             if self.Thread != None:
                 self.Thread.terminate()
                 self.Thread = None
 
+            self.log(Messages.comp_change.format(self.ME_PATH, ('reload' if self.ME_ENABLED else 'stoped')), LogTypes.INFO)
             if not self.ME_ENABLED:
                 return
             
@@ -96,7 +98,6 @@ class Component():
             if self.Simulating:
                 self.setSimulatedMode(self.Simulating, self.SimulatingPath)
             
-            self.log(Messages.comp_change.format(self.ME_PATH, ('reload' if self.ME_ENABLED else 'stoped')), LogTypes.INFO)
             
             _cls = Misc.importModule(self.ME_PATH, self.ME_FILE_CLASS, self.ME_CLASS_NAME)
             obj = _cls()
@@ -108,7 +109,7 @@ class Component():
             obj.ME_FILE_CLASS = self.ME_FILE_CLASS
             obj.ME_CLASS_NAME = self.ME_CLASS_NAME
             obj.ME_ENABLED = self.ME_ENABLED
-            obj.ME_LOADED = self.ME_LOADED
+            obj.ME_LOADED = True
             obj.ME_STANDALONE = self.ME_STANDALONE
             obj.CP = self.CP
             obj.BC = self.BC

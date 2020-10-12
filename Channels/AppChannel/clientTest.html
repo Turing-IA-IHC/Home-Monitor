@@ -8,19 +8,28 @@
                 font-family: "Courier New", sans-serif;
                 text-align: center;
             }
+            .headerApp{
+                border: solid 3px indigo;
+                background-color: lightblue;
+                font-size: 3.5em;
+            }
+            .connected{
+                font-size: 2em;
+            }
             .title{
-                font-size: large;
+                font-size: 3em;
             }
             .message{
-                font-size: medium;
+                font-size: 2em;
             }
             .atts{
-
+                margin-top: 20px;
             }
             .att{
-
+                width: 80%;
             }
             .err{
+                font-size: 2em;
             }
             .errHidden{
                 visibility: hidden;
@@ -28,11 +37,18 @@
         </style>
     </head>
     <body>
+        <div class="headerApp">
+            Home Monitor App
+        </div>
+
         <div class="title">
         </div>
         <div class="message">
         </div>
         <div class="atts">
+        </div>
+        <div class="connected">
+            Estableciendo comunicación con el servidor y esperando nuevas alertas...
         </div>
         <div class="err">
             Se perdió la conexión con el servidor en breve intentaremos volver a conectar.
@@ -43,18 +59,23 @@
             function conect(params) {
                 var title = document.querySelector('.title'),
                     message = document.querySelector('.message'),
-                    attaches = document.querySelector('.atts')
-                    err = document.querySelector('.err')
+                    attaches = document.querySelector('.atts'),
+                    err = document.querySelector('.err'),
+                    connected = document.querySelector('.connected'),
                     websocket = new WebSocket("ws://127.0.0.1:5678/");
+                    connected.classList.remove('errHidden');
+                    err.classList.add('errHidden');
                 
                 websocket.onmessage = function (event) {
+                    connected.classList.add('errHidden');
                     err.classList.add('errHidden');
                     data = JSON.parse(event.data);
                     title.innerHTML = data.subject;
                     message.innerHTML = data.message;
                     attaches.innerHTML = '';
                     data.att.forEach(element => {
-                        var myImage = new Image(256, 256);
+                        var myImage = new Image();
+                        myImage.classList.add('att');
                         myImage.src = 'data:image/png;base64, ' + element;
                         attaches.appendChild(myImage);
                     }); 
@@ -65,6 +86,7 @@
 
                 websocket.onerror = async function (error) {
                     if (websocket.readyState > 1) {
+                        connected.classList.add('errHidden');
                         err.classList.remove('errHidden');
                         await delay(5000); // Try every 5 seconds
                         conect();

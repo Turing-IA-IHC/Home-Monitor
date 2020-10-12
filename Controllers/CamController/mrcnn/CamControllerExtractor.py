@@ -15,6 +15,8 @@ import mrcnn.model as modellib
 from mrcnn import visualize
 from mrcnn.coco import coco
 
+from time import time
+
 class InferenceConfig(coco.CocoConfig):
     # Set batch size to 1 since we'll be running inference on
     # one image at a time. Batch size = GPU_COUNT * IMAGES_PER_GPU
@@ -70,6 +72,7 @@ class CamControllerExtractor:
             Moreover, returns square of person in image 
         """
         results = self.ME_MODEL.detect([frame], verbose=0)
+        
         r = results[0]
         boxes, masks, ids, _ = r['rois'], r['masks'], r['class_ids'], r['scores']
         n_instances = boxes.shape[0]

@@ -53,7 +53,7 @@ class AppChannel(CommChannel):
         self.Clients.add(websocket)
         if self.State["value"] == 0:
             self.State["value"] = 1
-            await self.readMessages()
+            await self.readMessages()            
         try:
             async for _ in websocket:
                 pass

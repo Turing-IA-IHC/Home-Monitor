@@ -30,7 +30,7 @@ class LoaderOfRecognizer:
         self.CONFIG = config
         self.CHECKING_TIME = int(Misc.hasKey(self.CONFIG, 'CHECKING_TIME', 10)) # Time in seconds to check service availability
         self.URL = self.CONFIG['URL_BASE']  # URL of pool server # TODO cambiar nombre a URL_POOL
-        self.recognizers = {}               # List of recognizers #Recognizers
+        self.Recognizers = {}               # List of Recognizers
     
     def start(self):
         """ Start load of all device recognizers """
@@ -41,12 +41,12 @@ class LoaderOfRecognizer:
             cp.logFromCore(Messages.recognizer_searching, LogTypes.INFO, self.__class__.__name__)
             recognizersFolders =  Misc.lsFolders("./Recognizers")
             for cf in recognizersFolders:
-                if Misc.hasKey(self.recognizers, cf, None) == None:
+                if Misc.hasKey(self.Recognizers, cf, None) == None:
                     comp = Component(cf, cp)
-                    self.recognizers[cf] = comp
+                    self.Recognizers[cf] = comp
 
-            for c in self.recognizers:
-                comp = self.recognizers[c]
+            for c in self.Recognizers:
+                comp = self.Recognizers[c]
                 comp.load()
             
             sleep(self.CHECKING_TIME)
