@@ -71,7 +71,9 @@ class CamControllerExtractor:
         """ Returns a image for each person in image.
             Moreover, returns square of person in image 
         """
+        #t0 = time()
         results = self.ME_MODEL.detect([frame], verbose=0)
+        #print('Tiempo predict', (time() - t0))
         
         r = results[0]
         boxes, masks, ids, _ = r['rois'], r['masks'], r['class_ids'], r['scores']

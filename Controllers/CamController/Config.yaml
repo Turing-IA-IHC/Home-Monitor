@@ -7,7 +7,8 @@ VERSION: 1.0.0                        # Module id version.
 ENABLED: Y                            # Module is enabled to run.
 DESCRIPTION: Description of CamController. # Description for humans.
 SIMULATING: Y                         # Set true if module start with sumaleted data.
-SIMULATING_PATH: M:/tmp/HM-SimulatingData/testInfarct.mp4 # Set path to simulated data source.
+#SIMULATING_PATH: M:/tmp/HM-SimulatingData/testInfarct.mp4 # Set path to simulated data source.
+SIMULATING_PATH: D:\tmp\hm-yorsh\imgs\01_generated_small.csv
 # ------ Vars of Controllers
 CHECK_TIME: 30                        # Time in seconds to check if device is active.
 SAMPLING: 0.0                         # Sampling rate to control frame per second.

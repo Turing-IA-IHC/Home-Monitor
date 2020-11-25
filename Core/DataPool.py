@@ -28,6 +28,7 @@ import requests
 from flask import Flask, request
 from flask_restful import Resource, Api, reqparse
 
+from cv2 import cv2
 import json
 from json import JSONEncoder
 import pickle
@@ -362,9 +363,24 @@ class CommPool():
         else:
             raise ValueError(Messages.bad_source_type)
 
-        requests.adapters.DEFAULT_RETRIES = 50
-        p = requests.post(url, data={'data' : data.toString()}).json()
+        #requests.adapters.DEFAULT_RETRIES = 50
+        if data.source_type == SourceTypes.CONTROLLER and 'image_rgb' in str(data.aux):
+            encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 70]
+            result, encimg = cv2.imencode('.jpg', data.data, encode_param)
+            decimg = cv2.imdecode(encimg, 1)
+            data.data = encimg
+
+        #import zlib as zl
+        #l = len(data.data)
+        #data.data = zl.compress(data.data)
+        #l = len(data.data)
         
+
+        #lt = bytearray(line, 'utf-8')
+        #t0 = time()
+        p = requests.post(url, data={'data' : data.toString()}).json()
+        #print('txx0', time()- t0, '   ')
+
         if p[0]['msg'] != 'ok':
             raise ValueError(p[0]['msg'])
 
@@ -402,6 +418,8 @@ class CommPool():
         for i in range(1, len(g)):
             g[i]['data'] = data.deserialize(g[i]['data'])
             g[i]['aux'] = data.deserialize(g[i]['aux'])
+            if SourceTypes.parse(g[i]['source_type']) == SourceTypes.CONTROLLER and 'image_rgb' in str(g[i]['aux']):
+                g[i]['data'] = cv2.imdecode(g[i]['data'], 1)
             g[i] = Data().fromDict(g[i])
 
         self.lastTime = g[0]['queryTime']
@@ -417,7 +435,7 @@ class CommPool():
                 Binnacle().logFromComponent(data, logType)
             else:
                 url = self.URL_BASE + "/" + self.URL_LOGS
-                requests.adapters.DEFAULT_RETRIES = 50
+                #requests.adapters.DEFAULT_RETRIES = 50
                 requests.post(url, data={'data' : data.toString(), 'logType': logType, 'isCore':False})
         except:
             logging.error(Binnacle().errorDetail(Messages.error_pool_log))
@@ -437,7 +455,7 @@ class CommPool():
                 Binnacle().logFromCore(data.data, logType, origin)
             else:
                 url = self.URL_BASE + "/" + self.URL_LOGS
-                requests.adapters.DEFAULT_RETRIES = 50
+                #requests.adapters.DEFAULT_RETRIES = 50
                 requests.post(url, data={'data' : data.toString(dataPlain=True, auxPlain=True), 'logType': logType, 'isCore':True})
         except:
             logging.error(Binnacle().errorDetail(Messages.error_pool_log))
@@ -597,7 +615,7 @@ class DataPool(Resource):
         try:
             for p in pool:
                 if time() - p.born > self.T2:
-                    self.Count -= 1
+                    #self.Count -= 1
                     pool.remove(p)
                 elif time() - p.born > self.T1:
                     p.state = PoolStates.QUARANTINE

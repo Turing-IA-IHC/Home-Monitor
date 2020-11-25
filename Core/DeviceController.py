@@ -59,7 +59,8 @@ class DeviceController(Component):
                         gdList = self.simulateData(dsimul)
                     else:
                         gdList = self.getData(device)
-                    self.log('Time elapsed to get data: ' + str(round(time() - t0, 4)), logType=LogTypes.DEBUG, item=self.ME_NAME)
+                    #self.log('Time elapsed to get data: ' + str(round(time() - t0, 4)), logType=LogTypes.DEBUG, item=self.ME_NAME)
+                    #print('Time elapsed to get data: ' + str(round(time() - t0, 4)))
                 except:
                     self.log(Messages.controller_error_get, LogTypes.ERROR, 'Device: ' + Misc.hasKey(device, 'name', device['id']))
                     if not self.Simulating:
@@ -71,22 +72,25 @@ class DeviceController(Component):
                 package = Misc.randomString()
                 for data in gdList:
                     try:
+                        t0 = time()
                         data.package = package
                         if self.ME_STANDALONE:
                             self.showData(data)
                         else:
                             self.send(data)
-                            self.log('Send data: ' + str(data.source_name), logType=LogTypes.DEBUG, item=self.ME_NAME)
-                            print('Send data:', data.source_name, self.ME_NAME)
-                            
+                            #self.log('Send data: ' + str(data.source_name), logType=LogTypes.DEBUG, item=self.ME_NAME)
+                            #print('Send data:', data.source_name, self.ME_NAME)
+                        
                         failedSend = 0
+                        #self.log('Time elapsed to send data: ' + str(round(time() - t0, 4)), logType=LogTypes.DEBUG, item=self.ME_NAME)
+                        #print('Time elapsed to send data: ' + str(round(time() - t0, 4)))
                     except:
                         self.log(Messages.controller_error_send, LogTypes.ERROR, 'Device: ' + Misc.hasKey(device, 'name', device['id']))
                         failedSend += 1
                         if failedSend > 2:
                             self.stop()
                             break
-
+            
             sleep(Sampling)
 
     """ Abstract methods """

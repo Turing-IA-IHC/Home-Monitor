@@ -215,8 +215,8 @@ class main():
 if __name__ == "__main__":
     components = 0   # Message no one component
     components = 1   # Only pool
-    #components = 2   # Only load controller
-    #components = 3   # Pool + load controller
+    #components = 2  # Only load controller
+    #components = 3  # Pool + load controller
     #components = 4  # Only Recognizers
     #components = 5  # Pool + Recognizers
     #components = 6  # Load controller + Recognizers
@@ -224,7 +224,6 @@ if __name__ == "__main__":
     #components = 8  # Only Adnormal events
     #components = 15 # All components
     components = 8
-
     #import os
     #import tensorflow as tf
     #os.environ['CUDA_VISIBLE_DEVICES'] = '-1'

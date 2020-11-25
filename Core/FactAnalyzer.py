@@ -54,6 +54,7 @@ class FactAnalyzer(Component):
         
         self.running = True
         failedSend = 0
+        lastAnalizedTime = time() - 60
 
         while self.running:
 
@@ -62,7 +63,7 @@ class FactAnalyzer(Component):
                 if self.Simulating:
                     gdList = self.simulateData(self.DATA_FILTER)
                 else:
-                    gdList = self.receive(self.DATA_FILTER)
+                    gdList = self.receive(self.DATA_FILTER, limit=self.Limit, lastTime=self.LastTime)
 
                 self.LastTime = float(gdList[0]['queryTime'])
             except:
@@ -72,24 +73,34 @@ class FactAnalyzer(Component):
                 "source_id":"{}", "source_type":"{}", "source_name":"{}", "source_item":"{}", \
                 "source_package":"{}", "source_aux":"{}"'
 
+            if time() - lastAnalizedTime > 60 * 1: # 1 minute
+                dataNoEvent = Data()
+                dataNoEvent.data = ''
+                dataNoEvent.aux = '{"no_event":"no event", "source_aux":{"no_event":"no event"} }'
+                gdList.append(dataNoEvent)
+
             for objData in gdList[1:]:
                 try:
+                    lastAnalizedTime = time()
                     t0 = time()
                     dataAnalizedList = self.analyze(objData)
                     self.log('Time elapsed to get prediction: ' + str(round(time() - t0, 4)), logType=LogTypes.DEBUG, item=self.ME_NAME)
-
+                    #print('Time elapsed to get prediction: ' + str(round(time() - t0, 4)), end='\r')
                     for dataAnalized in dataAnalizedList:
                         dataAnalized.source_type = self.ME_TYPE
                         dataAnalized.source_name = self.ME_NAME
-                        dataAnalized.package = objData.package
-                        dataAnalized.aux = auxData.format(objData.id, 
-                            objData.source_type, objData.source_name, objData.source_item,
-                            objData.package, dataAnalized.aux)
-                        dataAnalized.aux = '{' + dataAnalized.aux + '}'
+                        if dataAnalized.package == '' or dataAnalized.package == None:
+                            dataAnalized.package = objData.package
+                        if dataAnalized.aux == '' or dataAnalized.aux == None:
+                            dataAnalized.aux = auxData.format(objData.id, 
+                                objData.source_type, objData.source_name, objData.source_item,
+                                dataAnalized.package, dataAnalized.aux)
+                            dataAnalized.aux = '{' + dataAnalized.aux + '}'
                         
                         if self.ME_STANDALONE:
                             self.showData(dataAnalized, objData)
                         else:
+                            print(time(),': Notifing a', dataAnalized.data)
                             self.notify(dataAnalized)
                             self.send(dataAnalized)
                         failedSend = 0
@@ -99,6 +110,7 @@ class FactAnalyzer(Component):
                     if failedSend > 2:
                         self.stop()
                         break
+        print(':o me sali')
 
     @abc.abstractmethod
     def preLoad(self):
@@ -118,7 +130,7 @@ class FactAnalyzer(Component):
         self.queueMessages = Queue()
         self.LoaderOfChannelsThread = Process(target=loc.start, args=(self.queueMessages,))
         self.LoaderOfChannelsThread.start()
-        del loc
+        #del loc
         self.log(Messages.system_channels_started, LogTypes.INFO)
 
     @abc.abstractmethod

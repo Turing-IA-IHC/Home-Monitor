@@ -1,0 +1,19 @@
+# Config params of NewRECOGNIZER.
+NAME: SumulImageRecognizer            # Name for humans.
+TYPE: RECOGNIZER                      # Type of component.
+FILE_CLASS: SumulImageRecognizer      # Py file where initial class is located.
+CLASS_NAME: SumulImageRecognizer      # Class name to load.
+VERSION: 1.0.0                        # Module id version.
+ENABLED: N                            # Module is enabled to run.
+DESCRIPTION: Description of SumulImageRecognizer. # Description for humans.
+SIMULATING: N                         # Set true if module start with sumaleted data.
+SIMULATING_PATH: D:\tmp\hm-yorsh\imgs\01_generated.csv                     # Set path to simulated data source.
+#URL_BASE:                            # Url to pool if not simulating.
+# ------ Vars of Recognizers
+CLASSES: [None, ]                     # List of classes able to detect, separate by commas.
+MODEL: model/model.h5                 # Path to file of model.
+#FILTER_NAME: SimulImageController     # Controller data source.
+FILTER_NAME: CamController     # Controller data source.
+#FILTER_ITEM: DeviceName              # Item data source.
+FILTER_LIMIT: 300                     # Elements to return from pool each time.
+# ------ Other specific config vars

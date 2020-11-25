@@ -14,7 +14,8 @@ Class information:
 import os
 from os.path import normpath
 #import logging
-from time import sleep, time
+from time import sleep, time, localtime
+from datetime import datetime, timedelta
 from multiprocessing import Process, Queue, Value
 import hashlib
 #
@@ -117,6 +118,7 @@ class LoaderOfChannel:
             obj.ME_TYPE = SourceTypes.parse(Misc.hasKey(obj.ME_CONFIG, 'TYPE', None))
             obj.ME_NAME = Misc.hasKey(obj.ME_CONFIG, 'NAME', class_name)
             obj.Check = hashlib.md5(str(obj.ME_CONFIG).encode('utf-8')).hexdigest()
+            obj.preLoad()
             return obj
         else:
             comp = Component()
@@ -174,9 +176,11 @@ class LoaderOfChannel:
                             if f != '':
                                 d.files.append(f)
 
-            # Tokens list            
-            d.tokens['server_time'] =               time()
-            d.tokens['server_time_human'] =         Misc.timeToString(time(), '%H:%M')
+            # Tokens list
+            t_s = time() - (5 * 60 * 60)
+            data.born -= (5 * 60 * 60)
+            d.tokens['server_time'] =               t_s
+            d.tokens['server_time_human'] =         Misc.timeToString(t_s, '%H:%M')
             d.tokens['analyzer_source_name'] =      data.source_name
             d.tokens['analysis_time'] =             data.born
             d.tokens['analysis_time_human'] =       Misc.timeToString(data.born, '%H:%M')
@@ -209,7 +213,17 @@ class LoaderOfChannel:
             d.tokens['controller_source_item_1'] =  '' if len(d.tickets) == 0 else d.tickets[1].source_item if len(d.tickets) > 1 else ''
             d.tokens['controller_source_item_2'] =  '' if len(d.tickets) == 0 else d.tickets[2].source_item if len(d.tickets) > 2 else ''
             
-            d.tokens['analysis_phrase'] =  'At ' + d.tokens['analysis_time_human']
+            event_time = d.tokens['analysis_time_human']
+            if len(d.events) > 0:
+                aux_event0 = d.events[0].strToJSon(d.events[0].aux)
+                if Misc.hasKey(aux_event0, 'source_aux', '') != '':
+                    event_time = aux_event0['source_aux']['time']
+                    event_time = datetime.strptime(event_time, '%Y-%m-%d %H:%M:%S')
+                    event_time = event_time.timestamp()
+                    event_time -= (5 * 60 * 60)
+                    event_time = Misc.timeToString(event_time, '%H:%M')
+
+            d.tokens['analysis_phrase'] =  'At ' + event_time
             d.tokens['analysis_phrase'] += ' some ' + data.data
             d.tokens['analysis_phrase'] = d.tokens['analysis_phrase'] if len(d.events) == 0 else d.tokens['analysis_phrase'] + ' with ' + str(round(d.events[0].data['acc']*100,2)) + '% of accuracy was detected'
             d.tokens['analysis_phrase'] = d.tokens['analysis_phrase'] if len(d.events) == 0 else d.tokens['analysis_phrase'] + ' by ' + d.events[0].source_name

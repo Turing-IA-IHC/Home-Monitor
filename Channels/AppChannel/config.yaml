@@ -10,7 +10,7 @@ DESCRIPTION: Allow send message to an App using WebSockets. # Description for hu
 TO: []                                # Recipients.
 MESSAGE: '[analysis_phrase].' # Body message, can use tokens.
 # ------ Other specific config vars
-SUBJECT: '<p>HM: an<span style="font-weight: bold; color: red;">[event_data]</span>was detected!</p>' # Subject, can use tokens.
+SUBJECT: '<p>HM: an&nbsp<span style="font-weight: bold; color: red;">[event_data]</span>&nbspwas detected!</p>' # Subject, can use tokens.
 FROM: 'HM'                            # Sender.
 SERVER: 0.0.0.0                       # Server.
 PORT: 5678                            # Port.

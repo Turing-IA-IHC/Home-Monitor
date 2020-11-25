@@ -7,20 +7,23 @@
             body {
                 font-family: "Courier New", sans-serif;
                 text-align: center;
+                background-color: #000;
             }
             .headerApp{
                 border: solid 3px indigo;
                 background-color: lightblue;
-                font-size: 3.5em;
+                font-size: 2em;
             }
             .connected{
-                font-size: 2em;
+                font-size: 1em;
+                padding: 20px;
             }
             .title{
-                font-size: 3em;
+                font-size: 1.5em;
             }
             .message{
-                font-size: 2em;
+                font-size: 1em;
+                padding: 20px;
             }
             .atts{
                 margin-top: 20px;
@@ -29,7 +32,8 @@
                 width: 80%;
             }
             .err{
-                font-size: 2em;
+                font-size: 1em;
+                padding: 20px;
             }
             .errHidden{
                 visibility: hidden;
@@ -37,6 +41,10 @@
         </style>
     </head>
     <body>
+        <img src="phone.png" alt="phone" style="position: fixed; top: 0px; left: calc(50% - 300px); width: 360px; z-index: 9;">
+
+        <div style="position: fixed; top: 90px; left: calc(50% - 290px); width: 348px;background-color: #EEE; height: 580px; overflow: scroll;">
+
         <div class="headerApp">
             Home Monitor App
         </div>
@@ -65,6 +73,10 @@
                     websocket = new WebSocket("ws://127.0.0.1:5678/");
                     connected.classList.remove('errHidden');
                     err.classList.add('errHidden');
+
+                websocket.onopen = function (event) {
+                    console.log("Conectado");
+                };
                 
                 websocket.onmessage = function (event) {
                     connected.classList.add('errHidden');
@@ -95,5 +107,6 @@
             }
             conect();
         </script>
+        </div>
     </body>
 </html>

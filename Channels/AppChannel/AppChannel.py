@@ -19,6 +19,7 @@ import asyncio
 import websockets
 import json
 import base64
+from multiprocessing import Process, Queue, Value
 
 
 # Including Home Monitor Paths to do visible the modules
@@ -34,6 +35,7 @@ class AppChannel(CommChannel):
     State = {"value": 0}    # 0: Stoped, 1: Running
     Clients = set()         # List of clients conected
     Messages = set()        # List of messages to send
+    queueMessages = Queue()
 
     async def notifyClients(self, msg):
         """ Sen message to all conected client """
@@ -62,11 +64,26 @@ class AppChannel(CommChannel):
 
     def preLoad(self):
         """ Loads configurations for to send message """
+        self.lsws = Process(target=self.serverWS, args=(self.queueMessages,))
+        self.lsws.start()
+
+    def serverWS(self, queueMessages:Queue):
+        """ Start trheat of server socket """
+        self.queueMessages = queueMessages
         server = Misc.hasKey(self.ME_CONFIG, "SERVER", '127.0.0.1')
         port = Misc.hasKey(self.ME_CONFIG, "PORT", 5678)
-        start_server = websockets.serve(self.newClient, server, port)
-        asyncio.get_event_loop().run_until_complete(start_server)
-        #asyncio.get_event_loop().run_forever()
+        self.start_server = websockets.serve(self.newClient, server, port)
+        asyncio.get_event_loop().run_until_complete(self.start_server)
+        asyncio.get_event_loop().run_until_complete(self.messageCheck())
+        asyncio.get_event_loop().run_forever()        
+
+    async def messageCheck(self):
+        """ Check message queue """
+        while True:            
+            if not self.queueMessages.empty():
+                jsonMsg = self.queueMessages.get()
+                self.Messages.add(jsonMsg)
+            await asyncio.sleep(5)            
     
     def preNotify(self, msg:Dispatch):
         """ Implement me! :: Triggered before try to send message """
@@ -84,7 +101,8 @@ class AppChannel(CommChannel):
             attachments.append(str(encoded_string).replace("b'", "")[0:-1])
             
         jsonMsg = json.dumps({'message': message, 'subject':subject, 'att':attachments })
-        self.Messages.add(jsonMsg)
+        #self.Messages.add(jsonMsg)
+        self.queueMessages.put(jsonMsg)
 
 # =========== Start standalone =========== #
 if __name__ == "__main__":
@@ -95,6 +113,8 @@ if __name__ == "__main__":
         to=comp.ME_CONFIG['TO'], 
         message=comp.ME_CONFIG['MESSAGE'])
     dispatch.files.append('img.png')
-    comp.ME_CONFIG['FROM'] = comp.ME_CONFIG['FROM']
-    comp.tryNotify(dispatch)
-    asyncio.get_event_loop().run_forever()
+    #comp.ME_CONFIG['FROM'] = comp.ME_CONFIG['FROM']
+    #comp.tryNotify(dispatch)
+    #asyncio.get_event_loop().run_forever()
+    from time import sleep
+    sleep(60)

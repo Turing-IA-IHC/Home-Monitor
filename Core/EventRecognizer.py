@@ -57,7 +57,7 @@ class EventRecognizer(Component):
                 if self.Simulating:
                     gdList = self.simulateData(self.DATA_FILTER)
                 else:
-                    gdList = self.receive(self.DATA_FILTER)
+                    gdList = self.receive(self.DATA_FILTER, limit=self.Limit, lastTime=self.LastTime)
                     
                 self.LastTime = float(gdList[0]['queryTime'])                    
             except:
@@ -65,7 +65,7 @@ class EventRecognizer(Component):
 
             auxData = '"t":"json", \
                 "source_id":"{}", "source_type":"{}", "source_name":"{}", "source_item":"{}", \
-                "source_aux":"{}"'
+                "source_aux":{}'
 
             for objData in gdList[1:]:
                 try:
@@ -79,7 +79,7 @@ class EventRecognizer(Component):
                         dataPredicted.package = objData.package
                         dataPredicted.aux = auxData.format(objData.id, 
                             objData.source_type, objData.source_name, objData.source_item,
-                            dataPredicted.aux)
+                            '""' if dataPredicted.aux == None else dataPredicted.aux)
                         dataPredicted.aux = '{' + dataPredicted.aux + '}'
 
                         if self.ME_STANDALONE:
@@ -88,7 +88,7 @@ class EventRecognizer(Component):
                             if Misc.hasKey(dataPredicted.data, 'class', 'none').lower() != 'none':
                                 self.send(dataPredicted)
                                 self.log('Detected: ' + str(dataPredicted.data), logType=LogTypes.DEBUG, item=self.ME_NAME)
-                                print('Detected:', dataPredicted.data, self.ME_NAME)
+                                #print('Detected:', dataPredicted.data, self.ME_NAME)
                         failedSend = 0
                 except:
                     self.log(Messages.recognizer_error_send, LogTypes.ERROR)

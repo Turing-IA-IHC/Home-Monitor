@@ -64,13 +64,29 @@ class AbnormalEventAnalyzer(FactAnalyzer):
     def analyze(self, data):
         """ Exec analysis of activity """
         d_current = self.Simulated_current_time if self.Simulating else datetime.fromtimestamp(time())
-        
+                
+        #"""
+        # ONLY for test, remove for production
+        aux_tmp = Data().strToJSon(data.aux)
+        time_tmp = Misc.hasKey(aux_tmp['source_aux'], 'time', '')
+        if time_tmp != '':
+            d_current = datetime.strptime(time_tmp, '%Y-%m-%d %H:%M:%S')
+            self.Simulated_current_time = d_current
+            Simulating_tmp = self.Simulating
+            self.Simulating = True
+        #"""
+
         if self.Last_Cleaning_Day < d_current:
             self.remove_old_data()
             self.Last_Cleaning_Day = d_current + timedelta(days=1)
 
         dataReturn = []
         event_name = Misc.hasKey(data.data, 'class', '')
+        #if event_name in ['get out of bed',]:
+        #    print('atento')
+
+        #print('No event' if event_name == '' else event_name, d_current, end='     \r')
+
         event_name = '' if event_name.lower() == 'none' else event_name.lower()
         if self.analyze_event(event_name) < self.Threshold or event_name in self.ME_CONFIG['ALWAYS_ABNORMAL']:
             if not event_name in self.ME_CONFIG['ALWAYS_NORMAL']:
@@ -80,14 +96,22 @@ class AbnormalEventAnalyzer(FactAnalyzer):
         backward_event_list = self.backward_events_detect()
         for be in backward_event_list:
             dataInf = self.data_from_event(be, occurred=False)
+            dataInf.package = 'backward-' + str(time())
             dataReturn.append(dataInf)
 
         expected_event_list = self.expected_events_predict()
         for ee in expected_event_list:
             dataInf = self.data_from_event(ee, occurred=False)
+            dataInf.package = 'expected-' + str(time())
             dataReturn.append(dataInf)
         
-        self.save_knowledge()
+        #self.save_knowledge()
+
+        #"""
+        # ONLY for test, remove for production
+        if time_tmp != '':
+            self.Simulating = Simulating_tmp
+        #"""
 
         return dataReturn
 
@@ -148,7 +172,7 @@ class AbnormalEventAnalyzer(FactAnalyzer):
 
     moments = []
     def filter_moment(self, moment, t0:int=None, t1:int=None):
-        """ Allows to filter events in same moment of day """
+        """ Allows to filter events in same moment of day any day """
         if len(self.moments) != len(self.EventsDatabase):
             self.moments = np.zeros(len(self.EventsDatabase), dtype=np.int64)
             for i, e in enumerate(self.EventsDatabase):
@@ -250,10 +274,10 @@ class AbnormalEventAnalyzer(FactAnalyzer):
                 evnt = Event(d_current, event_name)
                 self.EventsDatabase.append(evnt)
         
-        # Remove backward events
-        self.Backward_events = list(filter(lambda x: x.Name != event_name, self.Backward_events))
-        # Remove expected events
-        self.Expected_events = list(filter(lambda x: x.Name != event_name, self.Expected_events))
+            # Remove backward events
+            self.Backward_events = list(filter(lambda x: x.Name != event_name, self.Backward_events))
+            # Remove expected events
+            self.Expected_events = list(filter(lambda x: x.Name != event_name, self.Expected_events))
         
         return round(min(1, acumulated), 2)
 
@@ -269,7 +293,8 @@ class AbnormalEventAnalyzer(FactAnalyzer):
             , Events_no_none))
 
         expected = self.distinct(expected)
-        Events_moment = self.filter_moment(d_current, self.TimeWindow, 60)
+        #Events_moment = self.filter_moment(d_current, self.TimeWindow, 60)
+        Events_moment = list(filter(lambda x: x.Moment >= d_current - timedelta(minutes=self.TimeWindow), Events_moment))
         for event_name in expected:
             if self.analyze_event(event_name, record=False) >= self.Threshold:
                 exists = list(filter(lambda x: x.Name == event_name, Events_moment))
@@ -317,6 +342,12 @@ class AbnormalEventAnalyzer(FactAnalyzer):
         try:
             file_name = dirname(__file__) + "/model/data.ab"
             self.EventsDatabase = load(open(file_name, 'rb'))
+            #tmp = load(open(file_name, 'rb'))
+            #self.EventsDatabase = []
+            #for t in tmp:
+            #    evnt = Event(t.Moment, t.Name)
+            #    self.EventsDatabase.append(evnt)
+            #self.save_knowledge()
         except:
             try:
                 file_name = dirname(__file__) + "/model/data.ab.bck"
@@ -360,13 +391,13 @@ class AbnormalEventAnalyzer(FactAnalyzer):
         dataInf.source_type = self.ME_TYPE
         dataInf.source_name = self.ME_NAME
         dataInf.source_item = '' if occurred else 'backwarded'
-        dataInf.data = evnt.Name
+        dataInf.data = ('' if occurred else 'Missing ') + evnt.Name
         return dataInf
 
 # =========== Start standalone =========== #
 if __name__ == "__main__":
     comp = AbnormalEventAnalyzer()
-    #comp.reset_knowledge()
+    comp.reset_knowledge()
     comp.setLoggingSettings(LogTypes.DEBUG)
     comp.init_standalone(path=dirname(__file__))
     sleep(600)

@@ -43,7 +43,7 @@ class NewController(DeviceController):
     def getData(self, device):
         """ Returns a list of tuples like {controller, device, data} with data elements """
 
-        dev = self.Devices[device["id"]]['capture']
+        dev = self.Devices[device["id"]]['objOfCapture']
         # TODO: Read and return a list of tuples like {controller, device, data} with data elements
         dataReturn = []
 
@@ -59,12 +59,13 @@ class NewController(DeviceController):
 
         auxData = '{' + '"W":{}, "H":{}'.format(width, height) + '}'
         
-        dataReturn.append({
-                'controller': 'CamController',
-                'device': deviceName,
-                'data': frame,
-                'aux': auxData,
-            })
+        dataRgb = Data()
+        dataRgb.source_type = self.ME_TYPE
+        dataRgb.source_name = self.ME_NAME
+        dataRgb.source_item = deviceName
+        dataRgb.data = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        dataRgb.aux = auxData
+        dataReturn.append(dataRgb)
         
         dataReturn.append({
                 'controller': 'CamController/Gray',

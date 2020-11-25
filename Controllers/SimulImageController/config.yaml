@@ -1,0 +1,14 @@
+# Config params of SimulImageController.
+NAME: SimulImageController                   # Name for humans.
+TYPE: CONTROLLER                      # Type of component.
+FILE_CLASS: SimulImageController             # Py file where initial class is located.
+CLASS_NAME: SimulImageController             # Class name to load.
+VERSION: 1.0.0                        # Module id version.
+ENABLED: N                            # Module is enabled to run.
+DESCRIPTION: Simulate data from a folder. # Description for humans.
+SIMULATING: Y                         # Set true if module start with sumaleted data.
+SIMULATING_PATH: D:\tmp\hm-yorsh\imgs\01_generated.csv                     # Set path to simulated data source.
+# ------ Vars of Controllers
+CHECK_TIME: 3600                    # Time in seconds to check if device is active.
+SAMPLING: 0.0                       # Sampling rate to control frame per second.
+# ------ Other specific config vars

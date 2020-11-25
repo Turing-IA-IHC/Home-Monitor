@@ -11,12 +11,15 @@ SIMULATING_PATH: M:/tmp/HM-SimulatingData/ColorInfarctRecognizer_OutPut.txt     
 #URL_BASE:                            # Url to pool if not simulating.
 # ------ Vars of Analyzers
 ALWAYS_ABNORMAL: [Infarct, Fall,]     # List of events that will always be abnormal, then notify.
-ALWAYS_NORMAL: [Standup, Sitdown]     # List of events that will always be normal, then don't notify.
+ALWAYS_NORMAL: [stand, sit, sleeping, 
+    'sit at the table', 'eat', 
+    'make the bed', 'walk', 'cook', 'sit',
+    'climbing stairs', 'lie in bed' ]     # List of events that will always be normal, then don't notify.
 MODEL: model/data.ab                  # Path to file of model.
 #FILTER_NAME: NameRecognizer          # Recognizer data source, could be an expreg.
 #FILTER_ITEM: EventDetected           # Item data source, could be an expreg.
-FILTER_LIMIT: -1                      # Elements to return from pool each time.
-AUTHORIZED_CHANNELS: [MailChannel,]   # Limit the channels available to send messages.
+FILTER_LIMIT: 300                     # Elements to return from pool each time.
+AUTHORIZED_CHANNELS: [AppChannel,MailChannel]   # Limit the channels available to send messages.
 AUTHORIZED_ATTACHMENTS: ['*:*:*',]    # Limit the source allow to attach Type:Name:Item. Example *:RGB:*
 MESSAGES_LIFE: 90                     # Seconds to keep messages in memory.
 # ------ Other specific config vars

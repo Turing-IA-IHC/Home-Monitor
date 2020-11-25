@@ -87,5 +87,5 @@ if __name__ == "__main__":
     dispatch.files.append('img.png')
     comp.ME_CONFIG['FROM'] = 'ProfesorGavit0@gmail.com'
     comp.ME_CONFIG['USER'] = 'ProfesorGavit0@gmail.com'
-    comp.ME_CONFIG['PASSWORD'] = '4564gpfpxdpp'
+    comp.ME_CONFIG['PASSWORD'] = ''
     comp.tryNotify(dispatch)

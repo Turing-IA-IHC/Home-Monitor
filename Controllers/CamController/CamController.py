@@ -72,7 +72,7 @@ class CamController(DeviceController):
         capture.set(cv2.CAP_PROP_FRAME_HEIGHT, _height)
         return capture
 
-    def getData(self, device, frame=None):
+    def getData(self, device, frame=None, time_event=0, event=''):
         """ Returns a list of Data objects """
         dataReturn = []
         try:
@@ -96,7 +96,10 @@ class CamController(DeviceController):
                 dataRgb.source_item = deviceName
                 #dataRgb.data = frame
                 dataRgb.data = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                dataRgb.aux = '{' + auxData.format('image_rgb', 'png', width, height) + '}'
+                dataRgb.aux = auxData.format('image_rgb', 'png', width, height)
+                if time_event != 0:
+                    dataRgb.aux += ', "time":"{}", "event":"{}"'.format(time_event, event)
+                dataRgb.aux = '{' + dataRgb.aux + '}'
                 dataReturn.append(dataRgb)
             
             if self.getGray:
@@ -170,21 +173,48 @@ class CamController(DeviceController):
         #    file.write('\n' + data.toString(False, True))
 
     def simulateData(self, dataFilter:Data):
-        """ Allows simulate input data """        
-        if self.simulationStep == 0:
-            self.capture = cv2.VideoCapture(self.SimulatingPath)
-            self.video_length = int(self.capture.get(cv2.CAP_PROP_FRAME_COUNT))
-            
-        if self.capture.isOpened() and self.simulationStep < self.video_length:
-            _, frame = self.capture.read()
-            self.simulationStep += 1
-            #sleep(1)
-            if frame is None:
-                return []
-            return self.getData(dataFilter.source_item, frame=frame)
+        """ Allows simulate input data """
+
+        if str(self.SimulatingPath).index(".csv") > 0:
+            if self.simulationStep == 0:
+                self.file = np.loadtxt(self.SimulatingPath, dtype=np.object, delimiter=',')
+                self.file_length = len(self.file)
+                self.simulationStep = 1 #31085
+
+            if self.simulationStep < self.file_length:
+                if len(self.file[self.simulationStep, 2]) < 3:
+                    self.simulationStep += 1
+                    #print(' -- no -- ')
+                    return []
+
+                #print(' -- si -- ')
+                self.simulationStep += 10
+                #t0 = time()
+                frame = cv2.imread(self.file[self.simulationStep, 1])
+                print('Imagen', self.simulationStep, time())
+                #frame = self.image_resize(frame, 240)
+                #print('Tiempo cargando imagen', (time() - t0))
+                time_event = self.file[self.simulationStep, 3]
+                event = self.file[self.simulationStep, 2]
+                return self.getData(dataFilter.source_item, frame=frame, time_event=time_event, event=event)
+            else:
+                self.simulationStep = 0
+                return self.simulateData(dataFilter)
         else:
-            self.simulationStep = 0
-            return self.simulateData(dataFilter)
+            if self.simulationStep == 0:
+                self.capture = cv2.VideoCapture(self.SimulatingPath)
+                self.video_length = int(self.capture.get(cv2.CAP_PROP_FRAME_COUNT))
+                
+            if self.capture.isOpened() and self.simulationStep < self.video_length:
+                _, frame = self.capture.read()
+                self.simulationStep += 1
+                #sleep(1)
+                if frame is None:
+                    return []
+                return self.getData(dataFilter.source_item, frame=frame)
+            else:
+                self.simulationStep = 0
+                return self.simulateData(dataFilter)
 
     # =========== Auxiliar methods =========== #
 
@@ -444,6 +474,36 @@ class CamController(DeviceController):
     
         return img_padded, pad
 
+    def image_resize(self, image, width = None, height = None, inter = cv2.INTER_AREA):
+        # initialize the dimensions of the image to be resized and
+        # grab the image size
+        dim = None
+        (h, w) = image.shape[:2]
+
+        # if both the width and height are None, then return the
+        # original image
+        if width is None and height is None:
+            return image
+
+        # check to see if the width is None
+        if width is None:
+            # calculate the ratio of the height and construct the
+            # dimensions
+            r = height / float(h)
+            dim = (int(w * r), height)
+
+        # otherwise, the height is None
+        else:
+            # calculate the ratio of the width and construct the
+            # dimensions
+            r = width / float(w)
+            dim = (width, int(h * r))
+
+        # resize the image
+        resized = cv2.resize(image, dim, interpolation = inter)
+
+        # return the resized image
+        return resized
 # =========== Start standalone =========== #
 if __name__ == "__main__":
     comp = CamController()
