@@ -10,6 +10,7 @@ Written by Waleed Abdulla
 import os
 import random
 import datetime
+from time import time
 import re
 import math
 import logging
@@ -48,7 +49,6 @@ def log(text, array=None):
             text += ("min: {:10}  max: {:10}".format("",""))
         text += "  {}".format(array.dtype)
     print(text)
-
 
 class BatchNorm(KL.BatchNormalization):
     """Extends the Keras BatchNormalization class to allow a central place
@@ -2480,6 +2480,7 @@ class MaskRCNN():
 
         return boxes, class_ids, scores, full_masks
 
+    
     def detect(self, images, verbose=0):
         """Runs the detection pipeline.
 
@@ -2512,6 +2513,7 @@ class MaskRCNN():
 
         # Anchors
         anchors = self.get_anchors(image_shape)
+
         # Duplicate across the batch dimension because Keras requires it
         # TODO: can this be optimized to avoid duplicating the anchors?
         anchors = np.broadcast_to(anchors, (self.config.BATCH_SIZE,) + anchors.shape)
@@ -2523,6 +2525,7 @@ class MaskRCNN():
         # Run object detection
         detections, _, _, mrcnn_mask, _, _, _ =\
             self.keras_model.predict([molded_images, image_metas, anchors], verbose=0)
+        
         # Process detections
         results = []
         for i, image in enumerate(images):
@@ -2536,6 +2539,7 @@ class MaskRCNN():
                 "scores": final_scores,
                 "masks": final_masks,
             })
+        
         return results
 
     def detect_molded(self, molded_images, image_metas, verbose=0):

@@ -1,0 +1,13 @@
+\backmatter
+
+%\nocite{*} % INCLUIDO para ver cómo queda, pero comentar en versión final.
+
+% Bibliografía
+\phantomsection  % OJO: Ojo necesario con hyperref.
+\addcontentsline{toc}{chapter}{\bibname} % Añade la bibliografía al Índice de contenidos.
+\printbibliography
+% Contenido temático
+\cleardoublepage
+\phantomsection % OJO: Ojo necesario con hyperref.
+\addcontentsline{toc}{chapter}{\indexname} % Añade al Índice de contenidos.
+\printindex  % Facilitado por makeidx (opcional, si no se usa no se imprime)

@@ -88,7 +88,7 @@ class EventRecognizer(Component):
                             if Misc.hasKey(dataPredicted.data, 'class', 'none').lower() != 'none':
                                 self.send(dataPredicted)
                                 self.log('Detected: ' + str(dataPredicted.data), logType=LogTypes.DEBUG, item=self.ME_NAME)
-                                #print('Detected:', dataPredicted.data, self.ME_NAME)
+                                print('Detected:', dataPredicted.data, self.ME_NAME)
                         failedSend = 0
                 except:
                     self.log(Messages.recognizer_error_send, LogTypes.ERROR)

@@ -126,6 +126,7 @@ class Component():
             del _cls, obj
             self.ME_LOADED = True
             self.log(Messages.comp_started.format(self.ME_NAME), LogTypes.INFO)
+            print(self.ME_NAME, 'loaded.')
         
         except:
             self.log(Messages.comp_load_error, LogTypes.ERROR)         

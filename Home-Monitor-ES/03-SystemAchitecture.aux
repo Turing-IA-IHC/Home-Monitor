@@ -1,0 +1,485 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {chapter}{\numberline {3}Arquitectura el sistema}{65}{chapter.3}\protected@file@percent }
+\@writefile{lof}{\defcounter {refsection}{0}\relax }\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\defcounter {refsection}{0}\relax }\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{loa}{\defcounter {refsection}{0}\relax }\@writefile{loa}{\addvspace {10\p@ }}
+\newlabel{chap:SystemArchitecture}{{3}{65}{Arquitectura el sistema}{chapter.3}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {section}{\numberline {3.1}Dise\IeC {\~n}o arquitect\IeC {\'o}nico general}{66}{section.3.1}\protected@file@percent }
+\newlabel{sec:GeneralArchitecture}{{3.1}{66}{Diseño arquitectónico general}{section.3.1}{}}
+\@writefile{lof}{\defcounter {refsection}{0}\relax }\@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces Diagrama general del sistema}}{66}{figure.caption.79}\protected@file@percent }
+\newlabel{fig:Architecture}{{3.1}{66}{Diagrama general del sistema}{figure.caption.79}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {section}{\numberline {3.2}Pila de datos}{68}{section.3.2}\protected@file@percent }
+\newlabel{Sec:DataPool}{{3.2}{68}{Pila de datos}{section.3.2}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.1}Estructura de datos}{68}{subsection.3.2.1}\protected@file@percent }
+\newlabel{sub:DataEstructure}{{3.2.1}{68}{Estructura de datos}{subsection.3.2.1}{}}
+\newlabel{Alg:getJson}{{3.1}{68}{Firma del método ``\textit {getJson}'' de la clase Data}{lstlisting.3.1}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.1}Firma del m\IeC {\'e}todo ``\textit  {getJson}'' de la clase Data.}{68}{lstlisting.3.1}\protected@file@percent }
+\newlabel{Alg:parse}{{3.2}{68}{Firma del método ``\textit {parse}'' de la clase Data}{lstlisting.3.2}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.2}Firma del m\IeC {\'e}todo ``\textit  {parse}'' de la clase Data.}{68}{lstlisting.3.2}\protected@file@percent }
+\@writefile{lot}{\defcounter {refsection}{0}\relax }\@writefile{lot}{\contentsline {table}{\numberline {3.1}{\ignorespaces Atributos de datos a transmitir}}{69}{table.caption.80}\protected@file@percent }
+\newlabel{Tab:DataEstructureAttr}{{3.1}{69}{Atributos de datos a transmitir}{table.caption.80}{}}
+\newlabel{Alg:DataStructure}{{3.3}{69}{Estructura de datos en JSon}{lstlisting.3.3}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.3}Estructura de datos en JSon.}{69}{lstlisting.3.3}\protected@file@percent }
+\newlabel{Alg:signatureValueOf}{{3.4}{69}{Firma del método "\textit {valueOf}" de la clase Data}{lstlisting.3.4}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.4}Firma del m\IeC {\'e}todo "\textit  {valueOf}" de la clase Data.}{69}{lstlisting.3.4}\protected@file@percent }
+\newlabel{Alg:signatureSerialize}{{3.5}{70}{Firma del método "\textit {serialize}" de la clase Data}{lstlisting.3.5}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.5}Firma del m\IeC {\'e}todo "\textit  {serialize}" de la clase Data.}{70}{lstlisting.3.5}\protected@file@percent }
+\newlabel{Alg:signatureDeserialize}{{3.6}{70}{Firma del método "\textit {deserialize}" de la clase Data}{lstlisting.3.6}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.6}Firma del m\IeC {\'e}todo "\textit  {deserialize}" de la clase Data.}{70}{lstlisting.3.6}\protected@file@percent }
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.2}Transmisi\IeC {\'o}n y vigencia de datos}{70}{subsection.3.2.2}\protected@file@percent }
+\newlabel{sub:Pool}{{3.2.2}{70}{Transmisión y vigencia de datos}{subsection.3.2.2}{}}
+\@writefile{lof}{\defcounter {refsection}{0}\relax }\@writefile{lof}{\contentsline {figure}{\numberline {3.2}{\ignorespaces Flujo general de informaci\IeC {\'o}n del sistema}}{70}{figure.caption.81}\protected@file@percent }
+\newlabel{fig:ModuleComunication}{{3.2}{70}{Flujo general de información del sistema}{figure.caption.81}{}}
+\newlabel{Alg:sendData}{{3.7}{70}{Firma del método "\textit {sendData}" de la clase \textbf {\textit {CommPool}}}{lstlisting.3.7}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.7}Firma del m\IeC {\'e}todo "\textit  {sendData}" de la clase \textbf  {\textit  {CommPool}}.}{70}{lstlisting.3.7}\protected@file@percent }
+\newlabel{Alg:receiveData}{{3.8}{70}{Firma del método "\textit {receive}" de la clase \textbf {\textit {CommPool}}}{lstlisting.3.8}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.8}Firma del m\IeC {\'e}todo "\textit  {receive}" de la clase \textbf  {\textit  {CommPool}}.}{70}{lstlisting.3.8}\protected@file@percent }
+\newlabel{Alg:signatureLog}{{3.9}{71}{Firma del método "\textit {log}"}{lstlisting.3.9}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.9}Firma del m\IeC {\'e}todo "\textit  {log}".}{71}{lstlisting.3.9}\protected@file@percent }
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Recibir datos}{71}{section*.82}\protected@file@percent }
+\newlabel{sub2:PoolPost}{{3.2.2}{71}{Recibir datos}{section*.82}{}}
+\newlabel{Alg:PoolPostParams}{{3.10}{71}{Ejemplo de parámetros para enviar datos la pila}{lstlisting.3.10}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.10}Ejemplo de par\IeC {\'a}metros para enviar datos la pila.}{71}{lstlisting.3.10}\protected@file@percent }
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Entregar datos}{71}{section*.83}\protected@file@percent }
+\newlabel{sub2:PoolGet}{{3.2.2}{71}{Entregar datos}{section*.83}{}}
+\@writefile{lot}{\defcounter {refsection}{0}\relax }\@writefile{lot}{\contentsline {table}{\numberline {3.2}{\ignorespaces Par\IeC {\'a}metros para consultar datos de la pila}}{72}{table.caption.84}\protected@file@percent }
+\newlabel{Tab:PoolGetParams}{{3.2}{72}{Parámetros para consultar datos de la pila}{table.caption.84}{}}
+\newlabel{Alg:PoolGetParams}{{3.11}{72}{Ejemplo de parámetros para consultar la pila}{lstlisting.3.11}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.11}Ejemplo de par\IeC {\'a}metros para consultar la pila.}{72}{lstlisting.3.11}\protected@file@percent }
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Permanencia y eliminaci\IeC {\'o}n de datos}{72}{section*.85}\protected@file@percent }
+\newlabel{sub2:PoolKeepDropData}{{3.2.2}{72}{Permanencia y eliminación de datos}{section*.85}{}}
+\@writefile{lof}{\defcounter {refsection}{0}\relax }\@writefile{lof}{\contentsline {figure}{\numberline {3.3}{\ignorespaces Diagrama de la pila de datos}}{73}{figure.caption.86}\protected@file@percent }
+\newlabel{fig:PoolFlow}{{3.3}{73}{Diagrama de la pila de datos}{figure.caption.86}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{M\IeC {\'e}todos adicionales de la pila de datos}{73}{section*.87}\protected@file@percent }
+\newlabel{sub2:PoolAditional}{{3.2.2}{73}{Métodos adicionales de la pila de datos}{section*.87}{}}
+\@writefile{lot}{\defcounter {refsection}{0}\relax }\@writefile{lot}{\contentsline {table}{\numberline {3.3}{\ignorespaces M\IeC {\'e}todos adicionales del la pila}}{74}{table.caption.88}\protected@file@percent }
+\newlabel{Tab:PoolPutParams}{{3.3}{74}{Métodos adicionales del la pila}{table.caption.88}{}}
+\newlabel{Alg:signatureSendCommand}{{3.12}{74}{Firma del método "\textit {sendCommand}"}{lstlisting.3.12}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.12}Firma del m\IeC {\'e}todo "\textit  {sendCommand}".}{74}{lstlisting.3.12}\protected@file@percent }
+\newlabel{Alg:signatureGetTime}{{3.13}{74}{Firma del método "\textit {getTime}"}{lstlisting.3.13}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.13}Firma del m\IeC {\'e}todo "\textit  {getTime}".}{74}{lstlisting.3.13}\protected@file@percent }
+\newlabel{Alg:signatureGetTimeDiff}{{3.14}{74}{Firma del método "\textit {getTimeDiff}"}{lstlisting.3.14}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.14}Firma del m\IeC {\'e}todo "\textit  {getTimeDiff}".}{74}{lstlisting.3.14}\protected@file@percent }
+\newlabel{Alg:signatureIsLive}{{3.15}{74}{Firma del método "\textit {isLive}"}{lstlisting.3.15}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.15}Firma del m\IeC {\'e}todo "\textit  {isLive}".}{74}{lstlisting.3.15}\protected@file@percent }
+\newlabel{Alg:signatureCount}{{3.16}{74}{Firma del método "\textit {count}"}{lstlisting.3.16}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.16}Firma del m\IeC {\'e}todo "\textit  {count}".}{74}{lstlisting.3.16}\protected@file@percent }
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {section}{\numberline {3.3}Estructura b\IeC {\'a}sica de componentes extensibles}{75}{section.3.3}\protected@file@percent }
+\newlabel{Sec:ComponentStructure}{{3.3}{75}{Estructura básica de componentes extensibles}{section.3.3}{}}
+\@writefile{lof}{\defcounter {refsection}{0}\relax }\@writefile{lof}{\contentsline {figure}{\numberline {3.4}{\ignorespaces Estructura general de un componente extensible}}{75}{figure.caption.89}\protected@file@percent }
+\newlabel{fig:ComponentStructure}{{3.4}{75}{Estructura general de un componente extensible}{figure.caption.89}{}}
+\newlabel{Alg:checkConnection}{{3.17}{76}{Firma del método ``\textit {checkConnection}''}{lstlisting.3.17}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.17}Firma del m\IeC {\'e}todo ``\textit  {checkConnection}''.}{76}{lstlisting.3.17}\protected@file@percent }
+\newlabel{Alg:logComponent}{{3.18}{76}{Firma del método ``\textit {log}''}{lstlisting.3.18}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.18}Firma del m\IeC {\'e}todo ``\textit  {log}''.}{76}{lstlisting.3.18}\protected@file@percent }
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {section}{\numberline {3.4}Secci\IeC {\'o}n A - Entrada de datos}{77}{section.3.4}\protected@file@percent }
+\newlabel{Sec:InputData}{{3.4}{77}{Sección A - Entrada de datos}{section.3.4}{}}
+\@writefile{lof}{\defcounter {refsection}{0}\relax }\@writefile{lof}{\contentsline {figure}{\numberline {3.5}{\ignorespaces Ciclo de vida de la entrada de datos}}{77}{figure.caption.90}\protected@file@percent }
+\newlabel{fig:InputDataLifeCicle}{{3.5}{77}{Ciclo de vida de la entrada de datos}{figure.caption.90}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.1} cargador de controladores - LoaderOfController}{77}{subsection.3.4.1}\protected@file@percent }
+\newlabel{LoaderController}{{3.4.1}{77}{cargador de controladores - LoaderOfController}{subsection.3.4.1}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Detecci\IeC {\'o}n de controladores de dispositivos}{77}{section*.91}\protected@file@percent }
+\newlabel{sub2:InputDeviceDetection}{{3.4.1}{77}{Detección de controladores de dispositivos}{section*.91}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Inicio de controladores}{78}{section*.92}\protected@file@percent }
+\newlabel{sub2:InputDeviceStarting}{{3.4.1}{78}{Inicio de controladores}{section*.92}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Manteniendo dispositivos funcionando}{78}{section*.93}\protected@file@percent }
+\newlabel{sub2:InputDeviceKeepAlive}{{3.4.1}{78}{Manteniendo dispositivos funcionando}{section*.93}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.2}Controlador de dispositivos - DeviceController}{78}{subsection.3.4.2}\protected@file@percent }
+\newlabel{sub:DeviceController}{{3.4.2}{78}{Controlador de dispositivos - DeviceController}{subsection.3.4.2}{}}
+\newlabel{Alg:startDevice}{{3.19}{79}{Firma del método ``\textit {start}''}{lstlisting.3.19}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.19}Firma del m\IeC {\'e}todo ``\textit  {start}''.}{79}{lstlisting.3.19}\protected@file@percent }
+\newlabel{Alg:preLoadDevice}{{3.20}{79}{Firma del método \textit {preLoad} de DeviceController}{lstlisting.3.20}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.20}Firma del m\IeC {\'e}todo \textit  {preLoad} de DeviceController.}{79}{lstlisting.3.20}\protected@file@percent }
+\newlabel{Alg:getDeviceList}{{3.21}{79}{Firma del método ``\textit {getDeviceList}''}{lstlisting.3.21}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.21}Firma del m\IeC {\'e}todo ``\textit  {getDeviceList}''.}{79}{lstlisting.3.21}\protected@file@percent }
+\newlabel{Alg:initializeDevice}{{3.22}{79}{Firma del método ``\textit {initializeDevice}''}{lstlisting.3.22}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.22}Firma del m\IeC {\'e}todo ``\textit  {initializeDevice}''.}{79}{lstlisting.3.22}\protected@file@percent }
+\newlabel{Alg:getDataDevice}{{3.23}{80}{Firma del método ``\textit {getData}''}{lstlisting.3.23}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.23}Firma del m\IeC {\'e}todo ``\textit  {getData}''.}{80}{lstlisting.3.23}\protected@file@percent }
+\newlabel{Alg:sendDevice}{{3.24}{80}{Firma del método ``\textit {send}''}{lstlisting.3.24}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.24}Firma del m\IeC {\'e}todo ``\textit  {send}''.}{80}{lstlisting.3.24}\protected@file@percent }
+\newlabel{Alg:checkController}{{3.25}{80}{Firma del método ``\textit {check}''}{lstlisting.3.25}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.25}Firma del m\IeC {\'e}todo ``\textit  {check}''.}{80}{lstlisting.3.25}\protected@file@percent }
+\newlabel{Alg:showDataDevice}{{3.26}{80}{Firma del método ``\textit {showData}''}{lstlisting.3.26}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.26}Firma del m\IeC {\'e}todo ``\textit  {showData}''.}{80}{lstlisting.3.26}\protected@file@percent }
+\newlabel{Alg:simulateDataDevice}{{3.27}{80}{Firma del método ``\textit {simulateData}''}{lstlisting.3.27}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.27}Firma del m\IeC {\'e}todo ``\textit  {simulateData}''.}{80}{lstlisting.3.27}\protected@file@percent }
+\newlabel{Alg:stopDevice}{{3.28}{80}{Firma del método ``\textit {stop}''}{lstlisting.3.28}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.28}Firma del m\IeC {\'e}todo ``\textit  {stop}''.}{80}{lstlisting.3.28}\protected@file@percent }
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {section}{\numberline {3.5}Secci\IeC {\'o}n B - Reconocimiento de eventos simples}{81}{section.3.5}\protected@file@percent }
+\newlabel{Sec:HAR}{{3.5}{81}{Sección B - Reconocimiento de eventos simples}{section.3.5}{}}
+\@writefile{lof}{\defcounter {refsection}{0}\relax }\@writefile{lof}{\contentsline {figure}{\numberline {3.6}{\ignorespaces Ciclo de vida del proceso de reconocimiento de actividades}}{81}{figure.caption.94}\protected@file@percent }
+\newlabel{fig:HARLifeCicle}{{3.6}{81}{Ciclo de vida del proceso de reconocimiento de actividades}{figure.caption.94}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.1}Cargador de reconocedores - LoaderOfRecognizer}{81}{subsection.3.5.1}\protected@file@percent }
+\newlabel{LoaderHAR}{{3.5.1}{81}{Cargador de reconocedores - LoaderOfRecognizer}{subsection.3.5.1}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Detecci\IeC {\'o}n de reconocedores}{81}{section*.95}\protected@file@percent }
+\newlabel{sub2:HARDetection}{{3.5.1}{81}{Detección de reconocedores}{section*.95}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Inicio de reconocedores}{82}{section*.96}\protected@file@percent }
+\newlabel{sub2:HarStarting}{{3.5.1}{82}{Inicio de reconocedores}{section*.96}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Manteniendo reconocedores funcionando}{82}{section*.97}\protected@file@percent }
+\newlabel{sub2:ClassifierKeepAlive}{{3.5.1}{82}{Manteniendo reconocedores funcionando}{section*.97}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.2}reconocedor de actividades - ActivityRecongnizer}{82}{subsection.3.5.2}\protected@file@percent }
+\newlabel{sub:ClassifierHAR}{{3.5.2}{82}{reconocedor de actividades - ActivityRecongnizer}{subsection.3.5.2}{}}
+\newlabel{Alg:startHAR}{{3.29}{83}{Firma del método ``\textit {start}'' de la clase ActivityRecognizer}{lstlisting.3.29}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.29}Firma del m\IeC {\'e}todo ``\textit  {start}'' de la clase ActivityRecognizer.}{83}{lstlisting.3.29}\protected@file@percent }
+\newlabel{Alg:preLoadHAR}{{3.30}{83}{Firma del método ``\textit {preLoad}'' de la clase ActivityRecognizer}{lstlisting.3.30}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.30}Firma del m\IeC {\'e}todo ``\textit  {preLoad}'' de la clase ActivityRecognizer.}{83}{lstlisting.3.30}\protected@file@percent }
+\newlabel{Alg:loadModelHAR}{{3.31}{83}{Firma del método ``\textit {loadModel}'' de la clase ActivityRecognizer}{lstlisting.3.31}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.31}Firma del m\IeC {\'e}todo ``\textit  {loadModel}'' de la clase ActivityRecognizer.}{83}{lstlisting.3.31}\protected@file@percent }
+\newlabel{Alg:loadedHAR}{{3.32}{83}{Firma del método ``\textit {loaded}'' de la clase ActivityRecognizer}{lstlisting.3.32}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.32}Firma del m\IeC {\'e}todo ``\textit  {loaded}'' de la clase ActivityRecognizer.}{83}{lstlisting.3.32}\protected@file@percent }
+\newlabel{Alg:bringHAR}{{3.33}{84}{Firma del método ``\textit {bring}'' de la clase ActivityRecognizer}{lstlisting.3.33}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.33}Firma del m\IeC {\'e}todo ``\textit  {bring}'' de la clase ActivityRecognizer.}{84}{lstlisting.3.33}\protected@file@percent }
+\newlabel{Alg:predictHAR}{{3.34}{84}{Firma del método ``\textit {predict}'' de la clase ActivityRecognizer}{lstlisting.3.34}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.34}Firma del m\IeC {\'e}todo ``\textit  {predict}'' de la clase ActivityRecognizer.}{84}{lstlisting.3.34}\protected@file@percent }
+\newlabel{Alg:sendHAR}{{3.35}{84}{Firma del método ``\textit {send}'' de la clase ActivityRecognizer}{lstlisting.3.35}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.35}Firma del m\IeC {\'e}todo ``\textit  {send}'' de la clase ActivityRecognizer.}{84}{lstlisting.3.35}\protected@file@percent }
+\newlabel{Alg:checkRecognizer}{{3.36}{84}{Firma del método ``\textit {check}'' de la clase ActivityRecognizer}{lstlisting.3.36}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.36}Firma del m\IeC {\'e}todo ``\textit  {check}'' de la clase ActivityRecognizer.}{84}{lstlisting.3.36}\protected@file@percent }
+\newlabel{Alg:showDataHAR}{{3.37}{84}{Firma del método ``\textit {showData}'' de la clase ActivityRecognizer}{lstlisting.3.37}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.37}Firma del m\IeC {\'e}todo ``\textit  {showData}'' de la clase ActivityRecognizer.}{84}{lstlisting.3.37}\protected@file@percent }
+\newlabel{Alg:simulateRecognizer}{{3.38}{84}{Firma del método ``\textit {simulateData}''}{lstlisting.3.38}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.38}Firma del m\IeC {\'e}todo ``\textit  {simulateData}''.}{84}{lstlisting.3.38}\protected@file@percent }
+\newlabel{Alg:stopHAR}{{3.39}{84}{Firma del método ``\textit {stop}''}{lstlisting.3.39}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.39}Firma del m\IeC {\'e}todo ``\textit  {stop}''.}{84}{lstlisting.3.39}\protected@file@percent }
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {section}{\numberline {3.6}Secci\IeC {\'o}n C - Analizador de eventos y notificaci\IeC {\'o}n de alertas}{85}{section.3.6}\protected@file@percent }
+\newlabel{Sec:Analyzer}{{3.6}{85}{Sección C - Analizador de eventos y notificación de alertas}{section.3.6}{}}
+\@writefile{lof}{\defcounter {refsection}{0}\relax }\@writefile{lof}{\contentsline {figure}{\numberline {3.7}{\ignorespaces Ciclo de vida del an\IeC {\'a}lisis de eventos}}{85}{figure.caption.98}\protected@file@percent }
+\newlabel{fig:AnalyzerLifeCicle}{{3.7}{85}{Ciclo de vida del análisis de eventos}{figure.caption.98}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.6.1}Cargador de Analizadores - LoaderAnalyzer}{86}{subsection.3.6.1}\protected@file@percent }
+\newlabel{sub:LoaderAnalyzer}{{3.6.1}{86}{Cargador de Analizadores - LoaderAnalyzer}{subsection.3.6.1}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Detecci\IeC {\'o}n de analizadores}{86}{section*.99}\protected@file@percent }
+\newlabel{sub2:AnalyzerDetection}{{3.6.1}{86}{Detección de analizadores}{section*.99}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Inicio de analizadores}{86}{section*.100}\protected@file@percent }
+\newlabel{sub2:AnalyzerStarting}{{3.6.1}{86}{Inicio de analizadores}{section*.100}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Manteniendo Analizadores funcionando}{86}{section*.101}\protected@file@percent }
+\newlabel{sub2:AnalyzerKeepAlive}{{3.6.1}{86}{Manteniendo Analizadores funcionando}{section*.101}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.6.2}Analizador de eventos - EventAnalyzer}{87}{subsection.3.6.2}\protected@file@percent }
+\newlabel{sub:EventAnalyzer}{{3.6.2}{87}{Analizador de eventos - EventAnalyzer}{subsection.3.6.2}{}}
+\newlabel{Alg:startAnalyzer}{{3.40}{87}{Firma del método "\textit {start}" de la clase EventAnalyzer}{lstlisting.3.40}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.40}Firma del m\IeC {\'e}todo "\textit  {start}" de la clase EventAnalyzer.}{87}{lstlisting.3.40}\protected@file@percent }
+\newlabel{Alg:preLoadAnalyzer}{{3.41}{87}{Firma del método "\textit {preLoad}" de la clase EventAnalyzer}{lstlisting.3.41}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.41}Firma del m\IeC {\'e}todo "\textit  {preLoad}" de la clase EventAnalyzer.}{87}{lstlisting.3.41}\protected@file@percent }
+\newlabel{Alg:loadModelAnalyzer}{{3.42}{88}{Firma del método "\textit {loadModel}" de la clase EventAnalyzer}{lstlisting.3.42}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.42}Firma del m\IeC {\'e}todo "\textit  {loadModel}" de la clase EventAnalyzer.}{88}{lstlisting.3.42}\protected@file@percent }
+\newlabel{Alg:loadChannelsAnalyzer}{{3.43}{88}{Firma del método "\textit {loadChannels}" de la clase EventAnalyzer}{lstlisting.3.43}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.43}Firma del m\IeC {\'e}todo "\textit  {loadChannels}" de la clase EventAnalyzer.}{88}{lstlisting.3.43}\protected@file@percent }
+\newlabel{Alg:loadedAnalyzer}{{3.44}{88}{Firma del método ``\textit {loaded}'' de la clase EventAnalyzer}{lstlisting.3.44}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.44}Firma del m\IeC {\'e}todo ``\textit  {loaded}'' de la clase EventAnalyzer.}{88}{lstlisting.3.44}\protected@file@percent }
+\newlabel{Alg:bringAnalyzer}{{3.45}{88}{Firma del método "\textit {bring}" de la clase EventAnalyzer}{lstlisting.3.45}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.45}Firma del m\IeC {\'e}todo "\textit  {bring}" de la clase EventAnalyzer.}{88}{lstlisting.3.45}\protected@file@percent }
+\newlabel{Alg:analyzeAnalyzer}{{3.46}{88}{Firma del método "\textit {analyze}" de la clase EventAnalyzer}{lstlisting.3.46}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.46}Firma del m\IeC {\'e}todo "\textit  {analyze}" de la clase EventAnalyzer.}{88}{lstlisting.3.46}\protected@file@percent }
+\newlabel{Alg:notifyAnalyzer}{{3.47}{88}{Firma del método "\textit {notify}" de la clase EventAnalyzer}{lstlisting.3.47}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.47}Firma del m\IeC {\'e}todo "\textit  {notify}" de la clase EventAnalyzer.}{88}{lstlisting.3.47}\protected@file@percent }
+\newlabel{Alg:checkAnalyzer}{{3.48}{88}{Firma del método ``\textit {check}'' de la clase ActivityRecognizer}{lstlisting.3.48}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.48}Firma del m\IeC {\'e}todo ``\textit  {check}'' de la clase ActivityRecognizer.}{88}{lstlisting.3.48}\protected@file@percent }
+\newlabel{Alg:showDataAnalyzer}{{3.49}{89}{Firma del método ``\textit {showData}'' de la clase EventAnalyzer}{lstlisting.3.49}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.49}Firma del m\IeC {\'e}todo ``\textit  {showData}'' de la clase EventAnalyzer.}{89}{lstlisting.3.49}\protected@file@percent }
+\newlabel{Alg:simulateAnalyzer}{{3.50}{89}{Firma del método ``\textit {simulateData}''}{lstlisting.3.50}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.50}Firma del m\IeC {\'e}todo ``\textit  {simulateData}''.}{89}{lstlisting.3.50}\protected@file@percent }
+\newlabel{Alg:stopAnalyzer}{{3.51}{89}{Firma del método "\textit {stop}" de la clase EventAnalyzer}{lstlisting.3.51}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.51}Firma del m\IeC {\'e}todo "\textit  {stop}" de la clase EventAnalyzer.}{89}{lstlisting.3.51}\protected@file@percent }
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.6.3}Canales de notificaci\IeC {\'o}n - CommChannel}{89}{subsection.3.6.3}\protected@file@percent }
+\newlabel{sub:CommChannel}{{3.6.3}{89}{Canales de notificación - CommChannel}{subsection.3.6.3}{}}
+\@writefile{lof}{\defcounter {refsection}{0}\relax }\@writefile{lof}{\contentsline {figure}{\numberline {3.8}{\ignorespaces Ciclo de vida de una notificaci\IeC {\'o}n}}{90}{figure.caption.102}\protected@file@percent }
+\newlabel{fig:NotifyLifeCicle}{{3.8}{90}{Ciclo de vida de una notificación}{figure.caption.102}{}}
+\newlabel{Alg:startChannel}{{3.52}{90}{Firma del método "\textit {start}" de la clase NotificationChannel}{lstlisting.3.52}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.52}Firma del m\IeC {\'e}todo "\textit  {start}" de la clase NotificationChannel.}{90}{lstlisting.3.52}\protected@file@percent }
+\newlabel{Alg:loadedChannel}{{3.53}{90}{Firma del método "\textit {loaded}" de la clase NotificationChannel}{lstlisting.3.53}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.53}Firma del m\IeC {\'e}todo "\textit  {loaded}" de la clase NotificationChannel.}{90}{lstlisting.3.53}\protected@file@percent }
+\newlabel{Alg:sendNotifier}{{3.54}{90}{Firma del método "\textit {notify}" de la clase NotificationChannel}{lstlisting.3.54}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.54}Firma del m\IeC {\'e}todo "\textit  {notify}" de la clase NotificationChannel.}{90}{lstlisting.3.54}\protected@file@percent }
+\newlabel{Alg:preNotify}{{3.55}{90}{Firma del método "\textit {preNotify}" de la clase NotificationChannel}{lstlisting.3.55}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.55}Firma del m\IeC {\'e}todo "\textit  {preNotify}" de la clase NotificationChannel.}{90}{lstlisting.3.55}\protected@file@percent }
+\newlabel{Alg:tryNotify}{{3.56}{90}{Firma del método "\textit {tryNotify}" de la clase NotificationChannel}{lstlisting.3.56}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.56}Firma del m\IeC {\'e}todo "\textit  {tryNotify}" de la clase NotificationChannel.}{90}{lstlisting.3.56}\protected@file@percent }
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.6.4}Estructura de mensajes de notificaci\IeC {\'o}n - Message}{91}{subsection.3.6.4}\protected@file@percent }
+\newlabel{sub:NotifyMessage}{{3.6.4}{91}{Estructura de mensajes de notificación - Message}{subsection.3.6.4}{}}
+\@writefile{lot}{\defcounter {refsection}{0}\relax }\@writefile{lot}{\contentsline {table}{\numberline {3.4}{\ignorespaces Atributos del mensaje a transmitir por los canales de notificaci\IeC {\'o}n}}{91}{table.caption.103}\protected@file@percent }
+\newlabel{Tab:MessageEstructureAttr}{{3.4}{91}{Atributos del mensaje a transmitir por los canales de notificación}{table.caption.103}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Variables de reemplazo en mensajes de notificaci\IeC {\'o}n}{91}{section*.104}\protected@file@percent }
+\newlabel{sub2:MessageTokens}{{3.6.4}{91}{Variables de reemplazo en mensajes de notificación}{section*.104}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {section}{\numberline {3.7}Modelo integrado del sistema}{92}{section.3.7}\protected@file@percent }
+\newlabel{sec:IntegratedModel}{{3.7}{92}{Modelo integrado del sistema}{section.3.7}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.7.1}Estructura de directorios}{92}{subsection.3.7.1}\protected@file@percent }
+\newlabel{sub:Directories}{{3.7.1}{92}{Estructura de directorios}{subsection.3.7.1}{}}
+\@writefile{lof}{\defcounter {refsection}{0}\relax }\@writefile{lof}{\contentsline {figure}{\numberline {3.9}{\ignorespaces \IeC {\'A}rbol de directorios}}{92}{figure.caption.105}\protected@file@percent }
+\newlabel{fig:SystemDirectories}{{3.9}{92}{Árbol de directorios}{figure.caption.105}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{N\IeC {\'u}cleo y c\IeC {\'o}digo base}{93}{section*.106}\protected@file@percent }
+\newlabel{sub2:CoreBaseDirectories}{{3.7.1}{93}{Núcleo y código base}{section*.106}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Componentes extensibles}{94}{section*.107}\protected@file@percent }
+\newlabel{sub2:ExtensibleDirectories}{{3.7.1}{94}{Componentes extensibles}{section*.107}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.7.2}Modelo de clases}{94}{subsection.3.7.2}\protected@file@percent }
+\newlabel{sub:ClassModel}{{3.7.2}{94}{Modelo de clases}{subsection.3.7.2}{}}
+\@writefile{lof}{\defcounter {refsection}{0}\relax }\@writefile{lof}{\contentsline {figure}{\numberline {3.10}{\ignorespaces Modelo de clases del sistema}}{94}{figure.caption.108}\protected@file@percent }
+\newlabel{fig:FullClassModel}{{3.10}{94}{Modelo de clases del sistema}{figure.caption.108}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.7.3}Modelo de despliegue}{94}{subsection.3.7.3}\protected@file@percent }
+\newlabel{sub:DeployModel}{{3.7.3}{94}{Modelo de despliegue}{subsection.3.7.3}{}}
+\@writefile{lof}{\defcounter {refsection}{0}\relax }\@writefile{lof}{\contentsline {figure}{\numberline {3.11}{\ignorespaces Modelo de despliegue del sistema}}{95}{figure.caption.109}\protected@file@percent }
+\newlabel{fig:PhysicModel}{{3.11}{95}{Modelo de despliegue del sistema}{figure.caption.109}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {section}{\numberline {3.8}Modelo para la construcci\IeC {\'o}n de un componente controlador de dispositivos}{95}{section.3.8}\protected@file@percent }
+\newlabel{Sec:DeviceControllerTemplate}{{3.8}{95}{Modelo para la construcción de un componente controlador de dispositivos}{section.3.8}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.8.1}Plantilla Controlador de dispositivos}{95}{subsection.3.8.1}\protected@file@percent }
+\newlabel{sub:TplController}{{3.8.1}{95}{Plantilla Controlador de dispositivos}{subsection.3.8.1}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Archivo de configuraci\IeC {\'o}n controlador - config.yaml}{95}{section*.111}\protected@file@percent }
+\newlabel{sub2:ConfigFileController}{{3.8.1}{95}{Archivo de configuración controlador - config.yaml}{section*.111}{}}
+\@writefile{lof}{\defcounter {refsection}{0}\relax }\@writefile{lof}{\contentsline {figure}{\numberline {3.12}{\ignorespaces Archivos de un componente controlador}}{96}{figure.caption.110}\protected@file@percent }
+\newlabel{fig:TplControllerFiles}{{3.12}{96}{Archivos de un componente controlador}{figure.caption.110}{}}
+\@writefile{lot}{\defcounter {refsection}{0}\relax }\@writefile{lot}{\contentsline {table}{\numberline {3.5}{\ignorespaces Archivo de configuraci\IeC {\'o}n controlador}}{96}{table.caption.112}\protected@file@percent }
+\newlabel{Tab:ConfigFileController}{{3.5}{96}{Archivo de configuración controlador}{table.caption.112}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Archivo de dispositivos - devices.yaml}{96}{section*.113}\protected@file@percent }
+\newlabel{sub2:devicesFileController}{{3.8.1}{96}{Archivo de dispositivos - devices.yaml}{section*.113}{}}
+\newlabel{Alg:devices}{{3.57}{96}{Estructura del archivo de configuración de dispositivos}{lstlisting.3.57}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.57}Estructura del archivo de configuraci\IeC {\'o}n de dispositivos.}{96}{lstlisting.3.57}\protected@file@percent }
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Clase inicial del controlador - Controller.py}{97}{section*.114}\protected@file@percent }
+\newlabel{sub2:classFileController}{{3.8.1}{97}{Clase inicial del controlador - Controller.py}{section*.114}{}}
+\newlabel{Alg:NewController}{{3.58}{97}{Plantilla para un nuevo controlador de dispositivos}{lstlisting.3.58}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.58}Plantilla para un nuevo controlador de dispositivos.}{97}{lstlisting.3.58}\protected@file@percent }
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.8.2}Implementaci\IeC {\'o}n de un nuevo controlador de dispositivos}{99}{subsection.3.8.2}\protected@file@percent }
+\newlabel{sub:DevelopingController}{{3.8.2}{99}{Implementación de un nuevo controlador de dispositivos}{subsection.3.8.2}{}}
+\@writefile{lof}{\defcounter {refsection}{0}\relax }\@writefile{lof}{\contentsline {figure}{\numberline {3.13}{\ignorespaces Archivos de un nuevo controlador}}{99}{figure.caption.115}\protected@file@percent }
+\newlabel{fig:NewController}{{3.13}{99}{Archivos de un nuevo controlador}{figure.caption.115}{}}
+\newlabel{Alg:NewControler-getData}{{3.59}{99}{Implementación del método 'getData' en un nuevo controlador}{lstlisting.3.59}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.59}Implementaci\IeC {\'o}n del m\IeC {\'e}todo 'getData' en un nuevo controlador.}{99}{lstlisting.3.59}\protected@file@percent }
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {section}{\numberline {3.9}Modelo para la construcci\IeC {\'o}n de un componente de Reconocedor de actividades}{101}{section.3.9}\protected@file@percent }
+\newlabel{Sec:ClassifierHARTemplate}{{3.9}{101}{Modelo para la construcción de un componente de Reconocedor de actividades}{section.3.9}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.9.1}Plantilla Reconocedor de actividades}{101}{subsection.3.9.1}\protected@file@percent }
+\newlabel{sub:TplHAR}{{3.9.1}{101}{Plantilla Reconocedor de actividades}{subsection.3.9.1}{}}
+\@writefile{lof}{\defcounter {refsection}{0}\relax }\@writefile{lof}{\contentsline {figure}{\numberline {3.14}{\ignorespaces Archivos de un reconocedor de actividades}}{101}{figure.caption.116}\protected@file@percent }
+\newlabel{fig:TplHARFiles}{{3.14}{101}{Archivos de un reconocedor de actividades}{figure.caption.116}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Archivo de configuraci\IeC {\'o}n clasificador - config.yaml}{101}{section*.117}\protected@file@percent }
+\newlabel{sub2:ConfigFileHAR}{{3.9.1}{101}{Archivo de configuración clasificador - config.yaml}{section*.117}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Clase inicial del clasificador - Recognizer.py}{101}{section*.119}\protected@file@percent }
+\newlabel{sub2:classFileHAR}{{3.9.1}{101}{Clase inicial del clasificador - Recognizer.py}{section*.119}{}}
+\newlabel{Alg:NewRecognizer}{{3.60}{101}{Plantilla para un nuevo Reconocedor de actividades}{lstlisting.3.60}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.60}Plantilla para un nuevo Reconocedor de actividades.}{101}{lstlisting.3.60}\protected@file@percent }
+\@writefile{lot}{\defcounter {refsection}{0}\relax }\@writefile{lot}{\contentsline {table}{\numberline {3.6}{\ignorespaces Archivo de configuraci\IeC {\'o}n clasificador}}{102}{table.caption.118}\protected@file@percent }
+\newlabel{Tab:ConfigFileHAR}{{3.6}{102}{Archivo de configuración clasificador}{table.caption.118}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Entrenamientos de inteligencia artificial - models}{103}{section*.120}\protected@file@percent }
+\newlabel{sub2:modelFileHAR}{{3.9.1}{103}{Entrenamientos de inteligencia artificial - models}{section*.120}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Plantillas para entrenamiento y prueba}{104}{section*.121}\protected@file@percent }
+\newlabel{sub2:trainFileHAR}{{3.9.1}{104}{Plantillas para entrenamiento y prueba}{section*.121}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.9.2}Implementaci\IeC {\'o}n de un nuevo Reconocedor de actividades}{104}{subsection.3.9.2}\protected@file@percent }
+\newlabel{sub:DevelopingHAR}{{3.9.2}{104}{Implementación de un nuevo Reconocedor de actividades}{subsection.3.9.2}{}}
+\@writefile{lof}{\defcounter {refsection}{0}\relax }\@writefile{lof}{\contentsline {figure}{\numberline {3.15}{\ignorespaces Archivos de un nuevo clasificador HAR}}{105}{figure.caption.122}\protected@file@percent }
+\newlabel{fig:NewHAR}{{3.15}{105}{Archivos de un nuevo clasificador HAR}{figure.caption.122}{}}
+\newlabel{Alg:NewHAR-predict}{{3.61}{105}{Implementación del método 'predict' en un nuevo clasificador}{lstlisting.3.61}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.61}Implementaci\IeC {\'o}n del m\IeC {\'e}todo 'predict' en un nuevo clasificador.}{105}{lstlisting.3.61}\protected@file@percent }
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {section}{\numberline {3.10}Modelo para la construcci\IeC {\'o}n de un componente analizador de eventos}{106}{section.3.10}\protected@file@percent }
+\newlabel{Sec:EventAnalyzerTemplate}{{3.10}{106}{Modelo para la construcción de un componente analizador de eventos}{section.3.10}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.10.1}Plantilla analizador}{106}{subsection.3.10.1}\protected@file@percent }
+\newlabel{sub:TplAnalyzer}{{3.10.1}{106}{Plantilla analizador}{subsection.3.10.1}{}}
+\@writefile{lof}{\defcounter {refsection}{0}\relax }\@writefile{lof}{\contentsline {figure}{\numberline {3.16}{\ignorespaces Archivos de un analizador de eventos}}{106}{figure.caption.123}\protected@file@percent }
+\newlabel{fig:TplAnalyzerFiles}{{3.16}{106}{Archivos de un analizador de eventos}{figure.caption.123}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Archivo de configuraci\IeC {\'o}n analizador - config.yaml}{106}{section*.124}\protected@file@percent }
+\newlabel{sub2:ConfigFileAnalyzer}{{3.10.1}{106}{Archivo de configuración analizador - config.yaml}{section*.124}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Clase inicial del Analizador - \_Analyzer.py}{106}{section*.126}\protected@file@percent }
+\newlabel{sub2:classFileAnalyzer}{{3.10.1}{106}{Clase inicial del Analizador - \_Analyzer.py}{section*.126}{}}
+\newlabel{Alg:NewAnalyzer}{{3.62}{106}{Plantilla para un nuevo Analizador de Eventos}{lstlisting.3.62}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.62}Plantilla para un nuevo Analizador de Eventos.}{106}{lstlisting.3.62}\protected@file@percent }
+\@writefile{lot}{\defcounter {refsection}{0}\relax }\@writefile{lot}{\contentsline {table}{\numberline {3.7}{\ignorespaces Archivo de configuraci\IeC {\'o}n analizador}}{107}{table.caption.125}\protected@file@percent }
+\newlabel{Tab:ConfigFileAnalyzer}{{3.7}{107}{Archivo de configuración analizador}{table.caption.125}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Entrenamientos de inteligencia artificial - models}{109}{section*.127}\protected@file@percent }
+\newlabel{sub2:modelFileAnalyzer}{{3.10.1}{109}{Entrenamientos de inteligencia artificial - models}{section*.127}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.10.2}Implementaci\IeC {\'o}n de un nuevo analizador de eventos}{109}{subsection.3.10.2}\protected@file@percent }
+\newlabel{sub:DevelopingAnalyzer}{{3.10.2}{109}{Implementación de un nuevo analizador de eventos}{subsection.3.10.2}{}}
+\@writefile{lof}{\defcounter {refsection}{0}\relax }\@writefile{lof}{\contentsline {figure}{\numberline {3.17}{\ignorespaces Archivos de un nuevo analizado de eventos}}{109}{figure.caption.128}\protected@file@percent }
+\newlabel{fig:NewAnalyzer}{{3.17}{109}{Archivos de un nuevo analizado de eventos}{figure.caption.128}{}}
+\newlabel{Alg:NewAnalyzer-analyze}{{3.63}{110}{Implementación del método 'analyze' en un nuevo analizador}{lstlisting.3.63}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.63}Implementaci\IeC {\'o}n del m\IeC {\'e}todo 'analyze' en un nuevo analizador.}{110}{lstlisting.3.63}\protected@file@percent }
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {section}{\numberline {3.11}Modelo para la construcci\IeC {\'o}n de un componente de notificaci\IeC {\'o}n}{111}{section.3.11}\protected@file@percent }
+\newlabel{Sec:NotifierChannelTemplate}{{3.11}{111}{Modelo para la construcción de un componente de notificación}{section.3.11}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.11.1}Plantilla notificador}{111}{subsection.3.11.1}\protected@file@percent }
+\newlabel{sub:TplChannel}{{3.11.1}{111}{Plantilla notificador}{subsection.3.11.1}{}}
+\@writefile{lof}{\defcounter {refsection}{0}\relax }\@writefile{lof}{\contentsline {figure}{\numberline {3.18}{\ignorespaces Archivos de un notificador}}{111}{figure.caption.129}\protected@file@percent }
+\newlabel{fig:TplChannelFiles}{{3.18}{111}{Archivos de un notificador}{figure.caption.129}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Archivo de configuraci\IeC {\'o}n notificador - config.yaml}{111}{section*.130}\protected@file@percent }
+\newlabel{sub2:ConfigFileChannel}{{3.11.1}{111}{Archivo de configuración notificador - config.yaml}{section*.130}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsubsection}{Clase inicial del clasificador - \_Channel.py}{111}{section*.132}\protected@file@percent }
+\newlabel{sub2:classFileChannel}{{3.11.1}{111}{Clase inicial del clasificador - \_Channel.py}{section*.132}{}}
+\newlabel{Alg:NewChannel}{{3.64}{111}{Plantilla para un nuevo Canal de notificaciones}{lstlisting.3.64}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.64}Plantilla para un nuevo Canal de notificaciones.}{111}{lstlisting.3.64}\protected@file@percent }
+\@writefile{lot}{\defcounter {refsection}{0}\relax }\@writefile{lot}{\contentsline {table}{\numberline {3.8}{\ignorespaces Archivo de configuraci\IeC {\'o}n del componente notificador}}{112}{table.caption.131}\protected@file@percent }
+\newlabel{Tab:ConfigFileChannel}{{3.8}{112}{Archivo de configuración del componente notificador}{table.caption.131}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.11.2}Implementaci\IeC {\'o}n de un nuevo notificador}{113}{subsection.3.11.2}\protected@file@percent }
+\newlabel{sub:DevelopingChannel}{{3.11.2}{113}{Implementación de un nuevo notificador}{subsection.3.11.2}{}}
+\@writefile{lof}{\defcounter {refsection}{0}\relax }\@writefile{lof}{\contentsline {figure}{\numberline {3.19}{\ignorespaces Archivos de un nuevo notificador}}{113}{figure.caption.133}\protected@file@percent }
+\newlabel{fig:NewChannel}{{3.19}{113}{Archivos de un nuevo notificador}{figure.caption.133}{}}
+\newlabel{Alg:NewChannel-send}{{3.65}{113}{Implementación del método 'send' en un nuevo componente notificador}{lstlisting.3.65}{}}
+\@writefile{lol}{\defcounter {refsection}{0}\relax }\@writefile{lol}{\contentsline {lstlisting}{\numberline {3.65}Implementaci\IeC {\'o}n del m\IeC {\'e}todo 'send' en un nuevo componente notificador.}{113}{lstlisting.3.65}\protected@file@percent }
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {section}{\numberline {3.12}Creaci\IeC {\'o}n de conjuntos de datos para entrenamientos y pruebas}{115}{section.3.12}\protected@file@percent }
+\newlabel{Sec:TrainValTestDataset}{{3.12}{115}{Creación de conjuntos de datos para entrenamientos y pruebas}{section.3.12}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.12.1}Selecci\IeC {\'o}n de datos}{115}{subsection.3.12.1}\protected@file@percent }
+\newlabel{sub:DatasetSelection}{{3.12.1}{115}{Selección de datos}{subsection.3.12.1}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.12.2}Divisi\IeC {\'o}n del conjunto de datos: Entrenamiento, Validaci\IeC {\'o}n y Pruebas}{115}{subsection.3.12.2}\protected@file@percent }
+\newlabel{sub:DatasetSplit}{{3.12.2}{115}{División del conjunto de datos: Entrenamiento, Validación y Pruebas}{subsection.3.12.2}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.12.3}Aumento de datos}{115}{subsection.3.12.3}\protected@file@percent }
+\newlabel{sub:DatasetAugmented}{{3.12.3}{115}{Aumento de datos}{subsection.3.12.3}{}}
+\gdef \LT@i {\LT@entry 
+    {2}{211.16928pt}\LT@entry 
+    {5}{211.16928pt}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {section}{\numberline {3.13}Funcionalidades auxiliares}{116}{section.3.13}\protected@file@percent }
+\newlabel{Sec:Tools}{{3.13}{116}{Funcionalidades auxiliares}{section.3.13}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.13.1}Utilidades varias - Misc.py}{116}{subsection.3.13.1}\protected@file@percent }
+\newlabel{sub:MiscClass}{{3.13.1}{116}{Utilidades varias - Misc.py}{subsection.3.13.1}{}}
+\@writefile{lot}{\defcounter {refsection}{0}\relax }\@writefile{lot}{\contentsline {table}{\numberline {3.9}{\ignorespaces M\IeC {\'e}todos de la clase Misc}}{116}{table.3.9}\protected@file@percent }
+\newlabel{Tab:MiscMethods}{{3.9}{117}{Utilidades varias - Misc.py}{table.3.9}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.13.2}Segmentaci\IeC {\'o}n de los datos - DataSplit.py}{117}{subsection.3.13.2}\protected@file@percent }
+\newlabel{sub:DataSplitClass}{{3.13.2}{117}{Segmentación de los datos - DataSplit.py}{subsection.3.13.2}{}}
+\@writefile{toc}{\defcounter {refsection}{0}\relax }\@writefile{toc}{\contentsline {subsection}{\numberline {3.13.3}Segmentaci\IeC {\'o}n de los datos - DataAugmented.py}{117}{subsection.3.13.3}\protected@file@percent }
+\newlabel{sub:DataAugmentedClass}{{3.13.3}{117}{Segmentación de los datos - DataAugmented.py}{subsection.3.13.3}{}}
+\@setckpt{03-SystemAchitecture}{
+\setcounter{page}{118}
+\setcounter{equation}{0}
+\setcounter{enumi}{4}
+\setcounter{enumii}{0}
+\setcounter{enumiii}{0}
+\setcounter{enumiv}{0}
+\setcounter{footnote}{0}
+\setcounter{mpfootnote}{0}
+\setcounter{part}{0}
+\setcounter{chapter}{3}
+\setcounter{section}{13}
+\setcounter{subsection}{3}
+\setcounter{subsubsection}{0}
+\setcounter{paragraph}{0}
+\setcounter{subparagraph}{0}
+\setcounter{figure}{19}
+\setcounter{table}{9}
+\setcounter{parentequation}{0}
+\setcounter{lstnumber}{29}
+\setcounter{Item}{4}
+\setcounter{Hfootnote}{0}
+\setcounter{bookmark@seq@number}{122}
+\setcounter{AM@survey}{0}
+\setcounter{AlgoLine}{0}
+\setcounter{algocfline}{0}
+\setcounter{algocfproc}{0}
+\setcounter{algocf}{0}
+\setcounter{caption@flags}{0}
+\setcounter{continuedfloat}{0}
+\setcounter{subfigure}{0}
+\setcounter{subtable}{0}
+\setcounter{LT@tables}{1}
+\setcounter{LT@chunks}{5}
+\setcounter{tabx@nest}{0}
+\setcounter{listtotal}{0}
+\setcounter{listcount}{0}
+\setcounter{liststart}{0}
+\setcounter{liststop}{0}
+\setcounter{citecount}{0}
+\setcounter{citetotal}{0}
+\setcounter{multicitecount}{0}
+\setcounter{multicitetotal}{0}
+\setcounter{instcount}{0}
+\setcounter{maxnames}{3}
+\setcounter{minnames}{1}
+\setcounter{maxitems}{3}
+\setcounter{minitems}{1}
+\setcounter{citecounter}{0}
+\setcounter{maxcitecounter}{0}
+\setcounter{savedcitecounter}{0}
+\setcounter{uniquelist}{0}
+\setcounter{uniquename}{0}
+\setcounter{refsection}{0}
+\setcounter{refsegment}{0}
+\setcounter{maxextratitle}{0}
+\setcounter{maxextratitleyear}{0}
+\setcounter{maxextraname}{0}
+\setcounter{maxextradate}{0}
+\setcounter{maxextraalpha}{0}
+\setcounter{abbrvpenalty}{50}
+\setcounter{highnamepenalty}{50}
+\setcounter{lownamepenalty}{25}
+\setcounter{maxparens}{3}
+\setcounter{parenlevel}{0}
+\setcounter{mincomprange}{10}
+\setcounter{maxcomprange}{100000}
+\setcounter{mincompwidth}{1}
+\setcounter{afterword}{0}
+\setcounter{savedafterword}{0}
+\setcounter{annotator}{0}
+\setcounter{savedannotator}{0}
+\setcounter{author}{0}
+\setcounter{savedauthor}{0}
+\setcounter{bookauthor}{0}
+\setcounter{savedbookauthor}{0}
+\setcounter{commentator}{0}
+\setcounter{savedcommentator}{0}
+\setcounter{editor}{0}
+\setcounter{savededitor}{0}
+\setcounter{editora}{0}
+\setcounter{savededitora}{0}
+\setcounter{editorb}{0}
+\setcounter{savededitorb}{0}
+\setcounter{editorc}{0}
+\setcounter{savededitorc}{0}
+\setcounter{foreword}{0}
+\setcounter{savedforeword}{0}
+\setcounter{holder}{0}
+\setcounter{savedholder}{0}
+\setcounter{introduction}{0}
+\setcounter{savedintroduction}{0}
+\setcounter{namea}{0}
+\setcounter{savednamea}{0}
+\setcounter{nameb}{0}
+\setcounter{savednameb}{0}
+\setcounter{namec}{0}
+\setcounter{savednamec}{0}
+\setcounter{translator}{0}
+\setcounter{savedtranslator}{0}
+\setcounter{shortauthor}{0}
+\setcounter{savedshortauthor}{0}
+\setcounter{shorteditor}{0}
+\setcounter{savedshorteditor}{0}
+\setcounter{labelname}{0}
+\setcounter{savedlabelname}{0}
+\setcounter{institution}{0}
+\setcounter{savedinstitution}{0}
+\setcounter{lista}{0}
+\setcounter{savedlista}{0}
+\setcounter{listb}{0}
+\setcounter{savedlistb}{0}
+\setcounter{listc}{0}
+\setcounter{savedlistc}{0}
+\setcounter{listd}{0}
+\setcounter{savedlistd}{0}
+\setcounter{liste}{0}
+\setcounter{savedliste}{0}
+\setcounter{listf}{0}
+\setcounter{savedlistf}{0}
+\setcounter{location}{0}
+\setcounter{savedlocation}{0}
+\setcounter{organization}{0}
+\setcounter{savedorganization}{0}
+\setcounter{origlocation}{0}
+\setcounter{savedoriglocation}{0}
+\setcounter{origpublisher}{0}
+\setcounter{savedorigpublisher}{0}
+\setcounter{publisher}{0}
+\setcounter{savedpublisher}{0}
+\setcounter{language}{0}
+\setcounter{savedlanguage}{0}
+\setcounter{origlanguage}{0}
+\setcounter{savedoriglanguage}{0}
+\setcounter{pageref}{0}
+\setcounter{savedpageref}{0}
+\setcounter{textcitecount}{0}
+\setcounter{textcitetotal}{0}
+\setcounter{textcitemaxnames}{0}
+\setcounter{biburlbigbreakpenalty}{100}
+\setcounter{biburlbreakpenalty}{200}
+\setcounter{biburlnumpenalty}{0}
+\setcounter{biburlucpenalty}{0}
+\setcounter{biburllcpenalty}{0}
+\setcounter{smartand}{1}
+\setcounter{bbx:relatedcount}{0}
+\setcounter{bbx:relatedtotal}{0}
+\setcounter{cbx@tempcnta}{0}
+\setcounter{cbx@tempcntb}{0}
+\setcounter{lstlisting}{65}
+\setcounter{section@level}{2}
+\setcounter{totpages}{25}
+}

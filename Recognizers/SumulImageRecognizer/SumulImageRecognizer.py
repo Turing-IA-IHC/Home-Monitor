@@ -108,7 +108,7 @@ class SumulImageRecognizer(EventRecognizer):
             if len(self.file[self.simulationStep, 2]) < 3:
                 dataReturn.insert(0, {'queryTime':time()})
                 self.simulationStep += 1
-                print(' -- no -- ')
+                #print(' -- no -- ')
                 return dataReturn
             
             frame = cv2.imread(self.file[self.simulationStep, 1])

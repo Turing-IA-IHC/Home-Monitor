@@ -1,0 +1,30 @@
+\include{config/docConfig}
+\include{config/docVar}
+
+\begin{document}
+\frontmatter
+\pagestyle{empty}  % Páginas sin cabecera ni pies
+
+% Inicio del documento
+\include{00-Presentation}
+
+% Preparación para los capítulos NO TOCAR
+\savepagecnt
+\mainmatter
+\cleanhdfirst
+
+% Capítulos del documento
+\include{01-ProblemStatement}
+\include{02-FrameworkOfReference}
+\include{03-SystemAchitecture}
+\include{04-SystemConstruction}
+%\include{05-SystemTest}
+
+% Anexos
+%\appendix
+%\portadaAnexos % OPT. Añade una portada para anexos
+%\include{AnexoA} % Apéndice A (opcionales)
+
+% Finalización del documento
+\include{99-Ending}
+\end{document}

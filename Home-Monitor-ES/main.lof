@@ -1,0 +1,137 @@
+\babel@toc {spanish}{}
+\babel@toc {english}{}
+\babel@toc {spanish}{}
+\boolfalse {citerequest}\boolfalse {citetracker}\boolfalse {pagetracker}\boolfalse {backtracker}\relax 
+\babel@toc {spanish}{}
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Modelo general de una red neuronal}}{14}{figure.caption.17}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Modelo del Perceptr\IeC {\'o}n}}{14}{figure.caption.18}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.3}{\ignorespaces Modelo del Perceptr\IeC {\'o}n multi capa}}{15}{figure.caption.19}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.4}{\ignorespaces Listado de arquitecturas de redes neuronales}}{16}{figure.caption.22}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.5}{\ignorespaces Arquitectura tradicional de una red convolucional.}}{18}{figure.caption.24}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.6}{\ignorespaces Pasos de una capa de convoluci\IeC {\'o}n}}{18}{figure.caption.26}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.7}{\ignorespaces Capas de relleno para convoluci\IeC {\'o}n}}{19}{figure.caption.28}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.8}{\ignorespaces Dise\IeC {\~n}o general de una RNN}}{20}{figure.caption.32}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.9}{\ignorespaces RNN desenrollada}}{21}{figure.caption.34}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.10}{\ignorespaces Esquema de un bloque de LSTM}}{22}{figure.caption.36}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.11}{\ignorespaces Dise\IeC {\~n}o general de la arquitectura ResNet}}{23}{figure.caption.37}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.12}{\ignorespaces Imagen digital}}{24}{figure.caption.38}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.13}{\ignorespaces Sobre entrenamiento}}{26}{figure.caption.39}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.14}{\ignorespaces Representaci\IeC {\'o}n ecuaci\IeC {\'o}n Sigmoide}}{28}{figure.caption.41}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.15}{\ignorespaces Representaci\IeC {\'o}n ecuaci\IeC {\'o}n Tangente hiperb\IeC {\'o}lica}}{29}{figure.caption.43}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.16}{\ignorespaces Representaci\IeC {\'o}n ecuaci\IeC {\'o}n ReLU}}{30}{figure.caption.45}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.17}{\ignorespaces Gr\IeC {\'a}fica de la funci\IeC {\'o}n $f(x) = x^2$}}{33}{figure.caption.51}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.18}{\ignorespaces Gr\IeC {\'a}fica de la funci\IeC {\'o}n $z={x}^{2}-{y}^{2}$}}{33}{figure.caption.52}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.19}{\ignorespaces M\IeC {\'\i }nimos locales}}{34}{figure.caption.53}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.20}{\ignorespaces Modelo del Perceptr\IeC {\'o}n multi capa}}{36}{figure.caption.56}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.21}{\ignorespaces Pasos para la creaci\IeC {\'o}n de conjuntos de datos.}}{41}{figure.caption.57}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.22}{\ignorespaces Divisi\IeC {\'o}n del conjunto de datos.}}{44}{figure.caption.58}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.23}{\ignorespaces Conjunto de datos sin sesgo.}}{45}{figure.caption.59}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.24}{\ignorespaces Ejemplo de im\IeC {\'a}genes del COCO keypoint Challenge}}{47}{figure.caption.62}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.25}{\ignorespaces MPII Human Pose}}{47}{figure.caption.63}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.26}{\ignorespaces Microsoft Kinect}}{50}{figure.caption.64}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.27}{\ignorespaces Extracci\IeC {\'o}n del fondo usando croma}}{53}{figure.caption.67}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.28}{\ignorespaces Extracci\IeC {\'o}n del fondo usando Kinect}}{53}{figure.caption.68}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.29}{\ignorespaces Extracci\IeC {\'o}n del fondo usando Mask RCNN}}{54}{figure.caption.69}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.30}{\ignorespaces Identificaci\IeC {\'o}n de postura con mapas de calor}}{56}{figure.caption.72}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.31}{\ignorespaces Arquitectura de relojes de arena}}{57}{figure.caption.73}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.32}{\ignorespaces An\IeC {\'a}lisis secuencial para HAR}}{59}{figure.caption.75}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.33}{\ignorespaces An\IeC {\'a}lisis por volumen para HAR}}{60}{figure.caption.76}% 
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Diagrama general del sistema}}{66}{figure.caption.79}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Flujo general de informaci\IeC {\'o}n del sistema}}{70}{figure.caption.81}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Diagrama de la pila de datos}}{73}{figure.caption.86}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Estructura general de un componente extensible}}{75}{figure.caption.89}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Ciclo de vida de la entrada de datos}}{77}{figure.caption.90}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Ciclo de vida del proceso de reconocimiento de actividades}}{81}{figure.caption.94}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.7}{\ignorespaces Ciclo de vida del an\IeC {\'a}lisis de eventos}}{85}{figure.caption.98}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.8}{\ignorespaces Ciclo de vida de una notificaci\IeC {\'o}n}}{90}{figure.caption.102}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.9}{\ignorespaces \IeC {\'A}rbol de directorios}}{92}{figure.caption.105}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.10}{\ignorespaces Modelo de clases del sistema}}{94}{figure.caption.108}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.11}{\ignorespaces Modelo de despliegue del sistema}}{95}{figure.caption.109}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.12}{\ignorespaces Archivos de un componente controlador}}{96}{figure.caption.110}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.13}{\ignorespaces Archivos de un nuevo controlador}}{99}{figure.caption.115}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.14}{\ignorespaces Archivos de un reconocedor de actividades}}{101}{figure.caption.116}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.15}{\ignorespaces Archivos de un nuevo clasificador HAR}}{105}{figure.caption.122}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.16}{\ignorespaces Archivos de un analizador de eventos}}{106}{figure.caption.123}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.17}{\ignorespaces Archivos de un nuevo analizado de eventos}}{109}{figure.caption.128}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.18}{\ignorespaces Archivos de un notificador}}{111}{figure.caption.129}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.19}{\ignorespaces Archivos de un nuevo notificador}}{113}{figure.caption.133}% 
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\babel@toc {english}{}
+\babel@toc {spanish}{}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Modelo de clases de CamController}}{121}{figure.caption.134}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Captura y transformaciones del CamController}}{123}{figure.caption.137}% 
+\babel@toc {english}{}
+\babel@toc {spanish}{}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Modelo de clases de ColorInfarctRecognizer}}{125}{figure.caption.138}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Red neuronal usada por ColorInfarctRecognizer}}{126}{figure.caption.140}% 
+\babel@toc {english}{}
+\babel@toc {spanish}{}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Flujo de reconocimiento de infartos del m\IeC {\'o}dulo SkeletonInfarctRecognizer}}{127}{figure.caption.141}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Modelo de clases de SkeletonInfarctRecognizer}}{128}{figure.caption.142}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {4.7}{\ignorespaces Modelo de clases de MailChannel}}{129}{figure.caption.144}% 

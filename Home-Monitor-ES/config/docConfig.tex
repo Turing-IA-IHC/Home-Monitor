@@ -1,0 +1,88 @@
+% ========================= Parámetros básicos del documento =========================
+    \documentclass[ 		                % Clase del documento
+    	11pt,				                % Tamaño de letra
+    	a4paper,			                % Tamaño de papel
+    	twoside,			                % Impresión a doble cara
+    	openright,			                % La apertura de cap. a la dcha.
+    	final       		                % Versión final
+    ]{book}
+    
+    % --- Geometría de las páginas del documento ---
+    \usepackage[			                % Márgenes del documento
+    	top=2.5cm,			                % Margen superior
+    	bottom=2.5cm,		                % Margen inferior
+    	inner=3.5cm,		                % Margen al interior
+    	outer=2cm			                % Margen al exterior
+    ]{geometry}
+    
+    \pagestyle{empty}
+
+    % --- Tipografía ---
+    \usepackage{textcomp,marvosym,pifont}   % OPT.: Generación de símbolos 
+    \usepackage{ccicons}                    % OPT.: Iconos de licencia Creative Commons
+    \usepackage{amsmath,amsthm,amssymb}	    % OPT.: Mejoras cuando hay matemáticas
+    \usepackage[tt=false]{libertine}        % Libertine con Old-Style Figures [osf]
+    \usepackage[libertine]{newtxmath}       % Times
+    \usepackage[T1]{fontenc}                % Codificación de salida    
+    \usepackage{microtype}	                % Mejoras de microtipografía en el PDF
+    
+    %--- OPT.: Paquete para incluir menús, paths y teclas de modo "elegante"
+    %\usepackage[os=win,hyperrefcolorlinks]{menukeys} 
+    %\renewmenumacro{\menu}[>]{menus}                        % OPT.: default:menus
+    %\renewmenumacro{\directory}[/]{pathswithblackfolder}    % OPT.: default:paths
+    %\renewmenumacro{\keys}[+]{shadowedroundedkeys}          % OPT.: default:roundedkeys
+
+    % --- Idioma ---
+    \usepackage[utf8]{inputenx}             % Codificación de entrada
+    \usepackage[english,spanish,es-tabla,es-noindentfirst]{babel} % Internacionalización
+
+    % --- Código Fuente ---
+    \usepackage{listings}
+    \renewcommand\lstlistingname{Algorithm}
+    \renewcommand\lstlistlistingname{Algorithms}
+    \def\lstlistingautorefname{Alg.}
+    
+    \usepackage[spanish]{uclmTFGesi}
+
+% ========================= Configuración de elementos =========================
+    % --- Gráficos ---
+    \usepackage{graphicx}	                    % Inclusión de figuras
+    \usepackage{subcaption}	                    % OPT.: Inclusión de subfiguras
+    \graphicspath{{./imgs/}}                    % Path de búsqueda de ficheros gráficos
+    \DeclareGraphicsExtensions{.pdf,.png,.jpg}  % Precedencia de extensiones
+
+    % --- Tablas ---    
+    \usepackage{tabularx,booktabs}	            % OPT.: Ajustes para tablas
+    %\captionsetup[table]{skip=4pt} 	            % Separación del caption en las tablas
+    \usepackage{longtable}
+
+    % --- Títulos de figuras y tablas ---
+    \usepackage[%
+    	margin=10pt,		                    % Margen
+    	font=small,			                    % Tamaño de tipografía
+    	labelfont=bf,		                    % Prefijo-Etiqueta en negrita
+    	format=hang			                    % Formato
+    ]{caption}
+
+% ========================= Configuración de Bibliografía =========================
+    %--- Bibliografía: Biblatex con biber.
+    \usepackage[
+    	backend=biber, 		% Backend
+    	sortcites,
+    	defernumbers=true, 	% Para numerar al final
+    	style=numeric-comp, % Estilo numérico condensado
+    	% Descomentar las opciones siguientes para bibliografía multilingüe
+        % autolang=other, 	% Requerido para opción multilingüe
+        % language=auto   	% Requerido para opción multilingüe
+    ]{biblatex}
+
+    % Línea añadida para eliminar el idioma de la fuente bibliográfica.
+    \AtEveryBibitem{\clearfield{note} \clearlist{language}}
+    \addbibresource{bibliography.bib} 	% Fichero de bibliografía.
+
+
+% ========================= Formatos Indices =========================
+    \usepackage{makeidx} % OPT.: Indice temático
+    \makeindex           % OPT.: Procesamiento de índice temático
+
+

@@ -175,6 +175,9 @@ class CamController(DeviceController):
     def simulateData(self, dataFilter:Data):
         """ Allows simulate input data """
 
+        _width = Misc.hasKey(self.ME_CONFIG, 'FRAME_WIDTH', 320)
+        _height = Misc.hasKey(self.ME_CONFIG, 'FRAME_HEIGHT', 240)
+
         if str(self.SimulatingPath).index(".csv") > 0:
             if self.simulationStep == 0:
                 self.file = np.loadtxt(self.SimulatingPath, dtype=np.object, delimiter=',')
@@ -191,8 +194,8 @@ class CamController(DeviceController):
                 self.simulationStep += 10
                 #t0 = time()
                 frame = cv2.imread(self.file[self.simulationStep, 1])
-                print('Imagen', self.simulationStep, time())
-                #frame = self.image_resize(frame, 240)
+                #print('Imagen', self.simulationStep, time())
+                frame = self.image_resize(frame, _width)
                 #print('Tiempo cargando imagen', (time() - t0))
                 time_event = self.file[self.simulationStep, 3]
                 event = self.file[self.simulationStep, 2]
@@ -203,6 +206,8 @@ class CamController(DeviceController):
         else:
             if self.simulationStep == 0:
                 self.capture = cv2.VideoCapture(self.SimulatingPath)
+                self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, _width)
+                self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, _height)
                 self.video_length = int(self.capture.get(cv2.CAP_PROP_FRAME_COUNT))
                 
             if self.capture.isOpened() and self.simulationStep < self.video_length:

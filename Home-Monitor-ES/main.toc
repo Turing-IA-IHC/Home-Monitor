@@ -1,0 +1,387 @@
+\babel@toc {spanish}{}
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{Resumen}{\es@scroman {vii}}{section*.1}% 
+\babel@toc {english}{}
+\babel@toc {spanish}{}
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{Agradecimientos}{\es@scroman {xi}}{chapter*.4}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{\'{I}ndice de figuras}{\es@scroman {xvii}}{section*.7}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{\'{I}ndice de tablas}{\es@scroman {xix}}{section*.9}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{\IeC {\'I}ndice de listados}{\es@scroman {xxi}}{section*.11}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{\IeC {\'I}ndice de algoritmos}{\es@scroman {xxiii}}{section*.13}% 
+\boolfalse {citerequest}\boolfalse {citetracker}\boolfalse {pagetracker}\boolfalse {backtracker}\relax 
+\babel@toc {spanish}{}
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{\numberline {1}Planteamiento del problema}{1}{chapter.1}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {1.1}Introducci\IeC {\'o}n}{1}{section.1.1}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {1.2}Motivaci\IeC {\'o}n / Justificaci\IeC {\'o}n}{2}{section.1.2}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {1.3}Hip\IeC {\'o}tesis}{4}{section.1.3}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {1.4}Objetivos}{5}{section.1.4}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {1.5}Alcance}{6}{section.1.5}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{\numberline {2}Marco referencial}{7}{chapter.2}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {2.1}Marco conceptual}{7}{section.2.1}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.1.1}Inteligencia artificial}{7}{subsection.2.1.1}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.1.2}Aprendizaje autom\IeC {\'a}tico (Machine learning)}{9}{subsection.2.1.2}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.1.3}Aprendizaje supervisado}{10}{subsection.2.1.3}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.1.4}Aprendizaje no supervisado}{10}{subsection.2.1.4}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.1.5}Aprendizaje reforzado}{11}{subsection.2.1.5}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.1.6}Aprendizaje profundo (Deep learning)}{12}{subsection.2.1.6}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.1.7}Redes neuronales (NN)}{12}{subsection.2.1.7}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Breve historia}{12}{section*.15}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Definici\IeC {\'o}n t\IeC {\'e}cnica}{13}{section*.16}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Flujo de datos en la red}{15}{section*.20}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Arquitecturas de redes neuronales}{16}{section*.21}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.1.8}Redes convolucionales (CNN)}{17}{subsection.2.1.8}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Arquitectura habitual de una red convolucional}{18}{section*.23}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{La convoluci\IeC {\'o}n}{18}{section*.25}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Relleno (Padding)}{18}{section*.27}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Paso (Stride)}{19}{section*.29}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Reducci\IeC {\'o}n (Pooling)}{19}{section*.30}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Entrenamiento de una red convolucional}{19}{section*.31}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.1.9}Redes recurrentes (RNN)}{20}{subsection.2.1.9}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Entrenamiento de una RNN}{21}{section*.33}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Variaci\IeC {\'o}n LSTM}{21}{section*.35}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.1.10}Redes residuales (ResNet)}{23}{subsection.2.1.10}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.1.11}Procesamiento de im\IeC {\'a}genes digitales}{24}{subsection.2.1.11}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.1.12}Procesamiento del lenguaje natural (NLP)}{25}{subsection.2.1.12}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.1.13}Sobre entrenamiento (Overfiting)}{26}{subsection.2.1.13}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.1.14}Transferencia de aprendizaje}{26}{subsection.2.1.14}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {2.2}Algoritmos}{27}{section.2.2}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.2.1}Funciones de activaci\IeC {\'o}n}{27}{subsection.2.2.1}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Sigmoide}{28}{section*.40}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{TanH}{29}{section*.42}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{ReLu}{29}{section*.44}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.2.2}Funciones de p\IeC {\'e}rdida}{30}{subsection.2.2.2}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Error Absoluto Medio (MAE) / P\IeC {\'e}rdida L1}{31}{section*.46}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Error cuadr\IeC {\'a}tico medio (MSE) / P\IeC {\'e}rdida L2}{31}{section*.47}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Entrop\IeC {\'\i }a cruzada}{31}{section*.48}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{P\IeC {\'e}rdida de bisagra / P\IeC {\'e}rdida SVM}{32}{section*.49}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Error de sesgo Medio (MBE) }{32}{section*.50}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.2.3}Descenso de gradiente}{32}{subsection.2.2.3}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Tasa de aprendizaje}{35}{section*.54}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Explosi\IeC {\'o}n y desvanecimiento del gradiente}{35}{section*.55}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.2.4}Propagaci\IeC {\'o}n hacia adelante (Forward propagation)}{36}{subsection.2.2.4}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.2.5}Propagaci\IeC {\'o}n hacia atr\IeC {\'a}s (Back propagation)}{37}{subsection.2.2.5}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.2.6}Funci\IeC {\'o}n de clasificaci\IeC {\'o}n Softmax}{37}{subsection.2.2.6}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {2.3}Arquitectura de software}{37}{section.2.3}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.3.1}Patr\IeC {\'o}n de desarrollo de software}{38}{subsection.2.3.1}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.3.2}Instancia \IeC {\'u}nica (Patr\IeC {\'o}n)}{38}{subsection.2.3.2}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.3.3}M\IeC {\'e}todo factor\IeC {\'\i }a (Patr\IeC {\'o}n)}{38}{subsection.2.3.3}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.3.4}Iterador (Patr\IeC {\'o}n)}{39}{subsection.2.3.4}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.3.5}Comando (Patr\IeC {\'o}n)}{39}{subsection.2.3.5}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.3.6}Composici\IeC {\'o}n (Patr\IeC {\'o}n)}{39}{subsection.2.3.6}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.3.7}M\IeC {\'e}todo plantilla (Patr\IeC {\'o}n)}{39}{subsection.2.3.7}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.3.8}Pila de datos (Pool)}{40}{subsection.2.3.8}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.3.9}Hilo}{40}{subsection.2.3.9}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.3.10}Servicio REST}{40}{subsection.2.3.10}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {2.4}Conjuntos de datos}{41}{section.2.4}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.4.1}Definici\IeC {\'o}n de los datos y fuentes necesarias}{41}{subsection.2.4.1}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.4.2}Recopilaci\IeC {\'o}n de datos}{41}{subsection.2.4.2}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.4.3}Formateo de datos}{42}{subsection.2.4.3}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.4.4}Limpieza y reducci\IeC {\'o}n de datos}{42}{subsection.2.4.4}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.4.5}Normalizaci\IeC {\'o}n de datos}{42}{subsection.2.4.5}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.4.6}Aumento de datos}{43}{subsection.2.4.6}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.4.7}Divisi\IeC {\'o}n del conjunto de datos}{43}{subsection.2.4.7}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.4.8}Sesgo de datos}{44}{subsection.2.4.8}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.4.9}ImageNet (Data set)}{46}{subsection.2.4.9}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Competencia para el reconocimiento visual}{46}{section*.60}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.4.10}COCO (Data set)}{46}{subsection.2.4.10}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Competencia COCO para generaci\IeC {\'o}n de esqueletos de personas en im\IeC {\'a}genes}{46}{section*.61}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.4.11}MPII Human Pose (Data set)}{47}{subsection.2.4.11}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.4.12}HumanEva (Data set)}{47}{subsection.2.4.12}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.4.13}FLIC (Data set)}{48}{subsection.2.4.13}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.4.14}DMLSmartActions (Data set)}{48}{subsection.2.4.14}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {2.5}Software y librer\IeC {\'\i }as}{48}{section.2.5}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.5.1}Python}{48}{subsection.2.5.1}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.5.2}JSon}{48}{subsection.2.5.2}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.5.3}Yaml}{48}{subsection.2.5.3}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.5.4}Tensorflow}{48}{subsection.2.5.4}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.5.5}Keras}{49}{subsection.2.5.5}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.5.6}Flask}{49}{subsection.2.5.6}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.5.7}Logging}{49}{subsection.2.5.7}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.5.8}Microsoft Kinect}{49}{subsection.2.5.8}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.5.9}Web Sockets}{50}{subsection.2.5.9}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {2.6}Antecedentes}{50}{section.2.6}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.6.1}Detecci\IeC {\'o}n de objetos en im\IeC {\'a}genes}{50}{subsection.2.6.1}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{M\IeC {\'e}todos tradicionales}{50}{section*.65}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{M\IeC {\'e}todos basados en deep learning}{51}{section*.66}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.6.2}Localizaci\IeC {\'o}n de personas en una imagen}{52}{subsection.2.6.2}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.6.3}Identificaci\IeC {\'o}n de posturas}{54}{subsection.2.6.3}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{M\IeC {\'e}todos tradicionales}{55}{section*.70}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{M\IeC {\'e}todos basados en deep learning}{56}{section*.71}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.6.4}Reconocimiento de actividad humanas (HAR)}{57}{subsection.2.6.4}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Uso de visi\IeC {\'o}n artificial en HAR}{58}{section*.74}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{M\IeC {\'e}todos tradicionales para el reconocimiento de actividades humanas}{59}{section*.77}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{M\IeC {\'e}todos de aprendizaje autom\IeC {\'a}tico para el reconocimiento de actividades humanas}{61}{section*.78}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.6.5}Identificaci\IeC {\'o}n de eventos an\IeC {\'o}malos}{62}{subsection.2.6.5}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{\numberline {3}Arquitectura el sistema}{65}{chapter.3}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {3.1}Dise\IeC {\~n}o arquitect\IeC {\'o}nico general}{66}{section.3.1}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {3.2}Pila de datos}{68}{section.3.2}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.2.1}Estructura de datos}{68}{subsection.3.2.1}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.2.2}Transmisi\IeC {\'o}n y vigencia de datos}{70}{subsection.3.2.2}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Recibir datos}{71}{section*.82}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Entregar datos}{71}{section*.83}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Permanencia y eliminaci\IeC {\'o}n de datos}{72}{section*.85}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{M\IeC {\'e}todos adicionales de la pila de datos}{73}{section*.87}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {3.3}Estructura b\IeC {\'a}sica de componentes extensibles}{75}{section.3.3}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {3.4}Secci\IeC {\'o}n A - Entrada de datos}{77}{section.3.4}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.4.1} cargador de controladores - LoaderOfController}{77}{subsection.3.4.1}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Detecci\IeC {\'o}n de controladores de dispositivos}{77}{section*.91}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Inicio de controladores}{78}{section*.92}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Manteniendo dispositivos funcionando}{78}{section*.93}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.4.2}Controlador de dispositivos - DeviceController}{78}{subsection.3.4.2}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {3.5}Secci\IeC {\'o}n B - Reconocimiento de eventos simples}{81}{section.3.5}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.5.1}Cargador de reconocedores - LoaderOfRecognizer}{81}{subsection.3.5.1}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Detecci\IeC {\'o}n de reconocedores}{81}{section*.95}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Inicio de reconocedores}{82}{section*.96}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Manteniendo reconocedores funcionando}{82}{section*.97}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.5.2}reconocedor de actividades - ActivityRecongnizer}{82}{subsection.3.5.2}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {3.6}Secci\IeC {\'o}n C - Analizador de eventos y notificaci\IeC {\'o}n de alertas}{85}{section.3.6}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.6.1}Cargador de Analizadores - LoaderAnalyzer}{86}{subsection.3.6.1}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Detecci\IeC {\'o}n de analizadores}{86}{section*.99}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Inicio de analizadores}{86}{section*.100}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Manteniendo Analizadores funcionando}{86}{section*.101}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.6.2}Analizador de eventos - EventAnalyzer}{87}{subsection.3.6.2}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.6.3}Canales de notificaci\IeC {\'o}n - CommChannel}{89}{subsection.3.6.3}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.6.4}Estructura de mensajes de notificaci\IeC {\'o}n - Message}{91}{subsection.3.6.4}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Variables de reemplazo en mensajes de notificaci\IeC {\'o}n}{91}{section*.104}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {3.7}Modelo integrado del sistema}{92}{section.3.7}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.7.1}Estructura de directorios}{92}{subsection.3.7.1}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{N\IeC {\'u}cleo y c\IeC {\'o}digo base}{93}{section*.106}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Componentes extensibles}{94}{section*.107}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.7.2}Modelo de clases}{94}{subsection.3.7.2}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.7.3}Modelo de despliegue}{94}{subsection.3.7.3}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {3.8}Modelo para la construcci\IeC {\'o}n de un componente controlador de dispositivos}{95}{section.3.8}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.8.1}Plantilla Controlador de dispositivos}{95}{subsection.3.8.1}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Archivo de configuraci\IeC {\'o}n controlador - config.yaml}{95}{section*.111}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Archivo de dispositivos - devices.yaml}{96}{section*.113}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Clase inicial del controlador - Controller.py}{97}{section*.114}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.8.2}Implementaci\IeC {\'o}n de un nuevo controlador de dispositivos}{99}{subsection.3.8.2}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {3.9}Modelo para la construcci\IeC {\'o}n de un componente de Reconocedor de actividades}{101}{section.3.9}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.9.1}Plantilla Reconocedor de actividades}{101}{subsection.3.9.1}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Archivo de configuraci\IeC {\'o}n clasificador - config.yaml}{101}{section*.117}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Clase inicial del clasificador - Recognizer.py}{101}{section*.119}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Entrenamientos de inteligencia artificial - models}{103}{section*.120}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Plantillas para entrenamiento y prueba}{104}{section*.121}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.9.2}Implementaci\IeC {\'o}n de un nuevo Reconocedor de actividades}{104}{subsection.3.9.2}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {3.10}Modelo para la construcci\IeC {\'o}n de un componente analizador de eventos}{106}{section.3.10}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.10.1}Plantilla analizador}{106}{subsection.3.10.1}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Archivo de configuraci\IeC {\'o}n analizador - config.yaml}{106}{section*.124}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Clase inicial del Analizador - \_Analyzer.py}{106}{section*.126}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Entrenamientos de inteligencia artificial - models}{109}{section*.127}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.10.2}Implementaci\IeC {\'o}n de un nuevo analizador de eventos}{109}{subsection.3.10.2}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {3.11}Modelo para la construcci\IeC {\'o}n de un componente de notificaci\IeC {\'o}n}{111}{section.3.11}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.11.1}Plantilla notificador}{111}{subsection.3.11.1}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Archivo de configuraci\IeC {\'o}n notificador - config.yaml}{111}{section*.130}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Clase inicial del clasificador - \_Channel.py}{111}{section*.132}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.11.2}Implementaci\IeC {\'o}n de un nuevo notificador}{113}{subsection.3.11.2}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {3.12}Creaci\IeC {\'o}n de conjuntos de datos para entrenamientos y pruebas}{115}{section.3.12}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.12.1}Selecci\IeC {\'o}n de datos}{115}{subsection.3.12.1}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.12.2}Divisi\IeC {\'o}n del conjunto de datos: Entrenamiento, Validaci\IeC {\'o}n y Pruebas}{115}{subsection.3.12.2}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.12.3}Aumento de datos}{115}{subsection.3.12.3}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {3.13}Funcionalidades auxiliares}{116}{section.3.13}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.13.1}Utilidades varias - Misc.py}{116}{subsection.3.13.1}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.13.2}Segmentaci\IeC {\'o}n de los datos - DataSplit.py}{117}{subsection.3.13.2}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.13.3}Segmentaci\IeC {\'o}n de los datos - DataAugmented.py}{117}{subsection.3.13.3}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{\numberline {4}Construcci\IeC {\'o}n del sistema}{119}{chapter.4}% 
+\babel@toc {english}{}
+\babel@toc {spanish}{}
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {4.1}M\IeC {\'o}dulo para incluir las c\IeC {\'a}maras web como un tipo sensor del sistema}{121}{section.4.1}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {4.1.1}Extracci\IeC {\'o}n de la persona}{123}{subsection.4.1.1}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {4.1.2}Extracci\IeC {\'o}n del esqueleto}{123}{subsection.4.1.2}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {4.2}Construcci\IeC {\'o}n de m\IeC {\'o}dulo para el reconocimiento de infartos}{123}{section.4.2}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {4.2.1}Detecci\IeC {\'o}n de ataque card\IeC {\'\i }aco en im\IeC {\'a}genes en color utilizando redes neuronales convolucionales}{124}{subsection.4.2.1}% 
+\babel@toc {english}{}
+\babel@toc {spanish}{}
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {4.2.2}Use of skeletons and facial expressions to identify heart attacks}{126}{subsection.4.2.2}% 
+\babel@toc {english}{}
+\babel@toc {spanish}{}
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {4.3}Construcci\IeC {\'o}n del m\IeC {\'o}dulo para el reconocimiento de ca\IeC {\'\i }das}{128}{section.4.3}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {4.4}Construcci\IeC {\'o}n del m\IeC {\'o}dulo para env\IeC {\'\i }o de alertas}{129}{section.4.4}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {4.4.1}M\IeC {\'o}dulo para la notificaci\IeC {\'o}n usando correo electr\IeC {\'o}nico - MailChannel}{129}{subsection.4.4.1}% 
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {4.5}Construcci\IeC {\'o}n del m\IeC {\'o}dulo para an\IeC {\'a}lisis de eventos complejos}{130}{section.4.5}% 

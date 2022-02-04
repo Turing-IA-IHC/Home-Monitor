@@ -1,0 +1,16 @@
+DEVICES: [
+  {
+      'id':0,
+      'name':'Stairs',
+      'enabled':y,
+      'width':320,
+      'height':240
+  },
+  {
+      'id':1,
+      'name':'LivingRoom1',
+      'enabled':n,
+      'width':320,
+      'height':240
+  }
+]

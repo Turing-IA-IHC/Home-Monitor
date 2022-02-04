@@ -1,0 +1,94 @@
+\chapter{Planteamiento del problema}
+\label{chap:ProblemStatement}
+
+\section{Introducción}
+\label{Introduction}
+
+    %La Introducción debe proporcionar a los lectores la información de fondo necesaria para entender su estudio y las razones por las que realizó sus experimentos. La Introducción debe responder a la pregunta: ¿Cuál ha sido la hipótesis o el problema que se ha estudiado?
+
+    Según un estudio del banco mundial, la edad promedio de a nivel mundial va en aumento, en algunos países (por ejemplo Italia, Grecia o Japón) la población mayor a 65 años supera incluso el 20\%, y el porcentaje tiende a aumentar \cite{WorldBank2019}. En relación directa a esto, el número de hogares constituidos por más de una persona va en descenso, teniendo países como Argentina y Uruguay donde las familias unipersonales superan incluso el porcentaje de familias monoparentales \cite{Arriagada2007}.
+    
+    Adicional al aumento de la edad promedio, sobre todo en países más desarrollados, también se ha proliferado el hecho de encontrar más ancianos viviendo solos y en muchos casos desconectados de amigos o familiares. ‘Kodokushi’ es un término utilizado en Japón para nombrar un fenómeno que apareció hacia los años 80, y que ha venido en aumento desde entonces, como es la muerte solitaria. Este fenómeno se hizo noticia en Japón en el año 2000, cuando un hombre de 69 años fue encontrado muerto en su casa, después de 3 años de fallecer, sin que nadie sintiera su ausencia, como reporta el New York Times \cite{Onishi2017}. Incluso se ha reportado que bajo esta condición, solo en Japón, en el 2009 murieron 32.000 personas \cite{Allison2014}. En occidente las cosas no distan mucho, en Barcelona los bomberos encuentran cada año más de 100 personas muertas en soledad \cite{Sanchez2016}. Incluso para Inglaterra ya es un tema de estado, pues se estima que la mitad de las personas de 75 o más, viven en soledad, por lo que a inicios de 2018 se creó el ministerio de la soledad, según indica la BBC \cite{BBC2018}.
+    
+    Simultáneamente, el desarrollo actual ha permitido que la tecnología sea omnipresente, entonces, ¿por qué no aprovechar esa facilidad y monitorizar cualquier evento anómalo y perjudicial para las personas en su hogar? 
+    
+    %Que una persona mayor viva sola puede deberse a factores sociales, culturales o económicos. Considerando solo lo último, el costo de tener una persona que constantemente esté monitoreando el estado de una persona mayor, puede ser inasequible. Por esta razón, es necesario contar con mecanismos para identificar situaciones potencialmente mortales, como ataques cardíacos, de forma automatizada.
+
+\newpage
+\section{Motivación / Justificación}
+\label{Motivation}
+    %En la Justificación de la Investigación, se procede a definir POR QUÉ y PARA QUÉ o lo QUE SE BUSCA y PARA QUÉ, se desarrolla el tema de estudio considerado.
+    
+    %1. Para qué servirá y a quién le sirve.
+    %Conveniencia: Qué tan conveniente es o qué funcionalidad tiene, para qué sirve.
+    %Relevancia Social: En qué afectaría dicha investigación o qué impacto tendría sobre la sociedad, quiénes se benefician con tal desarrollo.
+    
+    Muchas personas ancianas en capacidad de elegir prefieren vivir solas en sus casa que hospedarse en un asilo de ancianos. Sin embargo, es evidente que una persona de mayor edad y que vive sola, se encuentra en un estado de menor protección; comparado con personas acompañas, frente a problemas físicos o emocionales. 
+    
+    Por otro lado, no es extraño que dentro del propio hogar ocurran eventos puntuales que pueden desencadenar problemas más graves o incluso la muerte de la persona, tal es el caso de una caída o de un ataque cardiaco. Por tal razón, la identificación de estados perjudiciales para el bienestar de la persona, mediante sistemas automatizados, ha adquirido gran relevancia en diferentes campos de investigación \cite{Fragopanagos2005}, y especialmente cuando se trata de personas que viven solas y son de edad avanzada. Todo esto presenta tres problemáticas principales:
+    
+    No existen herramientas automatizadas que reconozcan eventos perjudiciales de una persona anciana y a su vez puedan alertar sobre posibles urgencias y la causa de las mismas. Revisar este párrafo pues si existen.
+    Es muy costoso contar con personal, que esté de tiempo completo supervisando la actividad de personas mayores.
+    El promedio de edad en los países desarrollados o en vía de desarrollo va en aumento.
+    
+    Así pues, contar con un mecanismo que permita hacer una supervisión de la persona y, además, que puedan de alguna forma mitigar el impacto causado por situaciones anómalas y perjudiciales, se ha convertido en el foco de atención para gobiernos y para instituciones de investigación. Tal es el caso de “Horizonte2020”, un programa de la unión europea para el desarrollo de la investigación y que dentro de sus objetivos cuenta con uno específico para la “Salud, cambio demográfico y bienestar” \cite{Horizonte2020}.
+    
+    %2. Trascendencia, utilidad y beneficios.
+    %3. ¿Realmente tiene algún uso la información?
+    %Implicaciones Prácticas: Ayudaría a resolver algún problema presente o que surgiera en un futuro. 
+    El presente trabajo presenta dos aportes principales con vistas a solventar las problemáticas presentadas. En primera instancia, un marco de trabajo en el área de reconocimiento de actividad humana (HAR), para el desarrollo de módulos, con capacidades específicas dentro del HAR (esto se llama lóbulo en el cerebro), con solo entradas y salidas con una estructura estandarizada. Con esto se consigue, soluciones altamente reutilizables, pero manteniendo el método usado para el reconocimiento, independiente y, por tanto, flexible para cada módulo. Esto permitirá construir un sistema altamente escalable, el cual tiene a modo de sistema nervioso, la capacidad de conectar los diferentes lóbulos; donde la estandarización de entradas y salidas permitirá, no solo que el sistema central pueda recibir información de cada lóbulo sino también, compartirla entre ellos. Mejorar y profundizar.
+    
+    El segundo valor aportado, es un sistema que permite integrar el análisis / estímulo recibido desde diferentes lóbulos dentro de un solo entorno. Al permitir integrar módulos independientes, se podrá combinar investigaciones con diferentes capacidades en el área de reconocimiento de actividad humana, como son: la detección de infarto, de caídas u otras actividades, en un solo conjunto de eventos reconocidos para así, identificar supra estados que caracterizan un evento que supera la simple etiqueta de “se cayó” o “está caminando”. Emergiendo información contextual generada al combinar la información entregada por cada módulo HAR para; mediante el análisis de todos los eventos detectados y recibidos en conjunto, identificar si un comportamiento es anómalo y, dentro de esta misma anormalidad, identificar si debe ser considerado como peligroso o perjudicial y, por tanto, deba realizar una acción como enviar un mensaje de alerta a algún organismo encargado.
+    
+    Cabe aclarar que, si bien es cierto que se mencionó a las personas mayores como un grupo especialmente vulnerable, sobre todo cuando no se encuentran acompañados, este sistema podrá beneficiar a cualquier persona, sin importar su edad, pues genera acciones que, en caso de emergencia, puedan alertar a sistemas de salud, de seguridad o personas cercanas y, así, recibir ayuda de forma oportuna.
+    
+    %4. ¿Se va a cubrir algún hueco del conocimiento?
+    %Valor Teórico: Que contribución o qué aportación tendría nuestra investigación hacia otras áreas del conocimiento, tendría alguna importancia trascendental, los resultados podrán ser aplicables a otros fenómenos o ayudaría a explicar o entenderlos.
+    El enfoque del presente trabajo abre la puerta para el desarrollo de sistemas de inteligencia artificial altamente escalables, permitiendo la integración de métodos, lo cual permite a su vez la colaboración de una comunidad en la construcción de un sistema mucho más potente que el desarrollado en el presente trabajo como evidencia de sus capacidades.
+    
+    %5. ¿Se va a utilizar algún modelo nuevo para obtener y de recolectar información?
+    %Utilidad Metodológica: Con nuestra investigación podríamos o ayudaría a crear un nuevo instrumento para la recolección o análisis.
+    Además de la integración compartida de código y métodos, también permitirá centralizar la construcción de bancos de entrenamientos para que personas con conocimientos en el área de la inteligencia artificial pueda construir sus propios sistemas de aprendizaje y, a su vez, los pueda compartir con la misma comunidad.  (Aún no tan seguro para este proyecto pues puede extender el alcance demasiado. Se debe analizar la forma más conveniente de lograrlo).
+    
+\newpage
+\section{Hipótesis}
+\label{Hypothesis}
+
+    \vspace{1cm}
+    \begin{itemize}
+        \item \textbf{H0}: Es posible, mediante el análisis de imágenes en vídeo determinar algún evento individual que afecte la calidad de vida de una persona.
+        \vspace{1cm}
+        \item \textbf{H1}: Es posible, mediante la combinación de sistemas de inteligencia artificial, entrenados de forma independiente, identificar eventos complejos en la actividad humana.
+    \end{itemize}
+\newpage
+\section{Objetivos}
+\label{Objectives}
+
+    \vspace{1cm}
+    \textbf{Objetivo General}
+    
+        Construir un sistema que permita integrar dentro de un único marco de trabajo métodos y algoritmos, con capacidades individuales en el reconocimiento de actividades humanas, para identificar supra eventos que puedan surgir de la combinación de las inferencias realizadas por cada subsistema.
+        
+    \vspace{2cm}
+        
+    \textbf{Objetivos específicos}
+
+    Identificar algoritmos para la identificación y extracción de personas de una imagen o un vídeo.
+    
+    Crear un modelo y la plantilla de trabajo correspondiente, para la construcción de módulos aplicable al reconocimiento de actividades humanas.
+    
+    Construir algoritmos que permitan identificar eventos puntuales en actividades humanas.
+    
+    Diseñar y construir un software que permita la integración de los resultados obtenidos de forma independientes por los algoritmos de identificación en cada una de las cámaras que formen parte del sistema.
+    
+    Diseñar una plataforma física multi-cámara que sirva para la monitorizar la actividad de las personas en su hogar.
+
+\newpage
+\section{Alcance}
+\label{Scope}
+    El proyecto se limita a la identificación de 2 eventos específicos, como modo de demostración del método desarrollado en este trabajo.
+    
+    El sistema de identificación de eventos anómalos principal hará uso solo de los módulos de identificación de eventos creados en este mismo trabajo, para con ellos identificar eventos anómalos y ejecutar una acción de notificación por un medio de comunicación tradicional.
+    
+    Aunque la arquitectura del sistema permite, por su diseño, sensores de diferente naturaleza como, micrófonos, acelerómetros u otros, el sistema principal y módulos adicionales solo será validado usando cámaras RGB tradicionales.
+    

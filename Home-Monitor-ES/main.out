@@ -1,0 +1,133 @@
+\BOOKMARK [0][-]{idx_resumen.0}{Resumen}{}% 1
+\BOOKMARK [0][-]{section*.1}{Resumen}{}% 2
+\BOOKMARK [0][-]{idx_abstract.0}{Abstract}{}% 3
+\BOOKMARK [0][-]{idx_agrad.0}{Agradecimientos}{}% 4
+\BOOKMARK [0][-]{chapter*.4}{Agradecimientos}{}% 5
+\BOOKMARK [0][-]{idx_toc.0}{\315ndice general}{}% 6
+\BOOKMARK [0][-]{section*.7}{\315ndice de figuras}{}% 7
+\BOOKMARK [0][-]{section*.9}{\315ndice de tablas}{}% 8
+\BOOKMARK [0][-]{section*.11}{\315ndice de listados}{}% 9
+\BOOKMARK [0][-]{section*.13}{\315ndice de algoritmos}{}% 10
+\BOOKMARK [0][-]{chapter.1}{1 Planteamiento del problema}{}% 11
+\BOOKMARK [1][-]{section.1.1}{1.1 Introducci\363n}{chapter.1}% 12
+\BOOKMARK [1][-]{section.1.2}{1.2 Motivaci\363n / Justificaci\363n}{chapter.1}% 13
+\BOOKMARK [1][-]{section.1.3}{1.3 Hip\363tesis}{chapter.1}% 14
+\BOOKMARK [1][-]{section.1.4}{1.4 Objetivos}{chapter.1}% 15
+\BOOKMARK [1][-]{section.1.5}{1.5 Alcance}{chapter.1}% 16
+\BOOKMARK [0][-]{chapter.2}{2 Marco referencial}{}% 17
+\BOOKMARK [1][-]{section.2.1}{2.1 Marco conceptual}{chapter.2}% 18
+\BOOKMARK [2][-]{subsection.2.1.1}{2.1.1 Inteligencia artificial}{section.2.1}% 19
+\BOOKMARK [2][-]{subsection.2.1.2}{2.1.2 Aprendizaje autom\341tico \(Machine learning\)}{section.2.1}% 20
+\BOOKMARK [2][-]{subsection.2.1.3}{2.1.3 Aprendizaje supervisado}{section.2.1}% 21
+\BOOKMARK [2][-]{subsection.2.1.4}{2.1.4 Aprendizaje no supervisado}{section.2.1}% 22
+\BOOKMARK [2][-]{subsection.2.1.5}{2.1.5 Aprendizaje reforzado}{section.2.1}% 23
+\BOOKMARK [2][-]{subsection.2.1.6}{2.1.6 Aprendizaje profundo \(Deep learning\)}{section.2.1}% 24
+\BOOKMARK [2][-]{subsection.2.1.7}{2.1.7 Redes neuronales \(NN\)}{section.2.1}% 25
+\BOOKMARK [2][-]{subsection.2.1.8}{2.1.8 Redes convolucionales \(CNN\)}{section.2.1}% 26
+\BOOKMARK [2][-]{subsection.2.1.9}{2.1.9 Redes recurrentes \(RNN\)}{section.2.1}% 27
+\BOOKMARK [2][-]{subsection.2.1.10}{2.1.10 Redes residuales \(ResNet\)}{section.2.1}% 28
+\BOOKMARK [2][-]{subsection.2.1.11}{2.1.11 Procesamiento de im\341genes digitales}{section.2.1}% 29
+\BOOKMARK [2][-]{subsection.2.1.12}{2.1.12 Procesamiento del lenguaje natural \(NLP\)}{section.2.1}% 30
+\BOOKMARK [2][-]{subsection.2.1.13}{2.1.13 Sobre entrenamiento \(Overfiting\)}{section.2.1}% 31
+\BOOKMARK [2][-]{subsection.2.1.14}{2.1.14 Transferencia de aprendizaje}{section.2.1}% 32
+\BOOKMARK [1][-]{section.2.2}{2.2 Algoritmos}{chapter.2}% 33
+\BOOKMARK [2][-]{subsection.2.2.1}{2.2.1 Funciones de activaci\363n}{section.2.2}% 34
+\BOOKMARK [2][-]{subsection.2.2.2}{2.2.2 Funciones de p\351rdida}{section.2.2}% 35
+\BOOKMARK [2][-]{subsection.2.2.3}{2.2.3 Descenso de gradiente}{section.2.2}% 36
+\BOOKMARK [2][-]{subsection.2.2.4}{2.2.4 Propagaci\363n hacia adelante \(Forward propagation\)}{section.2.2}% 37
+\BOOKMARK [2][-]{subsection.2.2.5}{2.2.5 Propagaci\363n hacia atr\341s \(Back propagation\)}{section.2.2}% 38
+\BOOKMARK [2][-]{subsection.2.2.6}{2.2.6 Funci\363n de clasificaci\363n Softmax}{section.2.2}% 39
+\BOOKMARK [1][-]{section.2.3}{2.3 Arquitectura de software}{chapter.2}% 40
+\BOOKMARK [2][-]{subsection.2.3.1}{2.3.1 Patr\363n de desarrollo de software}{section.2.3}% 41
+\BOOKMARK [2][-]{subsection.2.3.2}{2.3.2 Instancia \372nica \(Patr\363n\)}{section.2.3}% 42
+\BOOKMARK [2][-]{subsection.2.3.3}{2.3.3 M\351todo factor\355a \(Patr\363n\)}{section.2.3}% 43
+\BOOKMARK [2][-]{subsection.2.3.4}{2.3.4 Iterador \(Patr\363n\)}{section.2.3}% 44
+\BOOKMARK [2][-]{subsection.2.3.5}{2.3.5 Comando \(Patr\363n\)}{section.2.3}% 45
+\BOOKMARK [2][-]{subsection.2.3.6}{2.3.6 Composici\363n \(Patr\363n\)}{section.2.3}% 46
+\BOOKMARK [2][-]{subsection.2.3.7}{2.3.7 M\351todo plantilla \(Patr\363n\)}{section.2.3}% 47
+\BOOKMARK [2][-]{subsection.2.3.8}{2.3.8 Pila de datos \(Pool\)}{section.2.3}% 48
+\BOOKMARK [2][-]{subsection.2.3.9}{2.3.9 Hilo}{section.2.3}% 49
+\BOOKMARK [2][-]{subsection.2.3.10}{2.3.10 Servicio REST}{section.2.3}% 50
+\BOOKMARK [1][-]{section.2.4}{2.4 Conjuntos de datos}{chapter.2}% 51
+\BOOKMARK [2][-]{subsection.2.4.1}{2.4.1 Definici\363n de los datos y fuentes necesarias}{section.2.4}% 52
+\BOOKMARK [2][-]{subsection.2.4.2}{2.4.2 Recopilaci\363n de datos}{section.2.4}% 53
+\BOOKMARK [2][-]{subsection.2.4.3}{2.4.3 Formateo de datos}{section.2.4}% 54
+\BOOKMARK [2][-]{subsection.2.4.4}{2.4.4 Limpieza y reducci\363n de datos}{section.2.4}% 55
+\BOOKMARK [2][-]{subsection.2.4.5}{2.4.5 Normalizaci\363n de datos}{section.2.4}% 56
+\BOOKMARK [2][-]{subsection.2.4.6}{2.4.6 Aumento de datos}{section.2.4}% 57
+\BOOKMARK [2][-]{subsection.2.4.7}{2.4.7 Divisi\363n del conjunto de datos}{section.2.4}% 58
+\BOOKMARK [2][-]{subsection.2.4.8}{2.4.8 Sesgo de datos}{section.2.4}% 59
+\BOOKMARK [2][-]{subsection.2.4.9}{2.4.9 ImageNet \(Data set\)}{section.2.4}% 60
+\BOOKMARK [2][-]{subsection.2.4.10}{2.4.10 COCO \(Data set\)}{section.2.4}% 61
+\BOOKMARK [2][-]{subsection.2.4.11}{2.4.11 MPII Human Pose \(Data set\)}{section.2.4}% 62
+\BOOKMARK [2][-]{subsection.2.4.12}{2.4.12 HumanEva \(Data set\)}{section.2.4}% 63
+\BOOKMARK [2][-]{subsection.2.4.13}{2.4.13 FLIC \(Data set\)}{section.2.4}% 64
+\BOOKMARK [2][-]{subsection.2.4.14}{2.4.14 DMLSmartActions \(Data set\)}{section.2.4}% 65
+\BOOKMARK [1][-]{section.2.5}{2.5 Software y librer\355as}{chapter.2}% 66
+\BOOKMARK [2][-]{subsection.2.5.1}{2.5.1 Python}{section.2.5}% 67
+\BOOKMARK [2][-]{subsection.2.5.2}{2.5.2 JSon}{section.2.5}% 68
+\BOOKMARK [2][-]{subsection.2.5.3}{2.5.3 Yaml}{section.2.5}% 69
+\BOOKMARK [2][-]{subsection.2.5.4}{2.5.4 Tensorflow}{section.2.5}% 70
+\BOOKMARK [2][-]{subsection.2.5.5}{2.5.5 Keras}{section.2.5}% 71
+\BOOKMARK [2][-]{subsection.2.5.6}{2.5.6 Flask}{section.2.5}% 72
+\BOOKMARK [2][-]{subsection.2.5.7}{2.5.7 Logging}{section.2.5}% 73
+\BOOKMARK [2][-]{subsection.2.5.8}{2.5.8 Microsoft Kinect}{section.2.5}% 74
+\BOOKMARK [2][-]{subsection.2.5.9}{2.5.9 Web Sockets}{section.2.5}% 75
+\BOOKMARK [1][-]{section.2.6}{2.6 Antecedentes}{chapter.2}% 76
+\BOOKMARK [2][-]{subsection.2.6.1}{2.6.1 Detecci\363n de objetos en im\341genes}{section.2.6}% 77
+\BOOKMARK [2][-]{subsection.2.6.2}{2.6.2 Localizaci\363n de personas en una imagen}{section.2.6}% 78
+\BOOKMARK [2][-]{subsection.2.6.3}{2.6.3 Identificaci\363n de posturas}{section.2.6}% 79
+\BOOKMARK [2][-]{subsection.2.6.4}{2.6.4 Reconocimiento de actividad humanas \(HAR\)}{section.2.6}% 80
+\BOOKMARK [2][-]{subsection.2.6.5}{2.6.5 Identificaci\363n de eventos an\363malos}{section.2.6}% 81
+\BOOKMARK [0][-]{chapter.3}{3 Arquitectura el sistema}{}% 82
+\BOOKMARK [1][-]{section.3.1}{3.1 Dise\361o arquitect\363nico general}{chapter.3}% 83
+\BOOKMARK [1][-]{section.3.2}{3.2 Pila de datos}{chapter.3}% 84
+\BOOKMARK [2][-]{subsection.3.2.1}{3.2.1 Estructura de datos}{section.3.2}% 85
+\BOOKMARK [2][-]{subsection.3.2.2}{3.2.2 Transmisi\363n y vigencia de datos}{section.3.2}% 86
+\BOOKMARK [1][-]{section.3.3}{3.3 Estructura b\341sica de componentes extensibles}{chapter.3}% 87
+\BOOKMARK [1][-]{section.3.4}{3.4 Secci\363n A - Entrada de datos}{chapter.3}% 88
+\BOOKMARK [2][-]{subsection.3.4.1}{3.4.1 \040cargador de controladores - LoaderOfController}{section.3.4}% 89
+\BOOKMARK [2][-]{subsection.3.4.2}{3.4.2 Controlador de dispositivos - DeviceController}{section.3.4}% 90
+\BOOKMARK [1][-]{section.3.5}{3.5 Secci\363n B - Reconocimiento de eventos simples}{chapter.3}% 91
+\BOOKMARK [2][-]{subsection.3.5.1}{3.5.1 Cargador de reconocedores - LoaderOfRecognizer}{section.3.5}% 92
+\BOOKMARK [2][-]{subsection.3.5.2}{3.5.2 reconocedor de actividades - ActivityRecongnizer}{section.3.5}% 93
+\BOOKMARK [1][-]{section.3.6}{3.6 Secci\363n C - Analizador de eventos y notificaci\363n de alertas}{chapter.3}% 94
+\BOOKMARK [2][-]{subsection.3.6.1}{3.6.1 Cargador de Analizadores - LoaderAnalyzer}{section.3.6}% 95
+\BOOKMARK [2][-]{subsection.3.6.2}{3.6.2 Analizador de eventos - EventAnalyzer}{section.3.6}% 96
+\BOOKMARK [2][-]{subsection.3.6.3}{3.6.3 Canales de notificaci\363n - CommChannel}{section.3.6}% 97
+\BOOKMARK [2][-]{subsection.3.6.4}{3.6.4 Estructura de mensajes de notificaci\363n - Message}{section.3.6}% 98
+\BOOKMARK [1][-]{section.3.7}{3.7 Modelo integrado del sistema}{chapter.3}% 99
+\BOOKMARK [2][-]{subsection.3.7.1}{3.7.1 Estructura de directorios}{section.3.7}% 100
+\BOOKMARK [2][-]{subsection.3.7.2}{3.7.2 Modelo de clases}{section.3.7}% 101
+\BOOKMARK [2][-]{subsection.3.7.3}{3.7.3 Modelo de despliegue}{section.3.7}% 102
+\BOOKMARK [1][-]{section.3.8}{3.8 Modelo para la construcci\363n de un componente controlador de dispositivos}{chapter.3}% 103
+\BOOKMARK [2][-]{subsection.3.8.1}{3.8.1 Plantilla Controlador de dispositivos}{section.3.8}% 104
+\BOOKMARK [2][-]{subsection.3.8.2}{3.8.2 Implementaci\363n de un nuevo controlador de dispositivos}{section.3.8}% 105
+\BOOKMARK [1][-]{section.3.9}{3.9 Modelo para la construcci\363n de un componente de Reconocedor de actividades}{chapter.3}% 106
+\BOOKMARK [2][-]{subsection.3.9.1}{3.9.1 Plantilla Reconocedor de actividades}{section.3.9}% 107
+\BOOKMARK [2][-]{subsection.3.9.2}{3.9.2 Implementaci\363n de un nuevo Reconocedor de actividades}{section.3.9}% 108
+\BOOKMARK [1][-]{section.3.10}{3.10 Modelo para la construcci\363n de un componente analizador de eventos}{chapter.3}% 109
+\BOOKMARK [2][-]{subsection.3.10.1}{3.10.1 Plantilla analizador}{section.3.10}% 110
+\BOOKMARK [2][-]{subsection.3.10.2}{3.10.2 Implementaci\363n de un nuevo analizador de eventos}{section.3.10}% 111
+\BOOKMARK [1][-]{section.3.11}{3.11 Modelo para la construcci\363n de un componente de notificaci\363n}{chapter.3}% 112
+\BOOKMARK [2][-]{subsection.3.11.1}{3.11.1 Plantilla notificador}{section.3.11}% 113
+\BOOKMARK [2][-]{subsection.3.11.2}{3.11.2 Implementaci\363n de un nuevo notificador}{section.3.11}% 114
+\BOOKMARK [1][-]{section.3.12}{3.12 Creaci\363n de conjuntos de datos para entrenamientos y pruebas}{chapter.3}% 115
+\BOOKMARK [2][-]{subsection.3.12.1}{3.12.1 Selecci\363n de datos}{section.3.12}% 116
+\BOOKMARK [2][-]{subsection.3.12.2}{3.12.2 Divisi\363n del conjunto de datos: Entrenamiento, Validaci\363n y Pruebas}{section.3.12}% 117
+\BOOKMARK [2][-]{subsection.3.12.3}{3.12.3 Aumento de datos}{section.3.12}% 118
+\BOOKMARK [1][-]{section.3.13}{3.13 Funcionalidades auxiliares}{chapter.3}% 119
+\BOOKMARK [2][-]{subsection.3.13.1}{3.13.1 Utilidades varias - Misc.py}{section.3.13}% 120
+\BOOKMARK [2][-]{subsection.3.13.2}{3.13.2 Segmentaci\363n de los datos - DataSplit.py}{section.3.13}% 121
+\BOOKMARK [2][-]{subsection.3.13.3}{3.13.3 Segmentaci\363n de los datos - DataAugmented.py}{section.3.13}% 122
+\BOOKMARK [0][-]{chapter.4}{4 Construcci\363n del sistema}{}% 123
+\BOOKMARK [1][-]{section.4.1}{4.1 M\363dulo para incluir las c\341maras web como un tipo sensor del sistema}{chapter.4}% 124
+\BOOKMARK [2][-]{subsection.4.1.1}{4.1.1 Extracci\363n de la persona}{section.4.1}% 125
+\BOOKMARK [2][-]{subsection.4.1.2}{4.1.2 Extracci\363n del esqueleto}{section.4.1}% 126
+\BOOKMARK [1][-]{section.4.2}{4.2 Construcci\363n de m\363dulo para el reconocimiento de infartos}{chapter.4}% 127
+\BOOKMARK [2][-]{subsection.4.2.1}{4.2.1 Detecci\363n de ataque card\355aco en im\341genes en color utilizando redes neuronales convolucionales}{section.4.2}% 128
+\BOOKMARK [2][-]{subsection.4.2.2}{4.2.2 Use of skeletons and facial expressions to identify heart attacks}{section.4.2}% 129
+\BOOKMARK [1][-]{section.4.3}{4.3 Construcci\363n del m\363dulo para el reconocimiento de ca\355das}{chapter.4}% 130
+\BOOKMARK [1][-]{section.4.4}{4.4 Construcci\363n del m\363dulo para env\355o de alertas}{chapter.4}% 131
+\BOOKMARK [2][-]{subsection.4.4.1}{4.4.1 M\363dulo para la notificaci\363n usando correo electr\363nico - MailChannel}{section.4.4}% 132
+\BOOKMARK [1][-]{section.4.5}{4.5 Construcci\363n del m\363dulo para an\341lisis de eventos complejos}{chapter.4}% 133

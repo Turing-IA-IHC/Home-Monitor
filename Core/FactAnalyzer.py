@@ -84,7 +84,7 @@ class FactAnalyzer(Component):
                     lastAnalizedTime = time()
                     t0 = time()
                     dataAnalizedList = self.analyze(objData)
-                    self.log('Time elapsed to get prediction: ' + str(round(time() - t0, 4)), logType=LogTypes.DEBUG, item=self.ME_NAME)
+                    #self.log('Time elapsed to get prediction: ' + str(round(time() - t0, 4)), logType=LogTypes.DEBUG, item=self.ME_NAME)
                     #print('Time elapsed to get prediction: ' + str(round(time() - t0, 4)), end='\r')
                     for dataAnalized in dataAnalizedList:
                         dataAnalized.source_type = self.ME_TYPE
@@ -100,9 +100,10 @@ class FactAnalyzer(Component):
                         if self.ME_STANDALONE:
                             self.showData(dataAnalized, objData)
                         else:
-                            print(time(),': Notifing a', dataAnalized.data)
-                            self.notify(dataAnalized)
-                            self.send(dataAnalized)
+                            if dataAnalized.data != '':
+                                print(time(),': Notifing a', dataAnalized.data)
+                                self.notify(dataAnalized)
+                                self.send(dataAnalized)
                         failedSend = 0
                 except:
                     self.log(Messages.analyzer_error_send, LogTypes.ERROR)
@@ -110,8 +111,7 @@ class FactAnalyzer(Component):
                     if failedSend > 2:
                         self.stop()
                         break
-        print(':o me sali')
-
+        
     @abc.abstractmethod
     def preLoad(self):
         """ Implement me! :: Do anything necessary for processing """
